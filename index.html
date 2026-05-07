@@ -193,7 +193,6 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
   </ul>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-eyebrow">Cortex United presents</div>
   <div class="hero-title">Lab<span>Olympics</span></div>
@@ -205,7 +204,6 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
   </div>
 </div>
 
-<!-- SCHEDULE -->
 <section id="schedule">
   <div class="section-tag">Event Schedule</div>
   <div class="section-title">Week at a Glance</div>
@@ -257,7 +255,6 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
 
 <hr class="divider">
 
-<!-- SPORTS -->
 <section id="sports">
   <div class="section-tag">The Disciplines</div>
   <div class="section-title">10 Events</div>
@@ -277,7 +274,6 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
 
 <hr class="divider">
 
-<!-- REGISTERED TEAMS -->
 <section id="teams">
   <div class="section-tag">Accepted Teams</div>
   <div class="section-title">Registered Labs</div>
@@ -286,7 +282,6 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
 
 <hr class="divider">
 
-<!-- EVENT SIGN-UP -->
 <section id="signup">
   <div class="section-tag">Event Participation</div>
   <div class="section-title">Sign Up Your Members</div>
@@ -299,7 +294,6 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
 
 <hr class="divider">
 
-<!-- MEDALS -->
 <section id="medals">
   <div class="section-tag">Medagliere</div>
   <div class="section-title">Medal Standings</div>
@@ -320,12 +314,10 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
 
 <hr class="divider">
 
-<!-- REGISTRATION -->
 <section id="register">
   <div class="section-tag">Sign Up</div>
   <div class="section-title">Register Your Lab</div>
-  <!-- FORMSPREE: replace YOUR_REGISTRATION_FORM_ID below -->
-  <form class="form-wrap" id="reg-form" action="https://formspree.io/f/YOUR_REGISTRATION_FORM_ID" method="POST">
+  <form class="form-wrap" id="reg-form" action="https://formspree.io/f/mgodzqon" method="POST">
     <div class="form-row">
       <div class="form-group">
         <label for="lab-name">Lab name</label>
@@ -342,16 +334,16 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
     </div>
     <div class="form-group">
       <label for="email">Captain email</label>
-      <input type="email" id="email" name="captain_email" placeholder="your@email.com" required>
+      <input type="email" id="email" name="_replyto" placeholder="your@email.com" required>
     </div>
     <div class="form-group">
       <label>Team members <span style="color:var(--muted);font-weight:400">(minimum 5)</span></label>
       <div class="members-list" id="members-list">
-        <div class="member-row"><input type="text" name="member[]" placeholder="Member 1 name" required></div>
-        <div class="member-row"><input type="text" name="member[]" placeholder="Member 2 name" required></div>
-        <div class="member-row"><input type="text" name="member[]" placeholder="Member 3 name" required></div>
-        <div class="member-row"><input type="text" name="member[]" placeholder="Member 4 name" required></div>
-        <div class="member-row"><input type="text" name="member[]" placeholder="Member 5 name" required></div>
+        <div class="member-row"><input type="text" name="member_1" placeholder="Member 1 name" required></div>
+        <div class="member-row"><input type="text" name="member_2" placeholder="Member 2 name" required></div>
+        <div class="member-row"><input type="text" name="member_3" placeholder="Member 3 name" required></div>
+        <div class="member-row"><input type="text" name="member_4" placeholder="Member 4 name" required></div>
+        <div class="member-row"><input type="text" name="member_5" placeholder="Member 5 name" required></div>
       </div>
       <button type="button" class="btn-add" onclick="addMember()">+ Add another member</button>
     </div>
@@ -359,8 +351,9 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
       <label for="notes">Anything else we should know?</label>
       <textarea id="notes" name="notes" placeholder="Accessibility needs, schedule conflicts, etc."></textarea>
     </div>
+    
     <input type="hidden" name="_subject" value="New Lab Olympics Registration Request">
-    <input type="hidden" name="_replyto" value="g.mancini@uke.de">
+    
     <button type="submit" class="btn-submit">Register Our Lab</button>
     <p class="form-note">Registration closes May 25 · You will receive a confirmation email once your team is accepted.</p>
     <div class="success-msg" id="reg-success">🎉 Request received! We'll review your registration and get back to you within 48 hours.</div>
@@ -369,7 +362,6 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
 
 <hr class="divider">
 
-<!-- CONTACT -->
 <section id="contact">
   <div class="section-tag">Get in Touch</div>
   <div class="section-title">Contact</div>
@@ -419,20 +411,17 @@ footer p { font-size: 13px; color: rgba(245,240,232,0.45); }
 // ADMIN: Edit acceptedTeams to add/remove teams after accepting
 // ─────────────────────────────────────────────────────────────
 const acceptedTeams = [
-  // Example — delete or replace with real teams:
-  // { name: "Neuroscience Lab A", dept: "Biology", captain: "Dr. Smith", members: ["Alice","Bob","Charlie","Diana","Eve","Frank"] },
+  // Example — paste real teams here from your emails:
+  // { name: "Example Lab", dept: "Science", captain: "John Doe", members: ["Member 1", "Member 2", "Member 3", "Member 4", "Member 5"] },
 ];
 
 // ─────────────────────────────────────────────────────────────
 // ADMIN: Edit medals data to update standings
 // ─────────────────────────────────────────────────────────────
 const medalsData = [
-  // { name: "Neuroscience Lab A", dept: "Biology", g: 2, s: 1, b: 0 },
+  // { name: "Example Lab", dept: "Science", g: 1, s: 0, b: 2 },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// EVENT DEFINITIONS — slots = max members per team per event
-// ─────────────────────────────────────────────────────────────
 const events = [
   { id:"run-short",    name:"Running — Short",   icon:"🏃", date:"2026-06-02", time:"10:00", slots:2 },
   { id:"run-long",     name:"Running — Long",    icon:"🏃", date:"2026-06-02", time:"14:00", slots:2 },
@@ -446,12 +435,10 @@ const events = [
   { id:"bowling",      name:"Bowling",           icon:"🎳", date:"2026-06-06", time:"14:00", slots:3 },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// FORMSPREE SIGN-UP ENDPOINT — replace with your real form ID
-// ─────────────────────────────────────────────────────────────
-const SIGNUP_FORM_URL = "https://formspree.io/f/YOUR_SIGNUP_FORM_ID";
+// SIGN-UP FORMSPREE ENDPOINT (Event Sign-up)
+const SIGNUP_FORM_URL = "https://formspree.io/f/mgodzqon";
 
-// ── Render Teams ──────────────────────────────────────────────
+// ── Render Functions ──────────────────────────────────────────
 function renderTeams() {
   const grid = document.getElementById('teams-grid');
   if (acceptedTeams.length === 0) {
@@ -469,14 +456,12 @@ function renderTeams() {
     </div>`).join('');
 }
 
-// ── Event Sign-up Status ──────────────────────────────────────
 function getEventStatus(ev) {
   const now = new Date();
   const [h, m] = ev.time.split(':').map(Number);
   const eventStart = new Date(ev.date);
   eventStart.setHours(h, m, 0, 0);
   const windowOpen = new Date(eventStart.getTime() - 24 * 60 * 60 * 1000);
-
   if (now >= eventStart) return 'closed';
   if (now >= windowOpen) return 'open';
   return 'upcoming';
@@ -504,7 +489,6 @@ function getLockedData(teamName, eventId) {
   return d ? JSON.parse(d) : null;
 }
 
-// ── Render Event Sign-up Cards ────────────────────────────────
 function renderSignup() {
   const grid = document.getElementById('events-signup-grid');
   grid.innerHTML = events.map(ev => {
@@ -518,7 +502,6 @@ function renderSignup() {
       badgeHtml = `<span class="ev-status-badge badge-upcoming">Not yet open</span>`;
       contentHtml = `<p class="countdown-msg">${getTimeUntilOpen(ev)}</p><p class="closed-msg" style="margin-top:6px">Sign-up opens 24 hours before the event.</p>`;
     } else {
-      // open — check if team has already signed up
       if (acceptedTeams.length === 0) {
         badgeHtml = `<span class="ev-status-badge badge-open">Open</span>`;
         contentHtml = `<p class="closed-msg">No accepted teams yet. Register your lab first.</p>`;
@@ -563,30 +546,23 @@ function renderMemberCheckboxes(eventId, teamName, slots) {
   const wrapper = document.getElementById(`member-select-${eventId}`);
   const box = document.getElementById(`checkboxes-${eventId}`);
   const lockedArea = document.getElementById(`locked-check-${eventId}`);
-
   if (!teamName) { wrapper.style.display = 'none'; lockedArea.innerHTML = ''; return; }
-
   if (isLocked(teamName, eventId)) {
     wrapper.style.display = 'none';
     const data = getLockedData(teamName, eventId);
     lockedArea.innerHTML = `<div class="locked-msg">✅ Already signed up: <strong>${data.members.join(', ')}</strong></div>`;
     return;
   }
-
   lockedArea.innerHTML = '';
   const team = acceptedTeams.find(t => t.name === teamName);
   if (!team) return;
-
   wrapper.style.display = 'block';
   box.innerHTML = team.members.map(m => `
     <label class="member-checkbox-row">
       <input type="checkbox" value="${m}" onchange="enforceLimit('${eventId}', ${slots})"> ${m}
     </label>`).join('');
-
-  // Remove old submit btn if any
   const oldBtn = document.getElementById(`submit-${eventId}`);
   if (oldBtn) oldBtn.remove();
-
   const btn = document.createElement('button');
   btn.className = 'btn-signup';
   btn.id = `submit-${eventId}`;
@@ -608,47 +584,37 @@ function enforceLimit(eventId, slots) {
 async function submitSignup(eventId, teamName, slots) {
   const checkboxes = document.querySelectorAll(`#checkboxes-${eventId} input[type=checkbox]:checked`);
   const members = Array.from(checkboxes).map(c => c.value);
-
   if (members.length !== slots) {
     alert(`Please select exactly ${slots} member${slots > 1 ? 's' : ''}.`);
     return;
   }
-
   const ev = events.find(e => e.id === eventId);
   const btn = document.getElementById(`submit-${eventId}`);
   btn.textContent = 'Sending…';
   btn.disabled = true;
-
   try {
     await fetch(SIGNUP_FORM_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
-        _subject: `Lab Olympics Sign-Up: ${teamName} for ${ev.name}`,
+        _subject: `Sign-Up: ${teamName} for ${ev.name}`,
         team: teamName,
         event: ev.name,
-        event_date: `${ev.date} ${ev.time}`,
         participants: members.join(', ')
       })
     });
-  } catch(e) { /* silent fail — we still lock locally */ }
-
-  // Lock this sign-up in localStorage
+  } catch(e) {}
   localStorage.setItem(`signup_${teamName}_${eventId}`, JSON.stringify({ members, submittedAt: new Date().toISOString() }));
-
-  // Update UI
   const card = document.getElementById(`card-${eventId}`);
   card.className = 'event-signup-card locked';
   card.querySelector('.ev-status-badge').className = 'ev-status-badge badge-locked';
   card.querySelector('.ev-status-badge').textContent = 'Signed up';
   document.getElementById(`member-select-${eventId}`).style.display = 'none';
-  document.getElementById(`locked-check-${eventId}`).innerHTML =
-    `<div class="locked-msg">✅ Confirmed: <strong>${members.join(', ')}</strong></div>`;
+  document.getElementById(`locked-check-${eventId}`).innerHTML = `<div class="locked-msg">✅ Confirmed: <strong>${members.join(', ')}</strong></div>`;
   btn.remove();
   document.getElementById(`team-select-${eventId}`).disabled = true;
 }
 
-// ── Render Medals ──────────────────────────────────────────────
 function renderMedals() {
   const body = document.getElementById('medals-body');
   if (medalsData.length === 0) {
@@ -672,31 +638,50 @@ function renderMedals() {
   }).join('');
 }
 
-// ── Registration form ──────────────────────────────────────────
+// ── Registration Logic ───────────────────────────────────────
 let memberCount = 5;
 function addMember() {
   memberCount++;
   const list = document.getElementById('members-list');
   const row = document.createElement('div');
   row.className = 'member-row';
-  row.innerHTML = `<input type="text" name="member[]" placeholder="Member ${memberCount} name">`;
+  row.innerHTML = `<input type="text" name="member_${memberCount}" placeholder="Member ${memberCount} name">`;
   list.appendChild(row);
 }
 
 document.getElementById('reg-form').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const data = new FormData(this);
-  const res = await fetch(this.action, { method:'POST', body: data, headers:{ Accept:'application/json' } });
-  if (res.ok) {
-    document.getElementById('reg-success').style.display = 'block';
-    this.querySelector('.btn-submit').disabled = true;
-    this.querySelector('.btn-submit').textContent = 'Request Sent';
-  } else {
-    alert('Something went wrong. Please email us directly at g.mancini@uke.de');
+  const form = this;
+  const btn = form.querySelector('.btn-submit');
+  const successMsg = document.getElementById('reg-success');
+  
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  const data = new FormData(form);
+  
+  try {
+    const response = await fetch(form.action, {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    });
+    
+    if (response.ok) {
+      successMsg.style.display = 'block';
+      btn.textContent = 'Registration Request Sent';
+      form.reset();
+    } else {
+      throw new Error();
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Register Our Lab';
+    alert('Something went wrong. Please email g.mancini@uke.de directly.');
   }
 });
 
-// ── Init ──────────────────────────────────────────────────────
+// Init
 renderTeams();
 renderSignup();
 renderMedals();
