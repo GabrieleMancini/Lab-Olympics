@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Olympics 2025 — Cortex United</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #1a2d4a;
+    --gold: #d4960e;
+    --gold-light: #f5e6b8;
+    --gold-pale: #fdf8ed;
+    --cream: #fafaf7;
+    --text: #1a1a1a;
+    --muted: #6b6b6b;
+    --border: #e8e4db;
+    --white: #ffffff;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--navy);
+    letter-spacing: 1px;
+  }
+
+  .nav-logo span { color: var(--gold); }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--navy); }
+
+  /* HERO */
+  .hero {
+    background: var(--navy);
+    padding: 100px 40px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(212,150,14,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 10vw, 120px);
+    line-height: 0.9;
+    color: #f5f0e8;
+    letter-spacing: 2px;
+  }
+
+  .hero-title span {
+    display: block;
+    color: var(--gold);
+    font-size: clamp(52px, 7vw, 84px);
+    letter-spacing: 14px;
+  }
+
+  .hero-dates {
+    display: inline-block;
+    margin-top: 28px;
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 4px;
+    padding: 8px 28px;
+  }
+
+  .hero-sub {
+    color: rgba(245,240,232,0.6);
+    font-size: 15px;
+    margin-top: 16px;
+  }
+
+  .rings-row {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-top: 40px;
+  }
+
+  .ring-o {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 5px solid;
+    margin: 0 -5px;
+  }
+  .ring-o:nth-child(1) { border-color: #5aadff; z-index: 5; }
+  .ring-o:nth-child(2) { border-color: #f5cd4a; z-index: 4; }
+  .ring-o:nth-child(3) { border-color: #4dd696; z-index: 3; }
+  .ring-o:nth-child(4) { border-color: #ff6060; z-index: 2; }
+  .ring-o:nth-child(5) { border-color: #f5f0e8; z-index: 1; }
+
+  /* SECTIONS */
+  section { padding: 80px 40px; max-width: 1000px; margin: 0 auto; }
+
+  .section-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--navy);
+    letter-spacing: 1px;
+    margin-bottom: 40px;
+    line-height: 1;
+  }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* SCHEDULE */
+  .schedule-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .schedule-day {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gold);
+    padding: 20px 22px;
+  }
+
+  .day-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--navy);
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .day-date {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .day-events {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .day-events li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .day-events li span.ev-icon { font-size: 16px; }
+  .day-events li span.ev-name { font-weight: 500; color: var(--text); }
+  .day-events li span.ev-time { margin-left: auto; font-size: 12px; color: var(--muted); }
+
+  /* SPORTS */
+  .sports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 14px;
+  }
+
+  .sport-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    padding: 20px 18px;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .sport-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+  }
+
+  .sport-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--gold-light);
+    line-height: 1;
+    position: absolute;
+    top: 14px;
+    right: 16px;
+  }
+
+  .sport-icon { font-size: 28px; margin-bottom: 10px; }
+
+  .sport-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.3;
+  }
+
+  .sport-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.4;
+  }
+
+  /* REGISTRATION FORM */
+  .form-wrap {
+    background: var(--white);
+    border: 1px solid var(--border);
+    padding: 40px;
+    max-width: 640px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    letter-spacing: 0.3px;
+  }
+
+  input, select, textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--cream);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    background: var(--gold-pale);
+  }
+
+  textarea { resize: vertical; min-height: 90px; }
+
+  .members-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .member-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .member-row input { flex: 1; }
+
+  .btn-add {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold);
+    background: var(--gold-pale);
+    border: 1px dashed var(--gold);
+    padding: 9px 16px;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s;
+  }
+
+  .btn-add:hover { background: var(--gold-light); }
+
+  .btn-submit {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--white);
+    background: var(--navy);
+    border: none;
+    padding: 14px 36px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+    width: 100%;
+  }
+
+  .btn-submit:hover { background: var(--gold); }
+
+  .form-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+
+  .success-msg {
+    display: none;
+    background: #edfaf4;
+    border: 1px solid #6bcfa0;
+    color: #1a5c3a;
+    padding: 16px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 16px;
+  }
+
+  /* CONTACT */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .contact-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    padding: 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .contact-icon {
+    font-size: 26px;
+    padding-top: 2px;
+  }
+
+  .contact-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+
+  .contact-value {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--navy);
+  }
+
+  .contact-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* MEDALS */
+  .medals-header-row {
+    display: grid;
+    grid-template-columns: 48px 1fr 52px 52px 52px 64px;
+    padding: 10px 20px;
+    background: var(--navy);
+    color: rgba(245,240,232,0.6);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .medals-header-row span { text-align: center; }
+  .medals-header-row span:nth-child(2) { text-align: left; }
+
+  .medals-table { border: 1px solid var(--border); overflow: hidden; }
+
+  .medals-row {
+    display: grid;
+    grid-template-columns: 48px 1fr 52px 52px 52px 64px;
+    padding: 14px 20px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+    transition: background 0.15s;
+  }
+  .medals-row:last-child { border-bottom: none; }
+  .medals-row:hover { background: var(--gold-pale); }
+  .medals-row.rank-1 { background: #fdf8ed; border-left: 4px solid #d4960e; }
+  .medals-row.rank-2 { border-left: 4px solid #a0a8b4; }
+  .medals-row.rank-3 { border-left: 4px solid #b87333; }
+
+  .rank-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1;
+  }
+  .rank-num.gold-rank { color: #d4960e; }
+  .rank-num.silver-rank { color: #8a939f; }
+  .rank-num.bronze-rank { color: #b87333; }
+
+  .lab-info { display: flex; flex-direction: column; gap: 2px; }
+  .lab-name { font-size: 15px; font-weight: 600; color: var(--navy); }
+  .lab-dept { font-size: 12px; color: var(--muted); }
+
+  .medal-cell { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 20px; line-height: 1; }
+  .medal-cell.g { color: #d4960e; }
+  .medal-cell.s { color: #8a939f; }
+  .medal-cell.b { color: #b87333; }
+
+  .total-cell { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff0f0;
+    border: 1px solid #ffb3b3;
+    color: #c0392b;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    background: #e74c3c;
+    border-radius: 50%;
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+  .medals-legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .medals-legend span { display: flex; align-items: center; gap: 6px; }
+  .ldot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+
+  .medals-note { font-size: 13px; color: var(--muted); margin-top: 12px; font-style: italic; }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy);
+    text-align: center;
+    padding: 36px 40px;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: #f5f0e8;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .footer-logo span { color: var(--gold); }
+
+  footer p {
+    font-size: 13px;
+    color: rgba(245,240,232,0.45);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Lab <span>Olympics</span> 2025</div>
+  <ul class="nav-links">
+    <li><a href="#schedule">Schedule</a></li>
+    <li><a href="#sports">Sports</a></li>
+    <li><a href="#medals">Medals</a></li>
+    <li><a href="#register">Register</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Cortex United presents</div>
+  <div class="hero-title">
+    Lab
+    <span>Olympics</span>
+  </div>
+  <div class="hero-dates">2 &ndash; 7 June 2025</div>
+  <p class="hero-sub">10 disciplines &nbsp;·&nbsp; Minimum 5 members per lab &nbsp;·&nbsp; One trophy to rule them all</p>
+  <div class="rings-row">
+    <div class="ring-o"></div>
+    <div class="ring-o"></div>
+    <div class="ring-o"></div>
+    <div class="ring-o"></div>
+    <div class="ring-o"></div>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<section id="schedule">
+  <div class="section-tag">Event Schedule</div>
+  <div class="section-title">Week at a Glance</div>
+  <div class="schedule-grid">
+    <div class="schedule-day">
+      <div class="day-label">Monday</div>
+      <div class="day-date">June 2</div>
+      <ul class="day-events">
+        <li><span class="ev-icon">🏃</span><span class="ev-name">Running — Short</span><span class="ev-time">10:00</span></li>
+        <li><span class="ev-icon">🏃</span><span class="ev-name">Running — Long</span><span class="ev-time">14:00</span></li>
+      </ul>
+    </div>
+    <div class="schedule-day">
+      <div class="day-label">Tuesday</div>
+      <div class="day-date">June 3</div>
+      <ul class="day-events">
+        <li><span class="ev-icon">🏓</span><span class="ev-name">Table Tennis</span><span class="ev-time">10:00</span></li>
+        <li><span class="ev-icon">🕹️</span><span class="ev-name">Kicker</span><span class="ev-time">14:00</span></li>
+      </ul>
+    </div>
+    <div class="schedule-day">
+      <div class="day-label">Wednesday</div>
+      <div class="day-date">June 4</div>
+      <ul class="day-events">
+        <li><span class="ev-icon">🏐</span><span class="ev-name">Beach Volleyball</span><span class="ev-time">10:00</span></li>
+        <li><span class="ev-icon">🛶</span><span class="ev-name">Canoeing</span><span class="ev-time">14:00</span></li>
+      </ul>
+    </div>
+    <div class="schedule-day">
+      <div class="day-label">Thursday</div>
+      <div class="day-date">June 5</div>
+      <ul class="day-events">
+        <li><span class="ev-icon">⚽</span><span class="ev-name">Football</span><span class="ev-time">10:00</span></li>
+        <li><span class="ev-icon">🫣</span><span class="ev-name">Hide &amp; Seek</span><span class="ev-time">14:00</span></li>
+      </ul>
+    </div>
+    <div class="schedule-day">
+      <div class="day-label">Friday</div>
+      <div class="day-date">June 6</div>
+      <ul class="day-events">
+        <li><span class="ev-icon">🍺</span><span class="ev-name">Flunky Ball</span><span class="ev-time">10:00</span></li>
+        <li><span class="ev-icon">🎳</span><span class="ev-name">Bowling</span><span class="ev-time">14:00</span></li>
+      </ul>
+    </div>
+    <div class="schedule-day" style="border-top-color: #d4960e; background: #fdf8ed;">
+      <div class="day-label">Saturday</div>
+      <div class="day-date">June 7 &mdash; Finals &amp; Trophy</div>
+      <ul class="day-events">
+        <li><span class="ev-icon">🏆</span><span class="ev-name">Grand Finals</span><span class="ev-time">11:00</span></li>
+        <li><span class="ev-icon">🥇</span><span class="ev-name">Trophy Ceremony</span><span class="ev-time">17:00</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SPORTS -->
+<section id="sports">
+  <div class="section-tag">The Disciplines</div>
+  <div class="section-title">10 Events</div>
+  <div class="sports-grid">
+    <div class="sport-card">
+      <div class="sport-num">01</div>
+      <div class="sport-icon">🏃</div>
+      <div class="sport-name">Running — Short</div>
+      <div class="sport-desc">Sprint race. Fastest lab member takes glory.</div>
+    </div>
+    <div class="sport-card">
+      <div class="sport-num">02</div>
+      <div class="sport-icon">🏃</div>
+      <div class="sport-name">Running — Long</div>
+      <div class="sport-desc">Endurance run. Pace yourself, cheer your team.</div>
+    </div>
+    <div class="sport-card">
+      <div class="sport-num">03</div>
+      <div class="sport-icon">🏓</div>
+      <div class="sport-name">Table Tennis</div>
+      <div class="sport-desc">Singles knockout tournament format.</div>
+    </div>
+    <div class="sport-card">
+      <div class="sport-num">04</div>
+      <div class="sport-icon">🛶</div>
+      <div class="sport-name">Canoeing</div>
+      <div class="sport-desc">Team paddle race on the river.</div>
+    </div>
+    <div class="sport-card">
+      <div class="sport-num">05</div>
+      <div class="sport-icon">🏐</div>
+      <div class="sport-name">Beach Volleyball</div>
+      <div class="sport-desc">2v2 on sand. Spike, block, repeat.</div>
+    </div>
+    <div class="sport-card">
+      <div class="sport-num">06</div>
+      <div class="sport-icon">⚽</div>
+      <div class="sport-name">Football</div>
+      <div class="sport-desc">5-a-side on the pitch. No excuses.</div>
+    </div>
+    <div class="sport-card">
+      <div class="sport-num">07</div>
+      <div class="sport-icon">🫣</div>
+      <div class="sport-name">Hide &amp; Seek</div>
+      <div class="sport-desc">The classic — but now with points on the line.</div>
+    </div>
+    <div class="sport-card">
+      <div class="sport-num">08</div>
+      <div class="sport-icon">🕹️</div>
+      <div class="sport-name">Kicker</div>
+      <div class="sport-desc">Foosball. Table football. Skill and luck in equal parts.</div>
+    </div>
+    <div class="sport-card">
+      <div class="sport-num">09</div>
+      <div class="sport-icon">🍺</div>
+      <div class="sport-name">Flunky Ball</div>
+      <div class="sport-desc">Throw, run, celebrate. The fan favourite.</div>
+    </div>
+    <div class="sport-card">
+      <div class="sport-num">10</div>
+      <div class="sport-icon">🎳</div>
+      <div class="sport-name">Bowling</div>
+      <div class="sport-desc">Lanes, pins, and a whole lot of trash talk.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- REGISTRATION -->
+<section id="register">
+  <div class="section-tag">Sign Up</div>
+  <div class="section-title">Register Your Lab</div>
+  <div class="form-wrap">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="lab-name">Lab name</label>
+        <input type="text" id="lab-name" placeholder="e.g. Neuroscience Lab A">
+      </div>
+      <div class="form-group">
+        <label for="dept">Department</label>
+        <input type="text" id="dept" placeholder="e.g. Biology">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="captain">Team captain name</label>
+      <input type="text" id="captain" placeholder="Full name">
+    </div>
+    <div class="form-group">
+      <label for="email">Captain email</label>
+      <input type="email" id="email" placeholder="your@email.com">
+    </div>
+    <div class="form-group">
+      <label>Team members <span style="color:var(--muted);font-weight:400;">(minimum 5)</span></label>
+      <div class="members-list" id="members-list">
+        <div class="member-row"><input type="text" placeholder="Member 1 name"></div>
+        <div class="member-row"><input type="text" placeholder="Member 2 name"></div>
+        <div class="member-row"><input type="text" placeholder="Member 3 name"></div>
+        <div class="member-row"><input type="text" placeholder="Member 4 name"></div>
+        <div class="member-row"><input type="text" placeholder="Member 5 name"></div>
+      </div>
+      <button class="btn-add" onclick="addMember()">+ Add another member</button>
+    </div>
+    <div class="form-group">
+      <label for="notes">Anything else we should know?</label>
+      <textarea id="notes" placeholder="Accessibility needs, schedule conflicts, etc."></textarea>
+    </div>
+    <button class="btn-submit" onclick="submitForm()">Register Our Lab</button>
+    <p class="form-note">Registration closes May 25 · Confirmation sent within 48 hours</p>
+    <div class="success-msg" id="success-msg">
+      🎉 Registration received! We'll confirm your spot within 48 hours. See you on the field!
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-tag">Get in Touch</div>
+  <div class="section-title">Contact</div>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <div class="contact-icon">📧</div>
+      <div>
+        <div class="contact-label">Email</div>
+        <div class="contact-value">lab-olympics@cortex-united.com</div>
+        <div class="contact-sub">We reply within 24 hours</div>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-icon">📍</div>
+      <div>
+        <div class="contact-label">Location</div>
+        <div class="contact-value">Cortex United Campus</div>
+        <div class="contact-sub">Venue details confirmed on registration</div>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-icon">👤</div>
+      <div>
+        <div class="contact-label">Organiser</div>
+        <div class="contact-value">Cortex United Sports Committee</div>
+        <div class="contact-sub">Questions? We're happy to help</div>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-icon">📅</div>
+      <div>
+        <div class="contact-label">Registration Deadline</div>
+        <div class="contact-value">May 25, 2025</div>
+        <div class="contact-sub">Secure your lab's spot early</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- MEDALS -->
+<section id="medals">
+  <div class="section-tag">Medagliere</div>
+  <div class="section-title">Medal Standings</div>
+
+  <div class="live-badge">
+    <div class="live-dot"></div>
+    Updated live during the event
+  </div>
+
+  <div class="medals-table">
+    <div class="medals-header-row">
+      <span>#</span>
+      <span>Lab</span>
+      <span>🥇</span>
+      <span>🥈</span>
+      <span>🥉</span>
+      <span>Total</span>
+    </div>
+    <div id="medals-body">
+      <!-- Rows injected by JS -->
+    </div>
+  </div>
+
+  <div class="medals-legend">
+    <span><div class="ldot" style="background:#d4960e"></div> Gold</span>
+    <span><div class="ldot" style="background:#8a939f"></div> Silver</span>
+    <span><div class="ldot" style="background:#b87333"></div> Bronze</span>
+  </div>
+  <p class="medals-note">Rankings are sorted by gold medals, then silver, then bronze. Results updated after each event.</p>
+</section>
+
+<hr class="divider">
+
+<footer>
+  <div class="footer-logo">Lab <span>Olympics</span> 2025</div>
+  <p>Organised by Cortex United &nbsp;·&nbsp; 2 – 7 June 2025</p>
+</footer>
+
+<script>
+  // Medals data — edit these to update standings
+  const labs = [
+    { name: "Neuroscience Lab A", dept: "Biology", g: 3, s: 1, b: 2 },
+    { name: "Quantum Materials", dept: "Physics", g: 2, s: 3, b: 0 },
+    { name: "BioInformatics Unit", dept: "Informatics", g: 2, s: 1, b: 2 },
+    { name: "Cortex Alpha", dept: "Neuroscience", g: 1, s: 2, b: 3 },
+    { name: "Molecular Biology B", dept: "Chemistry", g: 1, s: 1, b: 1 },
+    { name: "Data Science Lab", dept: "Mathematics", g: 0, s: 2, b: 2 },
+  ];
+
+  function renderMedals() {
+    const sorted = [...labs].sort((a, b) =>
+      b.g !== a.g ? b.g - a.g : b.s !== a.s ? b.s - a.s : b.b - a.b
+    );
+    const body = document.getElementById('medals-body');
+    body.innerHTML = sorted.map((lab, i) => {
+      const rank = i + 1;
+      const rankClass = rank === 1 ? 'gold-rank' : rank === 2 ? 'silver-rank' : rank === 3 ? 'bronze-rank' : '';
+      const rowClass = rank <= 3 ? `rank-${rank}` : '';
+      const rankSymbol = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+      return `
+      <div class="medals-row ${rowClass}">
+        <div class="rank-num ${rankClass}">${rankSymbol}</div>
+        <div class="lab-info">
+          <div class="lab-name">${lab.name}</div>
+          <div class="lab-dept">${lab.dept}</div>
+        </div>
+        <div class="medal-cell g">${lab.g > 0 ? lab.g : '—'}</div>
+        <div class="medal-cell s">${lab.s > 0 ? lab.s : '—'}</div>
+        <div class="medal-cell b">${lab.b > 0 ? lab.b : '—'}</div>
+        <div class="total-cell">${lab.g + lab.s + lab.b}</div>
+      </div>`;
+    }).join('');
+  }
+
+  renderMedals();
+
+  let memberCount = 5;
+
+  function addMember() {
+    memberCount++;
+    const list = document.getElementById('members-list');
+    const row = document.createElement('div');
+    row.className = 'member-row';
+    row.innerHTML = `<input type="text" placeholder="Member ${memberCount} name">`;
+    list.appendChild(row);
+  }
+
+  function submitForm() {
+    const lab = document.getElementById('lab-name').value.trim();
+    const captain = document.getElementById('captain').value.trim();
+    const email = document.getElementById('email').value.trim();
+    if (!lab || !captain || !email) {
+      alert('Please fill in the lab name, captain name, and email.');
+      return;
+    }
+    document.getElementById('success-msg').style.display = 'block';
+    document.querySelector('.btn-submit').disabled = true;
+    document.querySelector('.btn-submit').style.background = '#aaa';
+    window.scrollTo({ top: document.getElementById('success-msg').offsetTop - 20, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
