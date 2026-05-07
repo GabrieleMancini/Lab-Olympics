@@ -31,19 +31,18 @@ nav {
 .nav-links { display: flex; gap: 12px; list-style: none; flex-wrap: wrap; justify-content: center; }
 .nav-links a { text-decoration: none; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; }
 
-/* HERO - Mobile Friendly Text */
+/* HERO - Mobile Friendly */
 .hero { background: var(--navy); padding: 60px 20px; text-align: center; position: relative; overflow: hidden; }
 .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(212,150,14,0.18) 0%, transparent 70%); pointer-events: none; }
 .hero-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
 .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px, 15vw, 110px); line-height: 0.9; color: #f5f0e8; }
 .hero-title span { display: block; color: var(--gold); font-size: 0.7em; letter-spacing: clamp(4px, 2vw, 14px); }
 .hero-dates { display: inline-block; margin-top: 24px; background: var(--gold); color: var(--navy); font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; padding: 6px 20px; }
-.hero-sub { color: rgba(245,240,232,0.6); font-size: 14px; margin-top: 16px; max-width: 400px; margin-inline: auto; }
-.rings-row { display: flex; justify-content: center; margin-top: 28px; }
-.ring-o { width: 30px; height: 30px; border-radius: 50%; border: 4px solid; margin: 0 -4px; }
-.ring-o:nth-child(1){border-color:#5ab8ff} .ring-o:nth-child(2){border-color:#f5cd4a}
-.ring-o:nth-child(3){border-color:#4de8a0} .ring-o:nth-child(4){border-color:#ff6e6e}
-.ring-o:nth-child(5){border-color:#f5f0e8}
+
+/* ABOUT SECTION */
+.about-box { background: var(--white); border: 1px solid var(--border); padding: 30px 20px; text-align: center; margin-top: -20px; position: relative; z-index: 10; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+.about-text { font-size: 16px; color: var(--text); max-width: 700px; margin: 0 auto; font-weight: 400; line-height: 1.8; }
+.about-text strong { color: var(--navy); }
 
 /* SHARED SECTION STYLES */
 section { padding: 48px 20px; max-width: 1000px; margin: 0 auto; }
@@ -51,9 +50,9 @@ hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000p
 .section-tag { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
 .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: var(--navy); margin-bottom: 24px; line-height: 1; }
 
-/* SCHEDULE GRID */
-.schedule-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 768px) { .schedule-grid { grid-template-columns: 1fr 1fr; } }
+/* GRIDS */
+.schedule-grid, .events-signup-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 768px) { .schedule-grid, .events-signup-grid { grid-template-columns: 1fr 1fr; } }
 .schedule-day { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--gold); padding: 18px; }
 .day-label { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--navy); line-height: 1; }
 .day-date { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
@@ -70,7 +69,6 @@ hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000p
 .sport-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--gold-light); position: absolute; top: 10px; right: 12px; }
 .sport-icon { font-size: 24px; margin-bottom: 8px; }
 .sport-name { font-size: 14px; font-weight: 600; color: var(--navy); line-height: 1.2; }
-.sport-desc { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.3; }
 .sport-slots { font-size: 10px; color: var(--gold); font-weight: 700; margin-top: 8px; }
 
 /* TEAMS GRID */
@@ -78,28 +76,23 @@ hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000p
 @media (min-width: 600px) { .teams-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
 .team-card { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--navy); padding: 16px; }
 .team-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); }
-.team-dept { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
 .member-chip { display: inline-block; font-size: 11px; background: var(--cream); padding: 2px 8px; border-radius: 10px; margin: 2px; border: 1px solid var(--border); }
 
-/* SIGNUP GRID */
-.events-signup-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 768px) { .events-signup-grid { grid-template-columns: 1fr 1fr; } }
+/* EVENT SIGNUP */
 .event-signup-card { background: var(--white); border: 1px solid var(--border); padding: 18px; border-top: 3px solid var(--border); }
 .event-signup-card.open { border-top-color: var(--gold); }
-.badge-open { background: var(--gold-pale); color: var(--gold); border: 1px solid #e8c86a; }
-.ev-status-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; }
+.ev-card-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--navy); }
 
 /* MEDALS TABLE - Mobile Scrolling */
 .medals-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 4px; }
 .medals-table { min-width: 550px; background: var(--white); }
 .medals-header-row, .medals-row { display: grid; grid-template-columns: 40px 1fr 45px 45px 45px 60px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); }
-.medals-header-row { background: var(--navy); color: rgba(255,255,255,0.7); font-size: 10px; font-weight: 700; text-transform: uppercase; }
-.medal-cell { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
+.medals-header-row { background: var(--navy); color: rgba(255,255,255,0.7); font-size: 10px; text-transform: uppercase; }
 
 /* FORM STYLES - TOUCH OPTIMIZED */
 .form-wrap { background: var(--white); border: 1px solid var(--border); padding: 20px; }
 input, select, textarea { 
-  font-family: inherit; font-size: 16px !important; /* Prevents auto-zoom on iOS */
+  font-family: inherit; font-size: 16px !important; 
   padding: 12px; border: 1px solid var(--border); background: var(--cream); width: 100%; margin-bottom: 12px; 
 }
 label { font-size: 13px; font-weight: 600; color: var(--navy); display: block; margin-bottom: 4px; }
@@ -107,7 +100,7 @@ label { font-size: 13px; font-weight: 600; color: var(--navy); display: block; m
   background: var(--navy); color: white; border: none; padding: 14px; 
   font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; cursor: pointer; width: 100%;
 }
-.btn-add { background: none; border: 1px dashed var(--gold); color: var(--gold); padding: 10px; font-weight: 600; font-size: 13px; margin-bottom: 16px; width: 100%; }
+.btn-add { background: none; border: 1px dashed var(--gold); color: var(--gold); padding: 10px; font-weight: 600; width: 100%; margin-bottom: 16px; }
 
 footer { background: var(--navy); color: #fff; text-align: center; padding: 40px 20px; font-size: 12px; }
 
@@ -133,12 +126,22 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <div class="hero-eyebrow">Cortex United presents</div>
   <div class="hero-title">Lab<span>Olympics</span></div>
   <div class="hero-dates">2 &ndash; 7 June 2026</div>
-  <p class="hero-sub">10 disciplines · Minimum 5 members per lab · ZMNH, Hamburg</p>
   <div class="rings-row">
-    <div class="ring-o"></div><div class="ring-o"></div><div class="ring-o"></div>
+    <div class="ring-o"></div><div class="ring-o-ring-o"></div><div class="ring-o"></div>
     <div class="ring-o"></div><div class="ring-o"></div>
   </div>
 </div>
+
+<section style="padding-top:0;">
+  <div class="about-box">
+    <p class="about-text">
+      The <strong>Lab Olympics</strong> are designed for all research labs—and research only—from the <strong>UKE</strong>. 
+      The spirit of the games is to embrace sport in a solidary and fun way, fostering community across our departments 
+      while competing for the ultimate trophy. Whether on the field or the foosball table, we play for the joy of science 
+      and the strength of our teams.
+    </p>
+  </div>
+</section>
 
 <section id="schedule">
   <div class="section-tag">Event Schedule</div>
@@ -158,7 +161,7 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
         <li>🕹️ <span class="ev-name">Kicker</span><span class="ev-slots">2/team</span><span class="ev-time">14:00</span></li>
       </ul>
     </div>
-    </div>
+  </div>
 </section>
 
 <hr class="divider">
@@ -173,10 +176,10 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
     <div class="sport-card"><div class="sport-num">04</div>🛶<div class="sport-name">Canoeing</div><div class="sport-slots">2 members</div></div>
     <div class="sport-card"><div class="sport-num">05</div>🏐<div class="sport-name">Beach Volleyball</div><div class="sport-slots">2 members</div></div>
     <div class="sport-card"><div class="sport-num">06</div>⚽<div class="sport-name">Football</div><div class="sport-slots">5 members</div></div>
-    <div class="sport-card"><div class="sport-num">07</div>🫣<div class="sport-name">Hide &amp; Seek</div><div class="sport-slots">3 members</div></div>
+    <div class="sport-card"><div class="sport-num">07</div>🫣<div class="sport-name">Hide & Seek</div><div class="sport-slots">3 members</div></div>
     <div class="sport-card"><div class="sport-num">08</div>🕹️<div class="sport-name">Kicker</div><div class="sport-slots">2 members</div></div>
     <div class="sport-card"><div class="sport-num">09</div>🍺<div class="sport-name">Flunky Ball</div><div class="sport-slots">3 members</div></div>
-    <div class="sport-card"><div class="sport-num">10</div> bowling 🎳<div class="sport-name">Bowling</div><div class="sport-slots">3 members</div></div>
+    <div class="sport-card"><div class="sport-num">10</div>🎳<div class="sport-name">Bowling</div><div class="sport-slots">3 members</div></div>
   </div>
 </section>
 
@@ -250,13 +253,8 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
 </footer>
 
 <script>
-// ADMIN DATA
-const acceptedTeams = [
-  // Example: { name: "Cortex Crushers", dept: "Neuro", captain: "Dr. Brain", members: ["A", "B", "C", "D", "E"] },
-];
-
+const acceptedTeams = [];
 const medalsData = [];
-
 const events = [
   { id:"run-short",    name:"Running — Short",   icon:"🏃", date:"2026-06-02", time:"10:00", slots:2 },
   { id:"run-long",     name:"Running — Long",    icon:"🏃", date:"2026-06-02", time:"14:00", slots:2 },
@@ -272,7 +270,6 @@ const events = [
 
 const SIGNUP_FORM_URL = "https://formspree.io/f/mgodzqon";
 
-// RENDERING
 function renderTeams() {
   const grid = document.getElementById('teams-grid');
   grid.innerHTML = acceptedTeams.length === 0 ? '<div style="color:gray; padding:20px;">No teams registered yet.</div>' : 
@@ -316,7 +313,6 @@ async function submitParticipant(evId) {
   const team = document.getElementById(`team-sel-${evId}`).value;
   if(!team) return;
   const ev = events.find(e => e.id === evId);
-  
   try {
     await fetch(SIGNUP_FORM_URL, {
       method: 'POST',
@@ -334,10 +330,8 @@ function renderMedals() {
     body.innerHTML = '<div style="padding:20px; text-align:center; color:gray">Standings will appear here.</div>';
     return;
   }
-  // Sorting logic and map would go here
 }
 
-// REGISTRATION
 let memberCount = 5;
 function addMember() {
   memberCount++;
@@ -353,14 +347,12 @@ document.getElementById('reg-form').addEventListener('submit', async function(e)
   const btn = this.querySelector('.btn-submit');
   btn.textContent = 'Sending...';
   btn.disabled = true;
-
   const data = new FormData(this);
   const response = await fetch(this.action, {
     method: 'POST',
     body: data,
     headers: { 'Accept': 'application/json' }
   });
-
   if (response.ok) {
     document.getElementById('reg-success').style.display = 'block';
     btn.textContent = 'Sent!';
@@ -372,7 +364,6 @@ document.getElementById('reg-form').addEventListener('submit', async function(e)
   }
 });
 
-// INIT
 renderTeams();
 renderSignup();
 renderMedals();
