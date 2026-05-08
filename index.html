@@ -17,7 +17,6 @@
 html { scroll-behavior: smooth; }
 body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
 
-/* NAV - Optimized for mobile */
 nav {
   position: sticky; top: 0; background: var(--white);
   border-bottom: 1px solid var(--border); z-index: 100;
@@ -26,12 +25,11 @@ nav {
 @media (min-width: 768px) {
   nav { flex-direction: row; justify-content: space-between; height: 60px; padding: 0 40px; }
 }
-.nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); letter-spacing: 1px; }
+.nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); letter-spacing: 1px; cursor: pointer; }
 .nav-logo span { color: var(--gold); }
 .nav-links { display: flex; gap: 12px; list-style: none; flex-wrap: wrap; justify-content: center; }
 .nav-links a { text-decoration: none; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; }
 
-/* HERO - Mobile Friendly Text */
 .hero { background: var(--navy); padding: 60px 20px; text-align: center; position: relative; overflow: hidden; }
 .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(212,150,14,0.18) 0%, transparent 70%); pointer-events: none; }
 .hero-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
@@ -45,35 +43,35 @@ nav {
 .ring-o:nth-child(3){border-color:#4de8a0} .ring-o:nth-child(4){border-color:#ff6e6e}
 .ring-o:nth-child(5){border-color:#f5f0e8}
 
-/* SHARED SECTION STYLES */
 section { padding: 48px 20px; max-width: 1000px; margin: 0 auto; }
 hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000px; margin: 0 auto; }
 .section-tag { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
 .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: var(--navy); margin-bottom: 24px; line-height: 1; }
 
-/* SPORTS GRID */
 .sports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 12px; }
 .sport-card { background: var(--white); border: 1px solid var(--border); padding: 16px; position: relative; }
 .sport-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--gold-light); position: absolute; top: 10px; right: 12px; }
 .sport-icon { font-size: 24px; margin-bottom: 8px; }
 .sport-name { font-size: 14px; font-weight: 600; color: var(--navy); line-height: 1.2; }
-.sport-desc { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.3; }
 .sport-slots { font-size: 10px; color: var(--gold); font-weight: 700; margin-top: 8px; }
 
-  /* SCHEDULE GRID */
+/* SCHEDULE — clickable events */
 .schedule-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
 @media (min-width: 768px) { .schedule-grid { grid-template-columns: 1fr 1fr; } }
 .schedule-day { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--gold); padding: 18px; }
 .day-label { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--navy); line-height: 1; }
 .day-date { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
 .day-events { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-.day-events li { display: flex; align-items: center; gap: 10px; font-size: 13px; border-bottom: 1px solid #f9f9f9; padding-bottom: 8px; }
+.day-events li { display: flex; align-items: center; gap: 10px; font-size: 13px; border-bottom: 1px solid #f9f9f9; padding-bottom: 8px; cursor: pointer; border-radius: 4px; padding: 8px 6px; transition: background 0.15s; }
+.day-events li:hover { background: var(--gold-pale); }
 .day-events li:last-child { border-bottom: none; }
 .ev-name { font-weight: 600; flex: 1; }
 .ev-slots { font-size: 10px; color: var(--gold); font-weight: 700; background: var(--gold-pale); padding: 1px 6px; border-radius: 10px; }
 .ev-time { font-size: 11px; color: var(--muted); }
-  
-/* TEAMS GRID */
+.ev-arrow { font-size: 11px; color: var(--gold); margin-left: 4px; }
+.ev-reg-count { font-size: 10px; background: var(--green-pale); color: var(--green); border: 1px solid var(--green-border); padding: 1px 6px; border-radius: 10px; font-weight: 700; }
+
+/* TEAMS */
 .teams-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
 @media (min-width: 600px) { .teams-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
 .team-card { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--navy); padding: 16px; }
@@ -81,49 +79,74 @@ hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000p
 .team-dept { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
 .member-chip { display: inline-block; font-size: 11px; background: var(--cream); padding: 2px 8px; border-radius: 10px; margin: 2px; border: 1px solid var(--border); }
 
-/* SIGNUP GRID */
-.events-signup-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 768px) { .events-signup-grid { grid-template-columns: 1fr 1fr; } }
-.event-signup-card { background: var(--white); border: 1px solid var(--border); padding: 18px; border-top: 3px solid var(--border); }
-.event-signup-card.open { border-top-color: var(--gold); }
-.badge-open { background: var(--gold-pale); color: var(--gold); border: 1px solid #e8c86a; }
-.ev-status-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; }
-
-/* MEDALS TABLE - Mobile Scrolling */
+/* MEDALS */
 .medals-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 4px; }
 .medals-table { min-width: 550px; background: var(--white); }
 .medals-header-row, .medals-row { display: grid; grid-template-columns: 40px 1fr 45px 45px 45px 60px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); }
 .medals-header-row { background: var(--navy); color: rgba(255,255,255,0.7); font-size: 10px; font-weight: 700; text-transform: uppercase; }
 .medal-cell { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
 
-/* FORM STYLES - TOUCH OPTIMIZED */
+/* FORM */
 .form-wrap { background: var(--white); border: 1px solid var(--border); padding: 20px; }
-input, select, textarea { 
-  font-family: inherit; font-size: 16px !important; /* Prevents auto-zoom on iOS */
-  padding: 12px; border: 1px solid var(--border); background: var(--cream); width: 100%; margin-bottom: 12px; 
-}
+input, select, textarea { font-family: inherit; font-size: 16px !important; padding: 12px; border: 1px solid var(--border); background: var(--cream); width: 100%; margin-bottom: 12px; }
 label { font-size: 13px; font-weight: 600; color: var(--navy); display: block; margin-bottom: 4px; }
-.btn-submit, .btn-signup { 
-  background: var(--navy); color: white; border: none; padding: 14px; 
-  font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; cursor: pointer; width: 100%;
-}
+.btn-submit { background: var(--navy); color: white; border: none; padding: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; cursor: pointer; width: 100%; }
 .btn-add { background: none; border: 1px dashed var(--gold); color: var(--gold); padding: 10px; font-weight: 600; font-size: 13px; margin-bottom: 16px; width: 100%; }
+.success-msg { display: none; background: var(--green-pale); border: 1px solid var(--green-border); color: var(--green); padding: 15px; margin-top: 15px; font-weight: 600; border-radius: 4px; }
 
 footer { background: var(--navy); color: #fff; text-align: center; padding: 40px 20px; font-size: 12px; }
 
-/* Alerts */
-.success-msg { display: none; background: var(--green-pale); border: 1px solid var(--green-border); color: var(--green); padding: 15px; margin-top: 15px; font-weight: 600; border-radius: 4px; }
-.locked-msg { background: var(--green-pale); color: var(--green); padding: 10px; font-size: 13px; border-radius: 4px; font-weight: 600; }
+/* ============ EVENT DETAIL PAGE ============ */
+#event-page { display: none; min-height: 100vh; background: var(--cream); }
+.ep-back { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 16px 20px; background: var(--white); border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--navy); max-width: 100%; }
+.ep-back:hover { color: var(--gold); }
+.ep-header { background: var(--navy); padding: 40px 20px 32px; text-align: center; }
+.ep-icon { font-size: 48px; margin-bottom: 8px; }
+.ep-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: #f5f0e8; line-height: 1; }
+.ep-meta { margin-top: 12px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.ep-badge { background: rgba(255,255,255,0.12); color: rgba(245,240,232,0.85); font-size: 12px; padding: 4px 12px; border-radius: 20px; }
+.ep-badge.gold { background: var(--gold); color: var(--navy); font-weight: 700; }
+
+.ep-body { max-width: 900px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: 1fr; gap: 24px; }
+@media (min-width: 768px) { .ep-body { grid-template-columns: 1fr 1fr; } }
+
+.ep-card { background: var(--white); border: 1px solid var(--border); padding: 20px; }
+.ep-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); margin-bottom: 16px; border-bottom: 2px solid var(--gold); padding-bottom: 8px; }
+
+/* Registration form inside event page */
+.reg-team-select { font-family: inherit; font-size: 14px; padding: 10px; border: 1px solid var(--border); background: var(--cream); width: 100%; margin-bottom: 12px; }
+.reg-member-input { font-family: inherit; font-size: 14px; padding: 10px; border: 1px solid var(--border); background: var(--cream); width: 100%; margin-bottom: 8px; }
+.reg-member-input::placeholder { color: #aaa; }
+.btn-reg-submit { background: var(--navy); color: white; border: none; padding: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; cursor: pointer; width: 100%; margin-top: 8px; }
+.btn-reg-submit:hover { background: #243d60; }
+.btn-reg-clear { background: none; border: 1px solid var(--red-border); color: var(--red); padding: 8px; font-size: 12px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
+.reg-success { background: var(--green-pale); border: 1px solid var(--green-border); color: var(--green); padding: 12px; font-weight: 600; border-radius: 4px; margin-top: 12px; display: none; }
+.reg-existing { background: var(--gold-pale); border: 1px solid #e8c86a; padding: 12px; border-radius: 4px; margin-bottom: 12px; font-size: 13px; }
+.reg-existing strong { color: var(--gold); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Opponents list */
+.opponent-entry { border-bottom: 1px solid var(--border); padding: 12px 0; }
+.opponent-entry:last-child { border-bottom: none; }
+.opp-team { font-weight: 600; font-size: 14px; color: var(--navy); display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.opp-members { display: flex; flex-wrap: wrap; gap: 4px; }
+.opp-chip { font-size: 11px; background: var(--cream); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); }
+.no-opponents { color: var(--muted); font-size: 13px; text-align: center; padding: 24px 0; }
+.opp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); display: inline-block; }
+
+/* Loading spinner */
+.ep-loading { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; }
 </style>
 </head>
 <body>
 
+<!-- ===== MAIN PAGE ===== -->
+<div id="main-page">
+
 <nav>
-  <div class="nav-logo">Lab <span>Olympics</span> 2026</div>
+  <div class="nav-logo" onclick="goHome()">Lab <span>Olympics</span> 2026</div>
   <ul class="nav-links">
     <li><a href="#schedule">Schedule</a></li>
     <li><a href="#teams">Teams</a></li>
-    <li><a href="#signup">Sign Up</a></li>
     <li><a href="#medals">Medals</a></li>
     <li><a href="#register">Register</a></li>
   </ul>
@@ -140,44 +163,30 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   </div>
 </div>
 
-  <section id="sports">
+<section id="sports">
   <div class="section-tag">The Disciplines</div>
   <div class="section-title">10 Events</div>
   <div class="sports-grid">
-    <div class="sport-card"><div class="sport-num">01</div>🏃<div class="sport-name">Running — Short</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">02</div>🏃<div class="sport-name">Running — Long</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">03</div>🏓<div class="sport-name">Table Tennis</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">04</div>🛶<div class="sport-name">Canoeing</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">05</div>🏐<div class="sport-name">Beach Volleyball</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">06</div>⚽<div class="sport-name">Football</div><div class="sport-slots">5 members</div></div>
-    <div class="sport-card"><div class="sport-num">07</div>🫣<div class="sport-name">Hide &amp; Seek</div><div class="sport-slots">3 members</div></div>
-    <div class="sport-card"><div class="sport-num">08</div>🕹️<div class="sport-name">Kicker</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">09</div>🍺<div class="sport-name">Flunky Ball</div><div class="sport-slots">3 members</div></div>
-    <div class="sport-card"><div class="sport-num">10</div>🎳<div class="sport-name">Bowling</div><div class="sport-slots">3 members</div></div>
+    <div class="sport-card"><div class="sport-num">01</div><div class="sport-icon">🏃</div><div class="sport-name">Running — Short</div><div class="sport-slots">2 members</div></div>
+    <div class="sport-card"><div class="sport-num">02</div><div class="sport-icon">🏃</div><div class="sport-name">Running — Long</div><div class="sport-slots">2 members</div></div>
+    <div class="sport-card"><div class="sport-num">03</div><div class="sport-icon">🏓</div><div class="sport-name">Table Tennis</div><div class="sport-slots">2 members</div></div>
+    <div class="sport-card"><div class="sport-num">04</div><div class="sport-icon">🛶</div><div class="sport-name">Canoeing</div><div class="sport-slots">2 members</div></div>
+    <div class="sport-card"><div class="sport-num">05</div><div class="sport-icon">🏐</div><div class="sport-name">Beach Volleyball</div><div class="sport-slots">2 members</div></div>
+    <div class="sport-card"><div class="sport-num">06</div><div class="sport-icon">⚽</div><div class="sport-name">Football</div><div class="sport-slots">5 members</div></div>
+    <div class="sport-card"><div class="sport-num">07</div><div class="sport-icon">🫣</div><div class="sport-name">Hide &amp; Seek</div><div class="sport-slots">3 members</div></div>
+    <div class="sport-card"><div class="sport-num">08</div><div class="sport-icon">🕹️</div><div class="sport-name">Kicker</div><div class="sport-slots">2 members</div></div>
+    <div class="sport-card"><div class="sport-num">09</div><div class="sport-icon">🍺</div><div class="sport-name">Flunky Ball</div><div class="sport-slots">3 members</div></div>
+    <div class="sport-card"><div class="sport-num">10</div><div class="sport-icon">🎳</div><div class="sport-name">Bowling</div><div class="sport-slots">3 members</div></div>
   </div>
 </section>
 
 <hr class="divider">
-  
+
 <section id="schedule">
   <div class="section-tag">Event Schedule</div>
   <div class="section-title">The Week</div>
-  <div class="schedule-grid">
-    <div class="schedule-day">
-      <div class="day-label">Monday</div><div class="day-date">June 2</div>
-      <ul class="day-events">
-        <li>🏃 <span class="ev-name">Running — Short</span><span class="ev-slots">2/team</span><span class="ev-time">10:00</span></li>
-        <li>🏃 <span class="ev-name">Running — Long</span><span class="ev-slots">2/team</span><span class="ev-time">14:00</span></li>
-      </ul>
-    </div>
-    <div class="schedule-day">
-      <div class="day-label">Tuesday</div><div class="day-date">June 3</div>
-      <ul class="day-events">
-        <li>🏓 <span class="ev-name">Table Tennis</span><span class="ev-slots">2/team</span><span class="ev-time">10:00</span></li>
-        <li>🕹️ <span class="ev-name">Kicker</span><span class="ev-slots">2/team</span><span class="ev-time">14:00</span></li>
-      </ul>
-    </div>
-    </div>
+  <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Click any event to register your participants and see your opponents.</p>
+  <div class="schedule-grid" id="schedule-grid"></div>
 </section>
 
 <hr class="divider">
@@ -186,14 +195,6 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <div class="section-tag">Accepted Teams</div>
   <div class="section-title">Registered Labs</div>
   <div class="teams-grid" id="teams-grid"></div>
-</section>
-
-<hr class="divider">
-
-<section id="signup">
-  <div class="section-tag">Event Sign-Up</div>
-  <div class="section-title">Participation</div>
-  <div class="events-signup-grid" id="events-signup-grid"></div>
 </section>
 
 <hr class="divider">
@@ -219,16 +220,12 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <form class="form-wrap" id="reg-form" action="https://formspree.io/f/mgodzqon" method="POST">
     <label>Lab Name</label>
     <input type="text" name="lab_name" required>
-    
     <label>Department</label>
     <input type="text" name="department" required>
-
     <label>Captain Name</label>
     <input type="text" name="captain_name" required>
-
     <label>Captain Email</label>
     <input type="email" name="_replyto" required>
-
     <label>Team Members (min 5)</label>
     <div id="members-list">
       <input type="text" name="member_1" placeholder="Name 1" required>
@@ -238,7 +235,6 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
       <input type="text" name="member_5" placeholder="Name 5" required>
     </div>
     <button type="button" class="btn-add" onclick="addMember()">+ Add Member</button>
-
     <input type="hidden" name="_subject" value="New Lab Olympics Registration">
     <button type="submit" class="btn-submit">Register Lab</button>
     <div class="success-msg" id="reg-success">🎉 Registration request received!</div>
@@ -249,132 +245,345 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <p>&copy; 2026 Cortex United · ZMNH Hamburg</p>
 </footer>
 
+</div><!-- /main-page -->
+
+<!-- ===== EVENT DETAIL PAGE ===== -->
+<div id="event-page">
+  <div class="ep-back" onclick="goHome()">&#8592; Back to schedule</div>
+  <div class="ep-header">
+    <div class="ep-icon" id="ep-icon"></div>
+    <div class="ep-title" id="ep-title"></div>
+    <div class="ep-meta" id="ep-meta"></div>
+  </div>
+  <div class="ep-body">
+    <!-- Registration card -->
+    <div class="ep-card">
+      <div class="ep-card-title">Register Your Team</div>
+      <div id="ep-reg-content"></div>
+    </div>
+    <!-- Opponents card -->
+    <div class="ep-card">
+      <div class="ep-card-title">Other Teams</div>
+      <div id="ep-opponents-content"><div class="ep-loading">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
 <script>
-// ADMIN DATA
+/* =========================================================
+   DATA
+   ========================================================= */
 const acceptedTeams = [
-  // Example: { name: "Cortex Crushers", dept: "Neuro", captain: "Dr. Brain", members: ["A", "B", "C", "D", "E"] },
+  // Add registered teams here once approved, e.g.:
+  // { name: "Cortex Crushers", dept: "Neuro", captain: "Dr. Brain", members: ["Alice","Bob","Carol","Dave","Eve"] },
 ];
 
 const medalsData = [];
 
 const events = [
-  { id:"run-short",    name:"Running — Short",   icon:"🏃", date:"2026-06-02", time:"10:00", slots:2 },
-  { id:"run-long",     name:"Running — Long",    icon:"🏃", date:"2026-06-02", time:"14:00", slots:2 },
-  { id:"tabletennis",  name:"Table Tennis",      icon:"🏓", date:"2026-06-03", time:"10:00", slots:2 },
-  { id:"kicker",       name:"Kicker",            icon:"🕹️", date:"2026-06-03", time:"14:00", slots:2 },
-  { id:"beachvolley",  name:"Beach Volleyball",  icon:"🏐", date:"2026-06-04", time:"10:00", slots:2 },
-  { id:"canoeing",     name:"Canoeing",          icon:"🛶", date:"2026-06-04", time:"14:00", slots:2 },
-  { id:"football",     name:"Football",          icon:"⚽", date:"2026-06-05", time:"10:00", slots:5 },
-  { id:"hideseek",     name:"Hide & Seek",       icon:"🫣", date:"2026-06-05", time:"14:00", slots:3 },
-  { id:"flunkyball",   name:"Flunky Ball",       icon:"🍺", date:"2026-06-06", time:"10:00", slots:3 },
-  { id:"bowling",      name:"Bowling",           icon:"🎳", date:"2026-06-06", time:"14:00", slots:3 },
+  { id:"run-short",   name:"Running — Short",  icon:"🏃", date:"Mon 2 Jun", time:"10:00", slots:2 },
+  { id:"run-long",    name:"Running — Long",   icon:"🏃", date:"Mon 2 Jun", time:"14:00", slots:2 },
+  { id:"tabletennis", name:"Table Tennis",     icon:"🏓", date:"Tue 3 Jun", time:"10:00", slots:2 },
+  { id:"kicker",      name:"Kicker",           icon:"🕹️", date:"Tue 3 Jun", time:"14:00", slots:2 },
+  { id:"beachvolley", name:"Beach Volleyball", icon:"🏐", date:"Wed 4 Jun", time:"10:00", slots:2 },
+  { id:"canoeing",    name:"Canoeing",         icon:"🛶", date:"Wed 4 Jun", time:"14:00", slots:2 },
+  { id:"football",    name:"Football",         icon:"⚽", date:"Thu 5 Jun", time:"10:00", slots:5 },
+  { id:"hideseek",    name:"Hide & Seek",      icon:"🫣", date:"Thu 5 Jun", time:"14:00", slots:3 },
+  { id:"flunkyball",  name:"Flunky Ball",      icon:"🍺", date:"Fri 6 Jun", time:"10:00", slots:3 },
+  { id:"bowling",     name:"Bowling",          icon:"🎳", date:"Fri 6 Jun", time:"14:00", slots:3 },
 ];
 
 const SIGNUP_FORM_URL = "https://formspree.io/f/mgodzqon";
 
-// RENDERING
+/* =========================================================
+   STORAGE HELPERS
+   ========================================================= */
+async function getRegistrations(eventId) {
+  try {
+    const result = await window.storage.get(`ev_reg:${eventId}`, true);
+    return result ? JSON.parse(result.value) : [];
+  } catch(e) { return []; }
+}
+
+async function saveRegistration(eventId, teamName, members) {
+  const all = await getRegistrations(eventId);
+  const idx = all.findIndex(r => r.team === teamName);
+  if (idx >= 0) { all[idx].members = members; } else { all.push({ team: teamName, members }); }
+  await window.storage.set(`ev_reg:${eventId}`, JSON.stringify(all), true);
+}
+
+async function clearRegistration(eventId, teamName) {
+  const all = await getRegistrations(eventId);
+  const filtered = all.filter(r => r.team !== teamName);
+  await window.storage.set(`ev_reg:${eventId}`, JSON.stringify(filtered), true);
+}
+
+async function getRegCount(eventId) {
+  const regs = await getRegistrations(eventId);
+  return regs.length;
+}
+
+/* =========================================================
+   SCHEDULE RENDER
+   ========================================================= */
+const dayOrder = ["Mon 2 Jun","Tue 3 Jun","Wed 4 Jun","Thu 5 Jun","Fri 6 Jun"];
+const dayLabels = { "Mon 2 Jun":"Monday", "Tue 3 Jun":"Tuesday", "Wed 4 Jun":"Wednesday", "Thu 5 Jun":"Thursday", "Fri 6 Jun":"Friday" };
+const dayDates  = { "Mon 2 Jun":"June 2", "Tue 3 Jun":"June 3", "Wed 4 Jun":"June 4", "Thu 5 Jun":"June 5", "Fri 6 Jun":"June 6" };
+
+async function renderSchedule() {
+  const grid = document.getElementById('schedule-grid');
+  const grouped = {};
+  dayOrder.forEach(d => { grouped[d] = []; });
+  events.forEach(ev => { if (grouped[ev.date]) grouped[ev.date].push(ev); });
+
+  let html = '';
+  for (const day of dayOrder) {
+    const evs = grouped[day];
+    if (!evs.length) continue;
+    const evItems = await Promise.all(evs.map(async ev => {
+      const count = await getRegCount(ev.id);
+      const countBadge = count > 0 ? `<span class="ev-reg-count">${count} team${count!==1?'s':''}</span>` : '';
+      return `<li onclick="openEvent('${ev.id}')">
+        <span>${ev.icon}</span>
+        <span class="ev-name">${ev.name}</span>
+        ${countBadge}
+        <span class="ev-slots">${ev.slots}/team</span>
+        <span class="ev-time">${ev.time}</span>
+        <span class="ev-arrow">›</span>
+      </li>`;
+    }));
+    html += `<div class="schedule-day">
+      <div class="day-label">${dayLabels[day]}</div>
+      <div class="day-date">${dayDates[day]}</div>
+      <ul class="day-events">${evItems.join('')}</ul>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+/* =========================================================
+   TEAMS RENDER
+   ========================================================= */
 function renderTeams() {
   const grid = document.getElementById('teams-grid');
-  grid.innerHTML = acceptedTeams.length === 0 ? '<div style="color:gray; padding:20px;">No teams registered yet.</div>' : 
-    acceptedTeams.map(t => `
-    <div class="team-card">
-      <div class="team-name">${t.name}</div>
-      <div class="team-dept">${t.dept}</div>
-      <div>${t.members.map(m => `<span class="member-chip">${m}</span>`).join('')}</div>
+  grid.innerHTML = acceptedTeams.length === 0
+    ? '<div style="color:gray; padding:20px; font-size:13px;">No teams registered yet.</div>'
+    : acceptedTeams.map(t => `
+      <div class="team-card">
+        <div class="team-name">${t.name}</div>
+        <div class="team-dept">${t.dept}</div>
+        <div>${t.members.map(m => `<span class="member-chip">${m}</span>`).join('')}</div>
+      </div>`).join('');
+}
+
+/* =========================================================
+   MEDALS RENDER
+   ========================================================= */
+function renderMedals() {
+  const body = document.getElementById('medals-body');
+  if (!medalsData.length) {
+    body.innerHTML = '<div style="padding:20px; text-align:center; color:gray; font-size:13px;">Standings will appear here once events conclude.</div>';
+    return;
+  }
+  const sorted = [...medalsData].sort((a,b) => (b.gold*3+b.silver*2+b.bronze) - (a.gold*3+a.silver*2+a.bronze));
+  body.innerHTML = sorted.map((t,i) => `
+    <div class="medals-row">
+      <span style="font-weight:700;font-size:13px;">${i+1}</span>
+      <span style="font-weight:600;font-size:13px;">${t.name}</span>
+      <span class="medal-cell">${t.gold}</span>
+      <span class="medal-cell">${t.silver}</span>
+      <span class="medal-cell">${t.bronze}</span>
+      <span class="medal-cell" style="font-size:14px;">${t.gold+t.silver+t.bronze}</span>
     </div>`).join('');
 }
 
-function renderSignup() {
-  const grid = document.getElementById('events-signup-grid');
-  grid.innerHTML = events.map(ev => {
-    const isLocked = !!localStorage.getItem(`signup_${ev.id}`);
-    const cardClass = isLocked ? 'locked' : 'open';
-    const btnHtml = isLocked ? `<div class="locked-msg">✅ Confirmed</div>` : 
-      (acceptedTeams.length > 0 ? `
-        <select id="team-sel-${ev.id}" onchange="showSubmit('${ev.id}')">
-          <option value="">Select Team</option>
-          ${acceptedTeams.map(t => `<option value="${t.name}">${t.name}</option>`).join('')}
-        </select>
-        <div id="sub-wrap-${ev.id}"></div>
-      ` : `<p style="font-size:11px; color:gray">Awaiting team registration...</p>`);
-
-    return `
-    <div class="event-signup-card ${cardClass}">
-      <div class="ev-card-name">${ev.icon} ${ev.name}</div>
-      <div style="font-size:11px; margin-bottom:10px;">${ev.time} · Max ${ev.slots} members</div>
-      ${btnHtml}
-    </div>`;
-  }).join('');
-}
-
-function showSubmit(evId) {
-  const wrap = document.getElementById(`sub-wrap-${evId}`);
-  wrap.innerHTML = `<button class="btn-signup" style="margin-top:10px" onclick="submitParticipant('${evId}')">Confirm Sign-up</button>`;
-}
-
-async function submitParticipant(evId) {
-  const team = document.getElementById(`team-sel-${evId}`).value;
-  if(!team) return;
-  const ev = events.find(e => e.id === evId);
-  
-  try {
-    await fetch(SIGNUP_FORM_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ event: ev.name, team: team, _subject: `Sign-up: ${team}` })
-    });
-    localStorage.setItem(`signup_${evId}`, team);
-    renderSignup();
-  } catch(e) { alert("Error connecting to server."); }
-}
-
-function renderMedals() {
-  const body = document.getElementById('medals-body');
-  if (medalsData.length === 0) {
-    body.innerHTML = '<div style="padding:20px; text-align:center; color:gray">Standings will appear here.</div>';
-    return;
-  }
-  // Sorting logic and map would go here
-}
-
-// REGISTRATION
+/* =========================================================
+   REGISTRATION FORM (main page)
+   ========================================================= */
 let memberCount = 5;
 function addMember() {
   memberCount++;
   const input = document.createElement('input');
-  input.type = 'text';
-  input.name = `member_${memberCount}`;
-  input.placeholder = `Name ${memberCount}`;
+  input.type = 'text'; input.name = `member_${memberCount}`; input.placeholder = `Name ${memberCount}`;
   document.getElementById('members-list').appendChild(input);
 }
-
 document.getElementById('reg-form').addEventListener('submit', async function(e) {
   e.preventDefault();
   const btn = this.querySelector('.btn-submit');
-  btn.textContent = 'Sending...';
-  btn.disabled = true;
-
+  btn.textContent = 'Sending...'; btn.disabled = true;
   const data = new FormData(this);
-  const response = await fetch(this.action, {
-    method: 'POST',
-    body: data,
-    headers: { 'Accept': 'application/json' }
-  });
-
+  const response = await fetch(this.action, { method:'POST', body:data, headers:{'Accept':'application/json'} });
   if (response.ok) {
     document.getElementById('reg-success').style.display = 'block';
-    btn.textContent = 'Sent!';
-    this.reset();
+    btn.textContent = 'Sent!'; this.reset();
   } else {
-    btn.disabled = false;
-    btn.textContent = 'Register Lab';
-    alert('Submission failed.');
+    btn.disabled = false; btn.textContent = 'Register Lab'; alert('Submission failed.');
   }
 });
 
-// INIT
+/* =========================================================
+   EVENT DETAIL PAGE
+   ========================================================= */
+let currentEventId = null;
+
+async function openEvent(eventId) {
+  currentEventId = eventId;
+  const ev = events.find(e => e.id === eventId);
+
+  document.getElementById('main-page').style.display = 'none';
+  document.getElementById('event-page').style.display = 'block';
+  window.scrollTo(0,0);
+
+  document.getElementById('ep-icon').textContent = ev.icon;
+  document.getElementById('ep-title').textContent = ev.name;
+  document.getElementById('ep-meta').innerHTML = `
+    <span class="ep-badge">${ev.date}</span>
+    <span class="ep-badge">${ev.time}</span>
+    <span class="ep-badge gold">${ev.slots} member${ev.slots>1?'s':''} per team</span>
+  `;
+
+  renderEventReg(ev);
+  await renderOpponents(ev);
+}
+
+function renderEventReg(ev) {
+  const wrap = document.getElementById('ep-reg-content');
+
+  if (acceptedTeams.length === 0) {
+    wrap.innerHTML = `<p style="font-size:13px; color:var(--muted);">Team registration is still open. Once your lab is accepted you can sign up participants here.</p>`;
+    return;
+  }
+
+  let memberInputs = '';
+  for (let i = 1; i <= ev.slots; i++) {
+    memberInputs += `<input class="reg-member-input" id="ep-member-${i}" type="text" placeholder="Member ${i} name">`;
+  }
+
+  wrap.innerHTML = `
+    <select class="reg-team-select" id="ep-team-sel" onchange="prefillExisting('${ev.id}', ${ev.slots})">
+      <option value="">Select your team…</option>
+      ${acceptedTeams.map(t => `<option value="${t.name}">${t.name}</option>`).join('')}
+    </select>
+    <div id="ep-existing-reg"></div>
+    <div id="ep-member-inputs">${memberInputs}</div>
+    <button class="btn-reg-submit" onclick="submitEventReg('${ev.id}', ${ev.slots})">Confirm Participants</button>
+    <button class="btn-reg-clear" id="ep-clear-btn" style="display:none" onclick="clearEventReg('${ev.id}')">Remove registration</button>
+    <div class="reg-success" id="ep-reg-success">✅ Participants registered!</div>
+  `;
+}
+
+async function prefillExisting(eventId, slots) {
+  const teamName = document.getElementById('ep-team-sel').value;
+  const existingDiv = document.getElementById('ep-existing-reg');
+  const clearBtn = document.getElementById('ep-clear-btn');
+
+  if (!teamName) { existingDiv.innerHTML = ''; clearBtn.style.display = 'none'; return; }
+
+  const regs = await getRegistrations(eventId);
+  const existing = regs.find(r => r.team === teamName);
+
+  if (existing) {
+    existingDiv.innerHTML = `<div class="reg-existing"><strong>Current registration</strong>${existing.members.join(', ')}</div>`;
+    existing.members.forEach((m, i) => {
+      const inp = document.getElementById(`ep-member-${i+1}`);
+      if (inp) inp.value = m;
+    });
+    clearBtn.style.display = 'block';
+  } else {
+    existingDiv.innerHTML = '';
+    for (let i = 1; i <= slots; i++) {
+      const inp = document.getElementById(`ep-member-${i}`);
+      if (inp) inp.value = '';
+    }
+    clearBtn.style.display = 'none';
+  }
+}
+
+async function submitEventReg(eventId, slots) {
+  const teamName = document.getElementById('ep-team-sel').value;
+  if (!teamName) { alert('Please select your team first.'); return; }
+
+  const members = [];
+  for (let i = 1; i <= slots; i++) {
+    const val = (document.getElementById(`ep-member-${i}`)?.value || '').trim();
+    if (val) members.push(val);
+  }
+  if (members.length === 0) { alert('Please enter at least one participant name.'); return; }
+
+  const btn = document.querySelector('.btn-reg-submit');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  try {
+    await saveRegistration(eventId, teamName, members);
+
+    // Also notify via Formspree
+    const ev = events.find(e => e.id === eventId);
+    await fetch(SIGNUP_FORM_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({ event: ev.name, team: teamName, members: members.join(', '), _subject: `Event Sign-up: ${teamName} → ${ev.name}` })
+    }).catch(() => {});
+
+    document.getElementById('ep-reg-success').style.display = 'block';
+    btn.textContent = 'Confirmed!';
+    document.getElementById('ep-clear-btn').style.display = 'block';
+
+    const ev2 = events.find(e => e.id === eventId);
+    prefillExisting(eventId, slots);
+    await renderOpponents(ev2);
+    renderSchedule();
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Confirm Participants'; alert('Error saving. Please try again.');
+  }
+}
+
+async function clearEventReg(eventId) {
+  const teamName = document.getElementById('ep-team-sel').value;
+  if (!teamName) return;
+  if (!confirm(`Remove ${teamName}'s registration for this event?`)) return;
+
+  await clearRegistration(eventId, teamName);
+  const ev = events.find(e => e.id === eventId);
+  renderEventReg(ev);
+  await renderOpponents(ev);
+  renderSchedule();
+}
+
+async function renderOpponents(ev) {
+  const wrap = document.getElementById('ep-opponents-content');
+  wrap.innerHTML = '<div class="ep-loading">Loading registrations…</div>';
+
+  const regs = await getRegistrations(ev.id);
+
+  if (regs.length === 0) {
+    wrap.innerHTML = `<div class="no-opponents">
+      <div style="font-size:32px; margin-bottom:8px;">🏁</div>
+      No teams have registered yet.<br>
+      <span style="font-size:12px;">Be the first!</span>
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = regs.map(r => `
+    <div class="opponent-entry">
+      <div class="opp-team"><span class="opp-dot"></span>${r.team}</div>
+      <div class="opp-members">${r.members.map(m => `<span class="opp-chip">${m}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+
+function goHome() {
+  document.getElementById('event-page').style.display = 'none';
+  document.getElementById('main-page').style.display = 'block';
+  window.scrollTo(0, document.getElementById('schedule').offsetTop - 70);
+  renderSchedule();
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
 renderTeams();
-renderSignup();
+renderSchedule();
 renderMedals();
 </script>
 </body>
