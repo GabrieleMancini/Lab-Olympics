@@ -323,33 +323,6 @@ const acceptedTeams = [
   // { name:"Cortex Crushers", dept:"Neuro", captain:"Dr. Anna Berg", members:["Dr. Anna Berg","Max Müller","Sara Koch","Lena Braun","Tom Richter"] },
   // { name:"Axon Avengers", dept:"Molecular", captain:"Prof. Jan Holm", members:["Prof. Jan Holm","Mia Schulz","Felix Wagner","Clara Bauer","Noah Klein"] },
 ];
-
-  /* ===================== DATA & LOADING ===================== */
-let acceptedTeams = [];
-let medalsData = [];
-
-// This function pulls the data from your JSON file
-async function loadData() {
-  try {
-    // Replace 'teams.json' with the full URL if needed, 
-    // but usually just the filename works if they are in the same folder
-    const response = await fetch('teams.json');
-    const data = await response.json();
-    
-    acceptedTeams = data.acceptedTeams;
-    medalsData = data.medals;
-
-    // Now that data is loaded, run the render functions
-    renderTeams();
-    renderSchedule();
-    renderMedals();
-    renderNavSession();
-  } catch (error) {
-    console.error("Error loading team data:", error);
-  }
-}
-
-  
 const medalsData = [];
 const events = [
   { id:"run-short",   name:"Running — Short",  icon:"🏃", date:"Mon 2 Jun", time:"10:00", slots:2 },
@@ -700,13 +673,10 @@ function goHome() {
 }
 
 /* ===================== INIT ===================== */
-
-// Instead of calling renders immediately, we call loadData
-loadData();
-// renderNavSession();
-// renderTeams();
-// renderSchedule();
-// renderMedals();
+renderNavSession();
+renderTeams();
+renderSchedule();
+renderMedals();
 </script>
 </body>
 </html>
