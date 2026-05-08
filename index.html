@@ -23,12 +23,22 @@ nav {
   padding: 10px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
 @media (min-width: 768px) {
-  nav { flex-direction: row; justify-content: space-between; height: 60px; padding: 0 40px; }
+  nav { flex-direction: row; justify-content: space-between; height: 60px; padding: 0 40px; gap: 0; }
 }
 .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); letter-spacing: 1px; cursor: pointer; }
 .nav-logo span { color: var(--gold); }
+.nav-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
 .nav-links { display: flex; gap: 12px; list-style: none; flex-wrap: wrap; justify-content: center; }
 .nav-links a { text-decoration: none; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+
+.session-pill { display: flex; align-items: center; gap: 8px; background: var(--green-pale); border: 1px solid var(--green-border); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+.session-pill-name { font-weight: 700; color: var(--green); }
+.session-pill-team { color: var(--green); opacity: 0.75; }
+.session-pill-captain { background: var(--gold); color: var(--navy); font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 10px; text-transform: uppercase; }
+.session-signout { background: none; border: none; font-size: 11px; color: var(--muted); cursor: pointer; text-decoration: underline; padding: 0; }
+.session-signout:hover { color: var(--red); }
+.nav-signin-btn { background: var(--navy); color: var(--white); border: none; font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 1px; padding: 6px 14px; cursor: pointer; border-radius: 2px; }
+.nav-signin-btn:hover { background: #243d60; }
 
 .hero { background: var(--navy); padding: 60px 20px; text-align: center; position: relative; overflow: hidden; }
 .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(212,150,14,0.18) 0%, transparent 70%); pointer-events: none; }
@@ -39,8 +49,8 @@ nav {
 .hero-sub { color: rgba(245,240,232,0.6); font-size: 14px; margin-top: 16px; max-width: 400px; margin-inline: auto; }
 .rings-row { display: flex; justify-content: center; margin-top: 28px; }
 .ring-o { width: 30px; height: 30px; border-radius: 50%; border: 4px solid; margin: 0 -4px; }
-.ring-o:nth-child(1){border-color:#5ab8ff} .ring-o:nth-child(2){border-color:#f5cd4a}
-.ring-o:nth-child(3){border-color:#4de8a0} .ring-o:nth-child(4){border-color:#ff6e6e}
+.ring-o:nth-child(1){border-color:#5ab8ff}.ring-o:nth-child(2){border-color:#f5cd4a}
+.ring-o:nth-child(3){border-color:#4de8a0}.ring-o:nth-child(4){border-color:#ff6e6e}
 .ring-o:nth-child(5){border-color:#f5f0e8}
 
 section { padding: 48px 20px; max-width: 1000px; margin: 0 auto; }
@@ -55,101 +65,142 @@ hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000p
 .sport-name { font-size: 14px; font-weight: 600; color: var(--navy); line-height: 1.2; }
 .sport-slots { font-size: 10px; color: var(--gold); font-weight: 700; margin-top: 8px; }
 
-/* SCHEDULE — clickable events */
 .schedule-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
 @media (min-width: 768px) { .schedule-grid { grid-template-columns: 1fr 1fr; } }
 .schedule-day { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--gold); padding: 18px; }
 .day-label { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--navy); line-height: 1; }
 .day-date { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
-.day-events { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-.day-events li { display: flex; align-items: center; gap: 10px; font-size: 13px; border-bottom: 1px solid #f9f9f9; padding-bottom: 8px; cursor: pointer; border-radius: 4px; padding: 8px 6px; transition: background 0.15s; }
+.day-events { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.day-events li { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 8px 6px; cursor: pointer; border-radius: 4px; transition: background 0.15s; }
 .day-events li:hover { background: var(--gold-pale); }
-.day-events li:last-child { border-bottom: none; }
 .ev-name { font-weight: 600; flex: 1; }
 .ev-slots { font-size: 10px; color: var(--gold); font-weight: 700; background: var(--gold-pale); padding: 1px 6px; border-radius: 10px; }
 .ev-time { font-size: 11px; color: var(--muted); }
-.ev-arrow { font-size: 11px; color: var(--gold); margin-left: 4px; }
+.ev-arrow { font-size: 13px; color: var(--gold); }
 .ev-reg-count { font-size: 10px; background: var(--green-pale); color: var(--green); border: 1px solid var(--green-border); padding: 1px 6px; border-radius: 10px; font-weight: 700; }
 
-/* TEAMS */
 .teams-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
 @media (min-width: 600px) { .teams-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
 .team-card { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--navy); padding: 16px; }
 .team-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); }
 .team-dept { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
 .member-chip { display: inline-block; font-size: 11px; background: var(--cream); padding: 2px 8px; border-radius: 10px; margin: 2px; border: 1px solid var(--border); }
+.member-chip.is-captain { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
 
-/* MEDALS */
 .medals-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 4px; }
 .medals-table { min-width: 550px; background: var(--white); }
 .medals-header-row, .medals-row { display: grid; grid-template-columns: 40px 1fr 45px 45px 45px 60px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); }
 .medals-header-row { background: var(--navy); color: rgba(255,255,255,0.7); font-size: 10px; font-weight: 700; text-transform: uppercase; }
 .medal-cell { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
 
-/* FORM */
 .form-wrap { background: var(--white); border: 1px solid var(--border); padding: 20px; }
 input, select, textarea { font-family: inherit; font-size: 16px !important; padding: 12px; border: 1px solid var(--border); background: var(--cream); width: 100%; margin-bottom: 12px; }
 label { font-size: 13px; font-weight: 600; color: var(--navy); display: block; margin-bottom: 4px; }
 .btn-submit { background: var(--navy); color: white; border: none; padding: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; cursor: pointer; width: 100%; }
-.btn-add { background: none; border: 1px dashed var(--gold); color: var(--gold); padding: 10px; font-weight: 600; font-size: 13px; margin-bottom: 16px; width: 100%; }
+.btn-add { background: none; border: 1px dashed var(--gold); color: var(--gold); padding: 10px; font-weight: 600; font-size: 13px; margin-bottom: 16px; width: 100%; cursor: pointer; }
 .success-msg { display: none; background: var(--green-pale); border: 1px solid var(--green-border); color: var(--green); padding: 15px; margin-top: 15px; font-weight: 600; border-radius: 4px; }
 
 footer { background: var(--navy); color: #fff; text-align: center; padding: 40px 20px; font-size: 12px; }
 
-/* ============ EVENT DETAIL PAGE ============ */
+/* SIGN-IN OVERLAY */
+.signin-overlay { display: none; background: rgba(26,45,74,0.6); min-height: 100vh; align-items: flex-start; justify-content: center; padding: 80px 20px 40px; }
+.signin-overlay.active { display: flex; }
+.signin-box { background: var(--white); border: 1px solid var(--border); width: 100%; max-width: 420px; padding: 32px; border-top: 4px solid var(--gold); }
+.signin-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--navy); margin-bottom: 4px; }
+.signin-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.signin-field { font-family: inherit; font-size: 15px !important; padding: 11px 14px; border: 1px solid var(--border); background: var(--cream); width: 100%; margin-bottom: 12px; }
+.btn-signin-confirm { background: var(--navy); color: white; border: none; padding: 13px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; cursor: pointer; width: 100%; }
+.btn-signin-confirm:hover { background: #243d60; }
+.btn-signin-cancel { background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; width: 100%; margin-top: 10px; text-decoration: underline; }
+.signin-error { background: var(--red-pale); border: 1px solid var(--red-border); color: var(--red); padding: 10px; font-size: 13px; border-radius: 4px; margin-bottom: 12px; display: none; }
+.signin-hint { font-size: 12px; color: var(--muted); margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); line-height: 1.6; }
+
+/* EVENT PAGE */
 #event-page { display: none; min-height: 100vh; background: var(--cream); }
-.ep-back { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 16px 20px; background: var(--white); border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--navy); max-width: 100%; }
+.ep-back { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 16px 20px; background: var(--white); border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--navy); }
 .ep-back:hover { color: var(--gold); }
 .ep-header { background: var(--navy); padding: 40px 20px 32px; text-align: center; }
 .ep-icon { font-size: 48px; margin-bottom: 8px; }
-.ep-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: #f5f0e8; line-height: 1; }
+.ep-ev-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: #f5f0e8; line-height: 1; }
 .ep-meta { margin-top: 12px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
 .ep-badge { background: rgba(255,255,255,0.12); color: rgba(245,240,232,0.85); font-size: 12px; padding: 4px 12px; border-radius: 20px; }
 .ep-badge.gold { background: var(--gold); color: var(--navy); font-weight: 700; }
-
 .ep-body { max-width: 900px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: 1fr; gap: 24px; }
 @media (min-width: 768px) { .ep-body { grid-template-columns: 1fr 1fr; } }
-
 .ep-card { background: var(--white); border: 1px solid var(--border); padding: 20px; }
 .ep-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); margin-bottom: 16px; border-bottom: 2px solid var(--gold); padding-bottom: 8px; }
 
-/* Registration form inside event page */
-.reg-team-select { font-family: inherit; font-size: 14px; padding: 10px; border: 1px solid var(--border); background: var(--cream); width: 100%; margin-bottom: 12px; }
-.reg-member-input { font-family: inherit; font-size: 14px; padding: 10px; border: 1px solid var(--border); background: var(--cream); width: 100%; margin-bottom: 8px; }
-.reg-member-input::placeholder { color: #aaa; }
+/* Auth gate */
+.auth-gate { text-align: center; padding: 24px 16px; }
+.auth-gate-icon { font-size: 36px; margin-bottom: 12px; }
+.auth-gate-title { font-weight: 600; color: var(--navy); margin-bottom: 6px; font-size: 15px; }
+.auth-gate-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.btn-gate-signin { background: var(--navy); color: white; border: none; padding: 12px 28px; font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px; cursor: pointer; }
+.btn-gate-signin:hover { background: #243d60; }
+
+/* Event reg form */
+.reg-who { font-size: 12px; color: var(--muted); margin-bottom: 14px; padding: 8px 12px; background: var(--cream); border-left: 3px solid var(--gold); }
+.reg-who strong { color: var(--navy); }
+.reg-existing-box { background: var(--gold-pale); border: 1px solid #e8c86a; padding: 12px; border-radius: 4px; margin-bottom: 16px; font-size: 13px; }
+.reg-existing-box strong { color: var(--gold); display: block; margin-bottom: 4px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+.member-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; display: block; }
+.reg-member-input { font-family: inherit; font-size: 14px !important; padding: 10px; border: 1px solid var(--border); background: var(--cream); width: 100%; margin-bottom: 8px; }
 .btn-reg-submit { background: var(--navy); color: white; border: none; padding: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; cursor: pointer; width: 100%; margin-top: 8px; }
 .btn-reg-submit:hover { background: #243d60; }
 .btn-reg-clear { background: none; border: 1px solid var(--red-border); color: var(--red); padding: 8px; font-size: 12px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
 .reg-success { background: var(--green-pale); border: 1px solid var(--green-border); color: var(--green); padding: 12px; font-weight: 600; border-radius: 4px; margin-top: 12px; display: none; }
-.reg-existing { background: var(--gold-pale); border: 1px solid #e8c86a; padding: 12px; border-radius: 4px; margin-bottom: 12px; font-size: 13px; }
-.reg-existing strong { color: var(--gold); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+.member-only-notice { font-size: 13px; color: var(--muted); background: var(--cream); border: 1px solid var(--border); padding: 12px; line-height: 1.6; }
+.member-only-notice strong { color: var(--navy); }
 
-/* Opponents list */
+/* Opponents */
 .opponent-entry { border-bottom: 1px solid var(--border); padding: 12px 0; }
 .opponent-entry:last-child { border-bottom: none; }
 .opp-team { font-weight: 600; font-size: 14px; color: var(--navy); display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .opp-members { display: flex; flex-wrap: wrap; gap: 4px; }
 .opp-chip { font-size: 11px; background: var(--cream); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); }
+.opp-chip.yours { border-color: var(--green-border); background: var(--green-pale); color: var(--green); }
+.opp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); display: inline-block; flex-shrink: 0; }
+.opp-dot.yours { background: var(--green); }
 .no-opponents { color: var(--muted); font-size: 13px; text-align: center; padding: 24px 0; }
-.opp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); display: inline-block; }
-
-/* Loading spinner */
 .ep-loading { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; }
 </style>
 </head>
 <body>
 
-<!-- ===== MAIN PAGE ===== -->
+<!-- SIGN-IN OVERLAY -->
+<div class="signin-overlay" id="signin-overlay">
+  <div class="signin-box">
+    <div class="signin-title">Sign In</div>
+    <p class="signin-sub">Enter your name exactly as it appears on your team roster to sign in.</p>
+    <div class="signin-error" id="signin-error"></div>
+    <select class="signin-field" id="signin-team">
+      <option value="">Select your lab…</option>
+    </select>
+    <input class="signin-field" id="signin-name" type="text" placeholder="Your full name" autocomplete="name">
+    <button class="btn-signin-confirm" onclick="confirmSignIn()">Sign In</button>
+    <button class="btn-signin-cancel" onclick="closeSignIn()">Cancel</button>
+    <p class="signin-hint">
+      <strong>Captains</strong> can select participants for each event.<br>
+      <strong>Team members</strong> can view their team's registrations and see opponents.<br>
+      Your session resets when you close or refresh the page.
+    </p>
+  </div>
+</div>
+
+<!-- MAIN PAGE -->
 <div id="main-page">
 
 <nav>
   <div class="nav-logo" onclick="goHome()">Lab <span>Olympics</span> 2026</div>
-  <ul class="nav-links">
-    <li><a href="#schedule">Schedule</a></li>
-    <li><a href="#teams">Teams</a></li>
-    <li><a href="#medals">Medals</a></li>
-    <li><a href="#register">Register</a></li>
-  </ul>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#schedule">Schedule</a></li>
+      <li><a href="#teams">Teams</a></li>
+      <li><a href="#medals">Medals</a></li>
+      <li><a href="#register">Register</a></li>
+    </ul>
+    <div id="nav-session"></div>
+  </div>
 </nav>
 
 <div class="hero">
@@ -185,7 +236,7 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
 <section id="schedule">
   <div class="section-tag">Event Schedule</div>
   <div class="section-title">The Week</div>
-  <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Click any event to register your participants and see your opponents.</p>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Click any event to register participants and see your opponents.</p>
   <div class="schedule-grid" id="schedule-grid"></div>
 </section>
 
@@ -241,45 +292,38 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   </form>
 </section>
 
-<footer>
-  <p>&copy; 2026 Cortex United · ZMNH Hamburg</p>
-</footer>
+<footer><p>&copy; 2026 Cortex United · ZMNH Hamburg</p></footer>
 
 </div><!-- /main-page -->
 
-<!-- ===== EVENT DETAIL PAGE ===== -->
+<!-- EVENT DETAIL PAGE -->
 <div id="event-page">
   <div class="ep-back" onclick="goHome()">&#8592; Back to schedule</div>
   <div class="ep-header">
     <div class="ep-icon" id="ep-icon"></div>
-    <div class="ep-title" id="ep-title"></div>
+    <div class="ep-ev-title" id="ep-title"></div>
     <div class="ep-meta" id="ep-meta"></div>
   </div>
   <div class="ep-body">
-    <!-- Registration card -->
     <div class="ep-card">
-      <div class="ep-card-title">Register Your Team</div>
+      <div class="ep-card-title">Your Team</div>
       <div id="ep-reg-content"></div>
     </div>
-    <!-- Opponents card -->
     <div class="ep-card">
-      <div class="ep-card-title">Other Teams</div>
-      <div id="ep-opponents-content"><div class="ep-loading">Loading...</div></div>
+      <div class="ep-card-title">All Registered Teams</div>
+      <div id="ep-opponents-content"><div class="ep-loading">Loading…</div></div>
     </div>
   </div>
 </div>
 
 <script>
-/* =========================================================
-   DATA
-   ========================================================= */
+/* ===================== DATA ===================== */
 const acceptedTeams = [
-  // Add registered teams here once approved, e.g.:
-  // { name: "Cortex Crushers", dept: "Neuro", captain: "Dr. Brain", members: ["Alice","Bob","Carol","Dave","Eve"] },
+  // Add accepted labs here. Example:
+  // { name:"Cortex Crushers", dept:"Neuro", captain:"Dr. Anna Berg", members:["Dr. Anna Berg","Max Müller","Sara Koch","Lena Braun","Tom Richter"] },
+  // { name:"Axon Avengers", dept:"Molecular", captain:"Prof. Jan Holm", members:["Prof. Jan Holm","Mia Schulz","Felix Wagner","Clara Bauer","Noah Klein"] },
 ];
-
 const medalsData = [];
-
 const events = [
   { id:"run-short",   name:"Running — Short",  icon:"🏃", date:"Mon 2 Jun", time:"10:00", slots:2 },
   { id:"run-long",    name:"Running — Long",   icon:"🏃", date:"Mon 2 Jun", time:"14:00", slots:2 },
@@ -292,156 +336,211 @@ const events = [
   { id:"flunkyball",  name:"Flunky Ball",      icon:"🍺", date:"Fri 6 Jun", time:"10:00", slots:3 },
   { id:"bowling",     name:"Bowling",          icon:"🎳", date:"Fri 6 Jun", time:"14:00", slots:3 },
 ];
-
 const SIGNUP_FORM_URL = "https://formspree.io/f/mgodzqon";
 
-/* =========================================================
-   STORAGE HELPERS
-   ========================================================= */
-async function getRegistrations(eventId) {
-  try {
-    const result = await window.storage.get(`ev_reg:${eventId}`, true);
-    return result ? JSON.parse(result.value) : [];
-  } catch(e) { return []; }
+/* ===================== SESSION ===================== */
+// In-memory only — clears on page refresh
+let session = null; // { teamName, memberName, isCaptain, teamObj }
+
+function renderNavSession() {
+  const el = document.getElementById('nav-session');
+  if (!session) {
+    el.innerHTML = `<button class="nav-signin-btn" onclick="openSignIn()">Sign In</button>`;
+  } else {
+    const cap = session.isCaptain ? `<span class="session-pill-captain">captain</span>` : '';
+    el.innerHTML = `<div class="session-pill">
+      <span class="session-pill-name">${session.memberName}</span>
+      <span class="session-pill-team">· ${session.teamName}</span>
+      ${cap}
+      <button class="session-signout" onclick="signOut()">sign out</button>
+    </div>`;
+  }
 }
 
+function signOut() {
+  session = null;
+  renderNavSession();
+  if (document.getElementById('event-page').style.display === 'block') {
+    renderEventReg(events.find(e => e.id === currentEventId));
+  }
+}
+
+/* ===================== SIGN-IN ===================== */
+let pendingEventId = null;
+
+function openSignIn(evId) {
+  pendingEventId = evId || null;
+  const sel = document.getElementById('signin-team');
+  sel.innerHTML = '<option value="">Select your lab…</option>' +
+    acceptedTeams.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
+  document.getElementById('signin-name').value = '';
+  document.getElementById('signin-error').style.display = 'none';
+  document.getElementById('signin-overlay').classList.add('active');
+  setTimeout(() => document.getElementById('signin-name').focus(), 100);
+}
+
+function closeSignIn() {
+  document.getElementById('signin-overlay').classList.remove('active');
+  pendingEventId = null;
+}
+
+// Allow Enter key to confirm
+document.getElementById('signin-name').addEventListener('keydown', e => { if (e.key === 'Enter') confirmSignIn(); });
+
+function confirmSignIn() {
+  const teamName = document.getElementById('signin-team').value.trim();
+  const rawName  = document.getElementById('signin-name').value.trim();
+  const errEl    = document.getElementById('signin-error');
+
+  if (!teamName) { showSignInError('Please select your lab.'); return; }
+  if (!rawName)  { showSignInError('Please enter your full name.'); return; }
+
+  const team = acceptedTeams.find(t => t.name === teamName);
+  if (!team)     { showSignInError('Team not found.'); return; }
+
+  const norm = s => s.toLowerCase().replace(/\s+/g, ' ').trim();
+  const matched = team.members.find(m => norm(m) === norm(rawName));
+
+  if (!matched) {
+    showSignInError(`"${rawName}" is not on the ${teamName} roster. Check the exact spelling used during registration.`);
+    return;
+  }
+
+  session = {
+    teamName:   team.name,
+    memberName: matched,
+    isCaptain:  norm(matched) === norm(team.captain),
+    teamObj:    team
+  };
+
+  closeSignIn();
+  renderNavSession();
+
+  if (pendingEventId) {
+    openEvent(pendingEventId);
+  } else if (document.getElementById('event-page').style.display === 'block') {
+    renderEventReg(events.find(e => e.id === currentEventId));
+  }
+}
+
+function showSignInError(msg) {
+  const el = document.getElementById('signin-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+/* ===================== STORAGE ===================== */
+async function getRegistrations(eventId) {
+  try {
+    const r = await window.storage.get(`ev_reg:${eventId}`, true);
+    return r ? JSON.parse(r.value) : [];
+  } catch(e) { return []; }
+}
 async function saveRegistration(eventId, teamName, members) {
   const all = await getRegistrations(eventId);
   const idx = all.findIndex(r => r.team === teamName);
-  if (idx >= 0) { all[idx].members = members; } else { all.push({ team: teamName, members }); }
+  if (idx >= 0) all[idx].members = members; else all.push({ team: teamName, members });
   await window.storage.set(`ev_reg:${eventId}`, JSON.stringify(all), true);
 }
-
 async function clearRegistration(eventId, teamName) {
   const all = await getRegistrations(eventId);
-  const filtered = all.filter(r => r.team !== teamName);
-  await window.storage.set(`ev_reg:${eventId}`, JSON.stringify(filtered), true);
+  await window.storage.set(`ev_reg:${eventId}`, JSON.stringify(all.filter(r => r.team !== teamName)), true);
 }
 
-async function getRegCount(eventId) {
-  const regs = await getRegistrations(eventId);
-  return regs.length;
-}
-
-/* =========================================================
-   SCHEDULE RENDER
-   ========================================================= */
-const dayOrder = ["Mon 2 Jun","Tue 3 Jun","Wed 4 Jun","Thu 5 Jun","Fri 6 Jun"];
-const dayLabels = { "Mon 2 Jun":"Monday", "Tue 3 Jun":"Tuesday", "Wed 4 Jun":"Wednesday", "Thu 5 Jun":"Thursday", "Fri 6 Jun":"Friday" };
-const dayDates  = { "Mon 2 Jun":"June 2", "Tue 3 Jun":"June 3", "Wed 4 Jun":"June 4", "Thu 5 Jun":"June 5", "Fri 6 Jun":"June 6" };
+/* ===================== SCHEDULE ===================== */
+const dayOrder  = ["Mon 2 Jun","Tue 3 Jun","Wed 4 Jun","Thu 5 Jun","Fri 6 Jun"];
+const dayLabels = {"Mon 2 Jun":"Monday","Tue 3 Jun":"Tuesday","Wed 4 Jun":"Wednesday","Thu 5 Jun":"Thursday","Fri 6 Jun":"Friday"};
+const dayDates  = {"Mon 2 Jun":"June 2","Tue 3 Jun":"June 3","Wed 4 Jun":"June 4","Thu 5 Jun":"June 5","Fri 6 Jun":"June 6"};
 
 async function renderSchedule() {
   const grid = document.getElementById('schedule-grid');
-  const grouped = {};
-  dayOrder.forEach(d => { grouped[d] = []; });
+  const grouped = {}; dayOrder.forEach(d => { grouped[d] = []; });
   events.forEach(ev => { if (grouped[ev.date]) grouped[ev.date].push(ev); });
-
   let html = '';
   for (const day of dayOrder) {
-    const evs = grouped[day];
-    if (!evs.length) continue;
-    const evItems = await Promise.all(evs.map(async ev => {
-      const count = await getRegCount(ev.id);
-      const countBadge = count > 0 ? `<span class="ev-reg-count">${count} team${count!==1?'s':''}</span>` : '';
+    const evs = grouped[day]; if (!evs.length) continue;
+    const items = await Promise.all(evs.map(async ev => {
+      const count = (await getRegistrations(ev.id)).length;
+      const badge = count > 0 ? `<span class="ev-reg-count">${count} team${count!==1?'s':''}</span>` : '';
       return `<li onclick="openEvent('${ev.id}')">
-        <span>${ev.icon}</span>
-        <span class="ev-name">${ev.name}</span>
-        ${countBadge}
-        <span class="ev-slots">${ev.slots}/team</span>
-        <span class="ev-time">${ev.time}</span>
-        <span class="ev-arrow">›</span>
+        <span>${ev.icon}</span><span class="ev-name">${ev.name}</span>
+        ${badge}<span class="ev-slots">${ev.slots}/team</span>
+        <span class="ev-time">${ev.time}</span><span class="ev-arrow">›</span>
       </li>`;
     }));
     html += `<div class="schedule-day">
       <div class="day-label">${dayLabels[day]}</div>
       <div class="day-date">${dayDates[day]}</div>
-      <ul class="day-events">${evItems.join('')}</ul>
+      <ul class="day-events">${items.join('')}</ul>
     </div>`;
   }
   grid.innerHTML = html;
 }
 
-/* =========================================================
-   TEAMS RENDER
-   ========================================================= */
+/* ===================== TEAMS ===================== */
 function renderTeams() {
   const grid = document.getElementById('teams-grid');
-  grid.innerHTML = acceptedTeams.length === 0
-    ? '<div style="color:gray; padding:20px; font-size:13px;">No teams registered yet.</div>'
+  grid.innerHTML = !acceptedTeams.length
+    ? '<div style="color:gray;padding:20px;font-size:13px;">No teams registered yet.</div>'
     : acceptedTeams.map(t => `
       <div class="team-card">
         <div class="team-name">${t.name}</div>
         <div class="team-dept">${t.dept}</div>
-        <div>${t.members.map(m => `<span class="member-chip">${m}</span>`).join('')}</div>
+        <div>${t.members.map(m => {
+          const cap = m === t.captain;
+          return `<span class="member-chip${cap?' is-captain':''}">${m}${cap?' ★':''}</span>`;
+        }).join('')}</div>
       </div>`).join('');
 }
 
-/* =========================================================
-   MEDALS RENDER
-   ========================================================= */
+/* ===================== MEDALS ===================== */
 function renderMedals() {
   const body = document.getElementById('medals-body');
   if (!medalsData.length) {
-    body.innerHTML = '<div style="padding:20px; text-align:center; color:gray; font-size:13px;">Standings will appear here once events conclude.</div>';
-    return;
+    body.innerHTML = '<div style="padding:20px;text-align:center;color:gray;font-size:13px;">Standings will appear once events conclude.</div>'; return;
   }
-  const sorted = [...medalsData].sort((a,b) => (b.gold*3+b.silver*2+b.bronze) - (a.gold*3+a.silver*2+a.bronze));
+  const sorted = [...medalsData].sort((a,b) => (b.gold*3+b.silver*2+b.bronze)-(a.gold*3+a.silver*2+a.bronze));
   body.innerHTML = sorted.map((t,i) => `
     <div class="medals-row">
       <span style="font-weight:700;font-size:13px;">${i+1}</span>
       <span style="font-weight:600;font-size:13px;">${t.name}</span>
-      <span class="medal-cell">${t.gold}</span>
-      <span class="medal-cell">${t.silver}</span>
+      <span class="medal-cell">${t.gold}</span><span class="medal-cell">${t.silver}</span>
       <span class="medal-cell">${t.bronze}</span>
       <span class="medal-cell" style="font-size:14px;">${t.gold+t.silver+t.bronze}</span>
     </div>`).join('');
 }
 
-/* =========================================================
-   REGISTRATION FORM (main page)
-   ========================================================= */
+/* ===================== MAIN REGISTRATION FORM ===================== */
 let memberCount = 5;
 function addMember() {
   memberCount++;
-  const input = document.createElement('input');
-  input.type = 'text'; input.name = `member_${memberCount}`; input.placeholder = `Name ${memberCount}`;
-  document.getElementById('members-list').appendChild(input);
+  const inp = document.createElement('input');
+  inp.type='text'; inp.name=`member_${memberCount}`; inp.placeholder=`Name ${memberCount}`;
+  document.getElementById('members-list').appendChild(inp);
 }
 document.getElementById('reg-form').addEventListener('submit', async function(e) {
   e.preventDefault();
   const btn = this.querySelector('.btn-submit');
-  btn.textContent = 'Sending...'; btn.disabled = true;
-  const data = new FormData(this);
-  const response = await fetch(this.action, { method:'POST', body:data, headers:{'Accept':'application/json'} });
-  if (response.ok) {
-    document.getElementById('reg-success').style.display = 'block';
-    btn.textContent = 'Sent!'; this.reset();
-  } else {
-    btn.disabled = false; btn.textContent = 'Register Lab'; alert('Submission failed.');
-  }
+  btn.textContent='Sending…'; btn.disabled=true;
+  const resp = await fetch(this.action, {method:'POST', body:new FormData(this), headers:{'Accept':'application/json'}});
+  if (resp.ok) { document.getElementById('reg-success').style.display='block'; btn.textContent='Sent!'; this.reset(); }
+  else { btn.disabled=false; btn.textContent='Register Lab'; alert('Submission failed.'); }
 });
 
-/* =========================================================
-   EVENT DETAIL PAGE
-   ========================================================= */
+/* ===================== EVENT DETAIL PAGE ===================== */
 let currentEventId = null;
 
-async function openEvent(eventId) {
-  currentEventId = eventId;
-  const ev = events.find(e => e.id === eventId);
-
+async function openEvent(evId) {
+  currentEventId = evId;
+  const ev = events.find(e => e.id === evId);
   document.getElementById('main-page').style.display = 'none';
   document.getElementById('event-page').style.display = 'block';
   window.scrollTo(0,0);
-
-  document.getElementById('ep-icon').textContent = ev.icon;
+  document.getElementById('ep-icon').textContent  = ev.icon;
   document.getElementById('ep-title').textContent = ev.name;
-  document.getElementById('ep-meta').innerHTML = `
+  document.getElementById('ep-meta').innerHTML    = `
     <span class="ep-badge">${ev.date}</span>
     <span class="ep-badge">${ev.time}</span>
-    <span class="ep-badge gold">${ev.slots} member${ev.slots>1?'s':''} per team</span>
-  `;
-
+    <span class="ep-badge gold">${ev.slots} member${ev.slots>1?'s':''} per team</span>`;
   renderEventReg(ev);
   await renderOpponents(ev);
 }
@@ -449,101 +548,102 @@ async function openEvent(eventId) {
 function renderEventReg(ev) {
   const wrap = document.getElementById('ep-reg-content');
 
-  if (acceptedTeams.length === 0) {
-    wrap.innerHTML = `<p style="font-size:13px; color:var(--muted);">Team registration is still open. Once your lab is accepted you can sign up participants here.</p>`;
+  if (!acceptedTeams.length) {
+    wrap.innerHTML = `<p style="font-size:13px;color:var(--muted);">Team registration is still open. Once labs are accepted you can sign up here.</p>`;
+    return;
+  }
+  if (!session) {
+    wrap.innerHTML = `<div class="auth-gate">
+      <div class="auth-gate-icon">🔒</div>
+      <div class="auth-gate-title">Sign in to manage your team</div>
+      <div class="auth-gate-sub">Only registered team members can view or edit event participation.</div>
+      <button class="btn-gate-signin" onclick="openSignIn('${ev.id}')">Sign In</button>
+    </div>`;
     return;
   }
 
-  let memberInputs = '';
-  for (let i = 1; i <= ev.slots; i++) {
-    memberInputs += `<input class="reg-member-input" id="ep-member-${i}" type="text" placeholder="Member ${i} name">`;
+  if (session.isCaptain) {
+    renderCaptainForm(ev);
+  } else {
+    renderMemberView(ev);
   }
+}
+
+function renderCaptainForm(ev) {
+  const wrap = document.getElementById('ep-reg-content');
+  let inputs = '';
+  for (let i=1; i<=ev.slots; i++) {
+    inputs += `<div><span class="member-label">Participant ${i}</span>
+      <input class="reg-member-input" id="ep-member-${i}" type="text" placeholder="Full name"></div>`;
+  }
+  wrap.innerHTML = `
+    <div class="reg-who">Signed in as <strong>${session.memberName}</strong> <span style="color:var(--gold);font-size:11px;font-weight:700;">★ Captain</span></div>
+    <div id="ep-existing-box"></div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Select the ${ev.slots} participant${ev.slots>1?'s':''} competing for your team. You can update this any time.</p>
+    ${inputs}
+    <button class="btn-reg-submit" onclick="submitEventReg('${ev.id}',${ev.slots})">Confirm Participants</button>
+    <button class="btn-reg-clear" id="ep-clear-btn" style="display:none" onclick="clearEventReg('${ev.id}')">Remove our registration</button>
+    <div class="reg-success" id="ep-reg-success">✅ Participants saved!</div>`;
+  prefillExisting(ev.id, ev.slots);
+}
+
+async function renderMemberView(ev) {
+  const wrap = document.getElementById('ep-reg-content');
+  const regs = await getRegistrations(ev.id);
+  const myReg = regs.find(r => r.team === session.teamName);
+  const regInfo = myReg
+    ? `<p style="margin-top:10px;font-size:13px;"><strong style="color:var(--navy);">Your team's participants:</strong><br>${myReg.members.join(', ')}</p>`
+    : `<p style="margin-top:10px;font-size:13px;color:var(--muted);">Your team hasn't registered participants yet. Ask your captain <strong style="color:var(--navy);">${session.teamObj.captain}</strong> to confirm the lineup.</p>`;
 
   wrap.innerHTML = `
-    <select class="reg-team-select" id="ep-team-sel" onchange="prefillExisting('${ev.id}', ${ev.slots})">
-      <option value="">Select your team…</option>
-      ${acceptedTeams.map(t => `<option value="${t.name}">${t.name}</option>`).join('')}
-    </select>
-    <div id="ep-existing-reg"></div>
-    <div id="ep-member-inputs">${memberInputs}</div>
-    <button class="btn-reg-submit" onclick="submitEventReg('${ev.id}', ${ev.slots})">Confirm Participants</button>
-    <button class="btn-reg-clear" id="ep-clear-btn" style="display:none" onclick="clearEventReg('${ev.id}')">Remove registration</button>
-    <div class="reg-success" id="ep-reg-success">✅ Participants registered!</div>
-  `;
+    <div class="reg-who">Signed in as <strong>${session.memberName}</strong> · ${session.teamName}</div>
+    <div class="member-only-notice">
+      <strong>Registration is managed by your captain.</strong><br>
+      Only ${session.teamObj.captain} can select participants for events.
+      ${regInfo}
+    </div>`;
 }
 
 async function prefillExisting(eventId, slots) {
-  const teamName = document.getElementById('ep-team-sel').value;
-  const existingDiv = document.getElementById('ep-existing-reg');
-  const clearBtn = document.getElementById('ep-clear-btn');
-
-  if (!teamName) { existingDiv.innerHTML = ''; clearBtn.style.display = 'none'; return; }
-
   const regs = await getRegistrations(eventId);
-  const existing = regs.find(r => r.team === teamName);
-
-  if (existing) {
-    existingDiv.innerHTML = `<div class="reg-existing"><strong>Current registration</strong>${existing.members.join(', ')}</div>`;
-    existing.members.forEach((m, i) => {
-      const inp = document.getElementById(`ep-member-${i+1}`);
-      if (inp) inp.value = m;
-    });
-    clearBtn.style.display = 'block';
+  const existing = regs.find(r => r.team === session.teamName);
+  const box = document.getElementById('ep-existing-box');
+  const clearBtn = document.getElementById('ep-clear-btn');
+  if (existing && existing.members.length) {
+    if (box) box.innerHTML = `<div class="reg-existing-box"><strong>Currently registered</strong>${existing.members.join(', ')}</div>`;
+    existing.members.forEach((m,i) => { const inp=document.getElementById(`ep-member-${i+1}`); if(inp) inp.value=m; });
+    if (clearBtn) clearBtn.style.display='block';
   } else {
-    existingDiv.innerHTML = '';
-    for (let i = 1; i <= slots; i++) {
-      const inp = document.getElementById(`ep-member-${i}`);
-      if (inp) inp.value = '';
-    }
-    clearBtn.style.display = 'none';
+    if (box) box.innerHTML='';
+    if (clearBtn) clearBtn.style.display='none';
   }
 }
 
 async function submitEventReg(eventId, slots) {
-  const teamName = document.getElementById('ep-team-sel').value;
-  if (!teamName) { alert('Please select your team first.'); return; }
-
-  const members = [];
-  for (let i = 1; i <= slots; i++) {
-    const val = (document.getElementById(`ep-member-${i}`)?.value || '').trim();
-    if (val) members.push(val);
-  }
-  if (members.length === 0) { alert('Please enter at least one participant name.'); return; }
-
-  const btn = document.querySelector('.btn-reg-submit');
-  btn.textContent = 'Saving...'; btn.disabled = true;
-
+  if (!session?.isCaptain) { alert('Only the team captain can submit registrations.'); return; }
+  const members=[];
+  for (let i=1;i<=slots;i++) { const v=(document.getElementById(`ep-member-${i}`)?.value||'').trim(); if(v) members.push(v); }
+  if (!members.length) { alert('Please enter at least one participant name.'); return; }
+  const btn=document.querySelector('.btn-reg-submit');
+  btn.textContent='Saving…'; btn.disabled=true;
   try {
-    await saveRegistration(eventId, teamName, members);
-
-    // Also notify via Formspree
-    const ev = events.find(e => e.id === eventId);
-    await fetch(SIGNUP_FORM_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body: JSON.stringify({ event: ev.name, team: teamName, members: members.join(', '), _subject: `Event Sign-up: ${teamName} → ${ev.name}` })
-    }).catch(() => {});
-
-    document.getElementById('ep-reg-success').style.display = 'block';
-    btn.textContent = 'Confirmed!';
-    document.getElementById('ep-clear-btn').style.display = 'block';
-
-    const ev2 = events.find(e => e.id === eventId);
+    await saveRegistration(eventId, session.teamName, members);
+    const ev=events.find(e=>e.id===eventId);
+    fetch(SIGNUP_FORM_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({event:ev.name,team:session.teamName,captain:session.memberName,members:members.join(', '),_subject:`Sign-up: ${session.teamName} → ${ev.name}`})}).catch(()=>{});
+    document.getElementById('ep-reg-success').style.display='block';
+    btn.textContent='Confirmed!';
     prefillExisting(eventId, slots);
-    await renderOpponents(ev2);
+    await renderOpponents(ev);
     renderSchedule();
-  } catch(e) {
-    btn.disabled = false; btn.textContent = 'Confirm Participants'; alert('Error saving. Please try again.');
-  }
+  } catch(e) { btn.disabled=false; btn.textContent='Confirm Participants'; alert('Error saving.'); }
 }
 
 async function clearEventReg(eventId) {
-  const teamName = document.getElementById('ep-team-sel').value;
-  if (!teamName) return;
-  if (!confirm(`Remove ${teamName}'s registration for this event?`)) return;
-
-  await clearRegistration(eventId, teamName);
-  const ev = events.find(e => e.id === eventId);
+  if (!session?.isCaptain) return;
+  if (!confirm(`Remove ${session.teamName}'s registration for this event?`)) return;
+  await clearRegistration(eventId, session.teamName);
+  const ev=events.find(e=>e.id===eventId);
   renderEventReg(ev);
   await renderOpponents(ev);
   renderSchedule();
@@ -551,37 +651,29 @@ async function clearEventReg(eventId) {
 
 async function renderOpponents(ev) {
   const wrap = document.getElementById('ep-opponents-content');
-  wrap.innerHTML = '<div class="ep-loading">Loading registrations…</div>';
-
+  wrap.innerHTML='<div class="ep-loading">Loading…</div>';
   const regs = await getRegistrations(ev.id);
-
-  if (regs.length === 0) {
-    wrap.innerHTML = `<div class="no-opponents">
-      <div style="font-size:32px; margin-bottom:8px;">🏁</div>
-      No teams have registered yet.<br>
-      <span style="font-size:12px;">Be the first!</span>
-    </div>`;
-    return;
+  if (!regs.length) {
+    wrap.innerHTML=`<div class="no-opponents"><div style="font-size:32px;margin-bottom:8px;">🏁</div>No teams registered yet.<br><span style="font-size:12px;">Be the first!</span></div>`; return;
   }
-
-  wrap.innerHTML = regs.map(r => `
-    <div class="opponent-entry">
-      <div class="opp-team"><span class="opp-dot"></span>${r.team}</div>
-      <div class="opp-members">${r.members.map(m => `<span class="opp-chip">${m}</span>`).join('')}</div>
-    </div>
-  `).join('');
+  wrap.innerHTML = regs.map(r => {
+    const mine = session && r.team === session.teamName;
+    return `<div class="opponent-entry">
+      <div class="opp-team"><span class="opp-dot${mine?' yours':''}"></span>${r.team}${mine?' <span style="font-size:10px;color:var(--green);font-weight:700;">YOU</span>':''}</div>
+      <div class="opp-members">${r.members.map(m=>`<span class="opp-chip${mine?' yours':''}">${m}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
 }
 
 function goHome() {
-  document.getElementById('event-page').style.display = 'none';
-  document.getElementById('main-page').style.display = 'block';
+  document.getElementById('event-page').style.display='none';
+  document.getElementById('main-page').style.display='block';
   window.scrollTo(0, document.getElementById('schedule').offsetTop - 70);
   renderSchedule();
 }
 
-/* =========================================================
-   INIT
-   ========================================================= */
+/* ===================== INIT ===================== */
+renderNavSession();
 renderTeams();
 renderSchedule();
 renderMedals();
