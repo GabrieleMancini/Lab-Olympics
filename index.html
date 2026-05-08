@@ -223,8 +223,7 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
     <div class="sport-card"><div class="sport-num">03</div><div class="sport-icon">🏓</div><div class="sport-name">Table Tennis</div><div class="sport-slots">2 members</div></div>
     <div class="sport-card"><div class="sport-num">04</div><div class="sport-icon">🛶</div><div class="sport-name">Canoeing</div><div class="sport-slots">2 members</div></div>
     <div class="sport-card"><div class="sport-num">05</div><div class="sport-icon">🏐</div><div class="sport-name">Beach Volleyball</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">06</div><div class="sport-icon">⚽</div><div class="sport-name">Football</div><div class="sport-slots">5 members</div></div>
-    <div class="sport-card"><div class="sport-num">07</div><div class="sport-icon">🫣</div><div class="sport-name">Hide &amp; Seek</div><div class="sport-slots">3 members</div></div>
+    <div class="sport-card"> <div class="sport-num">07</div><div class="sport-icon">🚲</div><div class="sport-name">Biking with Stadtrad</div> <div class="sport-slots">3 members</div></div>
     <div class="sport-card"><div class="sport-num">08</div><div class="sport-icon">🕹️</div><div class="sport-name">Kicker</div><div class="sport-slots">2 members</div></div>
     <div class="sport-card"><div class="sport-num">09</div><div class="sport-icon">🍺</div><div class="sport-name">Flunky Ball</div><div class="sport-slots">3 members</div></div>
     <div class="sport-card"><div class="sport-num">10</div><div class="sport-icon">🎳</div><div class="sport-name">Bowling</div><div class="sport-slots">3 members</div></div>
@@ -324,17 +323,16 @@ const acceptedTeams = [
   { name:"Axon Avengers", dept:"Molecular", captain:"Prof. Jan Holm", members:["Prof. Jan Holm","Mia Schulz","Felix Wagner","Clara Bauer","Noah Klein"] },
 ];
 const medalsData = [];
+  
 const events = [
-  { id:"run-short",   name:"Running — Short",  icon:"🏃", date:"Mon 2 Jun", time:"10:00", slots:2 },
-  { id:"run-long",    name:"Running — Long",   icon:"🏃", date:"Mon 2 Jun", time:"14:00", slots:2 },
-  { id:"tabletennis", name:"Table Tennis",     icon:"🏓", date:"Tue 3 Jun", time:"10:00", slots:2 },
-  { id:"kicker",      name:"Kicker",           icon:"🕹️", date:"Tue 3 Jun", time:"14:00", slots:2 },
-  { id:"beachvolley", name:"Beach Volleyball", icon:"🏐", date:"Wed 4 Jun", time:"10:00", slots:2 },
-  { id:"canoeing",    name:"Canoeing",         icon:"🛶", date:"Wed 4 Jun", time:"14:00", slots:2 },
-  { id:"football",    name:"Football",         icon:"⚽", date:"Thu 5 Jun", time:"10:00", slots:5 },
-  { id:"hideseek",    name:"Hide & Seek",      icon:"🫣", date:"Thu 5 Jun", time:"14:00", slots:3 },
-  { id:"flunkyball",  name:"Flunky Ball",      icon:"🍺", date:"Fri 6 Jun", time:"10:00", slots:3 },
-  { id:"bowling",     name:"Bowling",          icon:"🎳", date:"Fri 6 Jun", time:"14:00", slots:3 },
+  { id: "tabletennis", name: "Table Tennis",     icon: "🏓", date: "Wed 4 Jun", time: "18:00", slots: 2 },
+  { id: "run-short",   name: "Running — Short",  icon: "🏃", date: "Wed 4 Jun", time: "19:00", slots: 2 },
+  { id: "kicker",      name: "Kicker",           icon: "🕹️", date: "Thu 5 Jun", time: "19:00", slots: 2 },
+  { id: "bowling",     name: "Bowling",          icon: "🎳", date: "Thu 5 Jun", time: "20:00", slots: 3 },
+  { id: "run-long",    name: "Running — Long",   icon: "🏃", date: "Sat 7 Jun", time: "14:00", slots: 2 },
+  { id: "biking with Stadtrad",    name: "Biking with Stadtrad",      icon: "🚲", date: "Sat 7 Jun", time: "16:00", slots: 3 },
+  { id: "flunkyball",  name: "Flunky Ball",      icon: "🍺", date: "Sun 8 Jun", time: "14:00", slots: 3 },
+  { id: "canoeing",    name: "Canoeing",         icon: "🛶", date: "Sun 8 Jun", time: "15:00", slots: 2 },
 ];
 const SIGNUP_FORM_URL = "https://formspree.io/f/mgodzqon";
 
