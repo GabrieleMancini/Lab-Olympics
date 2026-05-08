@@ -444,11 +444,30 @@ async function clearRegistration(eventId, teamName) {
   await window.storage.set(`ev_reg:${eventId}`, JSON.stringify(all.filter(r => r.team !== teamName)), true);
 }
 
-/* ===================== SCHEDULE ===================== */
-const dayOrder  = ["Mon 2 Jun","Tue 3 Jun","Wed 4 Jun","Thu 5 Jun","Fri 6 Jun"];
-const dayLabels = {"Mon 2 Jun":"Monday","Tue 3 Jun":"Tuesday","Wed 4 Jun":"Wednesday","Thu 5 Jun":"Thursday","Fri 6 Jun":"Friday"};
-const dayDates  = {"Mon 2 Jun":"June 2","Tue 3 Jun":"June 3","Wed 4 Jun":"June 4","Thu 5 Jun":"June 5","Fri 6 Jun":"June 6"};
 
+  /* ===================== SCHEDULE ===================== */
+const dayOrder  = ["Mon 2 Jun", "Tue 3 Jun", "Wed 4 Jun", "Thu 5 Jun", "Fri 6 Jun", "Sat 7 Jun", "Sun 8 Jun"];
+
+const dayLabels = {
+  "Mon 2 Jun": "Monday",
+  "Tue 3 Jun": "Tuesday",
+  "Wed 4 Jun": "Wednesday",
+  "Thu 5 Jun": "Thursday",
+  "Fri 6 Jun": "Friday",
+  "Sat 7 Jun": "Saturday",
+  "Sun 8 Jun": "Sunday"
+};
+
+const dayDates  = {
+  "Mon 2 Jun": "June 2",
+  "Tue 3 Jun": "June 3",
+  "Wed 4 Jun": "June 4",
+  "Thu 5 Jun": "June 5",
+  "Fri 6 Jun": "June 6",
+  "Sat 7 Jun": "June 7",
+  "Sun 8 Jun": "June 8"
+};
+  
 async function renderSchedule() {
   const grid = document.getElementById('schedule-grid');
   const grouped = {}; dayOrder.forEach(d => { grouped[d] = []; });
