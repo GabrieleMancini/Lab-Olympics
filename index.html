@@ -69,7 +69,8 @@ hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000p
 @media (min-width: 768px) { .schedule-grid { grid-template-columns: 1fr 1fr; } }
 .schedule-day { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--gold); padding: 18px; }
 .day-label { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--navy); line-height: 1; }
-.day-date { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.day-date { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.day-location { font-size: 12px; font-weight: 600; color: var(--navy); background: var(--gold-pale); border: 1px solid #e8c86a; border-radius: 4px; padding: 4px 10px; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 5px; }
 .day-events { list-style: none; display: flex; flex-direction: column; gap: 4px; }
 .day-events li { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 8px 6px; cursor: pointer; border-radius: 4px; transition: background 0.15s; }
 .day-events li:hover { background: var(--gold-pale); }
@@ -276,6 +277,8 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
     <input type="text" name="captain_name" required>
     <label>Captain Email</label>
     <input type="email" name="_replyto" required>
+    <label>Captain Phone <span style="font-size:11px;font-weight:400;color:var(--muted);">— for the WhatsApp group 📱</span></label>
+    <input type="tel" name="captain_phone" placeholder="+49 …" required>
     <label>Team Members (min 5)</label>
     <div id="members-list">
       <input type="text" name="member_1" placeholder="Name 1" required>
@@ -467,6 +470,13 @@ const dayDates  = {
   "Sat 7 Jun": "June 7",
   "Sun 8 Jun": "June 8"
 };
+
+const dayLocations = {
+  "Wed 4 Jun": { icon: "🌳", name: "Eppendorfer Park" },
+  "Thu 5 Jun": { icon: "🎳", name: "Bowling venue (TBD)" },
+  "Sat 7 Jun": { icon: "🚣", name: "Alster Lake" },
+  "Sun 8 Jun": { icon: "🌿", name: "Stadtpark" }
+};
   
 async function renderSchedule() {
   const grid = document.getElementById('schedule-grid');
@@ -484,9 +494,12 @@ async function renderSchedule() {
         <span class="ev-time">${ev.time}</span><span class="ev-arrow">›</span>
       </li>`;
     }));
+    const loc = dayLocations[day];
+    const locHtml = loc ? `<div class="day-location">${loc.icon} ${loc.name}</div>` : '';
     html += `<div class="schedule-day">
       <div class="day-label">${dayLabels[day]}</div>
       <div class="day-date">${dayDates[day]}</div>
+      ${locHtml}
       <ul class="day-events">${items.join('')}</ul>
     </div>`;
   }
@@ -557,6 +570,7 @@ async function openEvent(evId) {
   document.getElementById('ep-meta').innerHTML    = `
     <span class="ep-badge">${ev.date}</span>
     <span class="ep-badge">${ev.time}</span>
+    ${dayLocations[ev.date] ? `<span class="ep-badge">📍 ${dayLocations[ev.date].name}</span>` : ''}
     <span class="ep-badge gold">${ev.slots} member${ev.slots>1?'s':''} per team</span>`;
   renderEventReg(ev);
   await renderOpponents(ev);
