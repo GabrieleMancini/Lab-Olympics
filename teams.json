@@ -1,0 +1,20 @@
+{
+  "acceptedTeams": [
+    {
+      "name": "Cortex Crushers",
+      "dept": "Neuro",
+      "captain": "Dr. Anna Berg",
+      "members": ["Dr. Anna Berg", "Max Müller", "Sara Koch", "Lena Braun", "Tom Richter"]
+    },
+    {
+      "name": "Axon Avengers",
+      "dept": "Molecular",
+      "captain": "Prof. Jan Holm",
+      "members": ["Prof. Jan Holm", "Mia Schulz", "Felix Wagner", "Clara Bauer", "Noah Klein"]
+    }
+  ],
+  "medals": [
+    { "name": "Cortex Crushers", "gold": 2, "silver": 1, "bronze": 0 },
+    { "name": "Axon Avengers", "gold": 1, "silver": 0, "bronze": 3 }
+  ]
+}
