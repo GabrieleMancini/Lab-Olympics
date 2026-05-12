@@ -208,7 +208,7 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <div class="hero-eyebrow">Cortex United presents</div>
   <div class="hero-title">Lab<span>Olympics</span></div>
   <div class="hero-dates">4 &ndash; 8 June 2026</div>
-  <p class="hero-sub">9 disciplines · Minimum 5 members per lab · ZMNH, Hamburg</p>
+  <p class="hero-sub">6 disciplines · 3 days · Minimum 5 members per lab · Hamburg</p>
   <div class="rings-row">
     <div class="ring-o"></div><div class="ring-o"></div><div class="ring-o"></div>
     <div class="ring-o"></div><div class="ring-o"></div>
@@ -217,17 +217,14 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
 
 <section id="sports">
   <div class="section-tag">The Disciplines</div>
-  <div class="section-title">9 Events</div>
+  <div class="section-title">6 Events</div>
   <div class="sports-grid">
-    <div class="sport-card"><div class="sport-num">01</div><div class="sport-icon">🏃</div><div class="sport-name">Running — Short</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">02</div><div class="sport-icon">🏃</div><div class="sport-name">Running — Long</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">03</div><div class="sport-icon">🏓</div><div class="sport-name">Table Tennis</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">04</div><div class="sport-icon">🛶</div><div class="sport-name">Canoeing</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">05</div><div class="sport-icon">🏐</div><div class="sport-name">Beach Volleyball</div><div class="sport-slots">3 members</div></div>
-    <div class="sport-card"> <div class="sport-num">06</div><div class="sport-icon">🚲</div><div class="sport-name">Biking with Stadtrad</div> <div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">07</div><div class="sport-icon">🕹️</div><div class="sport-name">Kicker</div><div class="sport-slots">2 members</div></div>
-    <div class="sport-card"><div class="sport-num">08</div><div class="sport-icon">🍺</div><div class="sport-name">Flunky Ball</div><div class="sport-slots">5 members</div></div>
-    <div class="sport-card"><div class="sport-num">09</div><div class="sport-icon">🎳</div><div class="sport-name">Bowling</div><div class="sport-slots">2 members</div></div>
+    <div class="sport-card"><div class="sport-num">01</div><div class="sport-icon">🏃</div><div class="sport-name">Running — Short</div><div class="sport-slots">2 members · Wed 18:00</div></div>
+    <div class="sport-card"><div class="sport-num">02</div><div class="sport-icon">🏓</div><div class="sport-name">Table Tennis</div><div class="sport-slots">2 members · Wed 18:00</div></div>
+    <div class="sport-card"><div class="sport-num">03</div><div class="sport-icon">🏃</div><div class="sport-name">Running — Long</div><div class="sport-slots">2 members · Sat 14:00</div></div>
+    <div class="sport-card"><div class="sport-num">04</div><div class="sport-icon">🚲</div><div class="sport-name">Bike — Stadtrad</div><div class="sport-slots">2 members · Sat 16:00</div></div>
+    <div class="sport-card"><div class="sport-num">05</div><div class="sport-icon">🍺</div><div class="sport-name">Flunky Ball</div><div class="sport-slots">3 members · Sun 14:00</div></div>
+    <div class="sport-card"><div class="sport-num">06</div><div class="sport-icon">🛶</div><div class="sport-name">Canoeing</div><div class="sport-slots">2 members · Sun 15:00</div></div>
   </div>
 </section>
 
@@ -328,14 +325,12 @@ const acceptedTeams = [
 const medalsData = [];
   
 const events = [
-  { id: "tabletennis", name: "Table Tennis",     icon: "🏓", date: "Wed 4 Jun", time: "18:00", slots: 2 },
-  { id: "run-short",   name: "Running — Short",  icon: "🏃", date: "Wed 4 Jun", time: "19:00", slots: 2 },
-  { id: "kicker",      name: "Kicker",           icon: "🕹️", date: "Thu 5 Jun", time: "19:00", slots: 2 },
-  { id: "bowling",     name: "Bowling",          icon: "🎳", date: "Thu 5 Jun", time: "20:00", slots: 2 },
-  { id: "run-long",    name: "Running — Long",   icon: "🏃", date: "Sat 7 Jun", time: "14:00", slots: 2 },
-  { id: "Biking with Stadtrad",    name: "Biking with Stadtrad",      icon: "🚲", date: "Sat 7 Jun", time: "16:00", slots: 2 },
-  { id: "flunkyball",  name: "Flunky Ball",      icon: "🍺", date: "Sun 8 Jun", time: "14:00", slots: 5 },
-  { id: "canoeing",    name: "Canoeing",         icon: "🛶", date: "Sun 8 Jun", time: "15:00", slots: 2 },
+  { id: "run-short",   name: "Running — Short",     icon: "🏃", date: "Wed 4 Jun", time: "18:00", slots: 2 },
+  { id: "tabletennis", name: "Table Tennis",         icon: "🏓", date: "Wed 4 Jun", time: "18:00", slots: 2 },
+  { id: "run-long",    name: "Running — Long",       icon: "🏃", date: "Sat 7 Jun", time: "14:00", slots: 2 },
+  { id: "bike",        name: "Bike — Stadtrad",      icon: "🚲", date: "Sat 7 Jun", time: "16:00", slots: 2 },
+  { id: "flunkyball",  name: "Flunky Ball",          icon: "🍺", date: "Sun 8 Jun", time: "14:00", slots: 3 },
+  { id: "canoeing",    name: "Canoeing",             icon: "🛶", date: "Sun 8 Jun", time: "15:00", slots: 2 },
 ];
 const SIGNUP_FORM_URL = "https://formspree.io/f/mgodzqon";
 
@@ -449,33 +444,24 @@ async function clearRegistration(eventId, teamName) {
 
 
   /* ===================== SCHEDULE ===================== */
-const dayOrder  = ["Mon 2 Jun", "Tue 3 Jun", "Wed 4 Jun", "Thu 5 Jun", "Fri 6 Jun", "Sat 7 Jun", "Sun 8 Jun"];
+const dayOrder  = ["Wed 4 Jun", "Sat 7 Jun", "Sun 8 Jun"];
 
 const dayLabels = {
-  "Mon 2 Jun": "Monday",
-  "Tue 3 Jun": "Tuesday",
   "Wed 4 Jun": "Wednesday",
-  "Thu 5 Jun": "Thursday",
-  "Fri 6 Jun": "Friday",
   "Sat 7 Jun": "Saturday",
   "Sun 8 Jun": "Sunday"
 };
 
 const dayDates  = {
-  "Mon 2 Jun": "June 2",
-  "Tue 3 Jun": "June 3",
   "Wed 4 Jun": "June 4",
-  "Thu 5 Jun": "June 5",
-  "Fri 6 Jun": "June 6",
   "Sat 7 Jun": "June 7",
   "Sun 8 Jun": "June 8"
 };
 
 const dayLocations = {
   "Wed 4 Jun": { icon: "🌳", name: "Eppendorfer Park" },
-  "Thu 5 Jun": { icon: "🎳", name: "Bowling venue (TBD)" },
   "Sat 7 Jun": { icon: "🚣", name: "Alster Lake" },
-  "Sun 8 Jun": { icon: "🌿", name: "Stadtpark" }
+  "Sun 8 Jun": { icon: "🚣", name: "Alster Lake" }
 };
   
 async function renderSchedule() {
