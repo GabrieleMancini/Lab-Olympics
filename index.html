@@ -64,6 +64,7 @@ hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000p
 .sport-icon { font-size: 24px; margin-bottom: 8px; }
 .sport-name { font-size: 14px; font-weight: 600; color: var(--navy); line-height: 1.2; }
 .sport-slots { font-size: 10px; color: var(--gold); font-weight: 700; margin-top: 8px; }
+.sport-desc { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
 
 .schedule-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
 @media (min-width: 768px) { .schedule-grid { grid-template-columns: 1fr 1fr; } }
@@ -208,7 +209,7 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <div class="hero-eyebrow">Cortex United presents</div>
   <div class="hero-title">Lab<span>Olympics</span></div>
   <div class="hero-dates">4 &ndash; 8 June 2026</div>
-  <p class="hero-sub">6 disciplines · 3 days · Minimum 5 members per lab · Hamburg</p>
+  <p class="hero-sub">7 disciplines · 3 days · Minimum 5 members per lab · Hamburg</p>
   <div class="rings-row">
     <div class="ring-o"></div><div class="ring-o"></div><div class="ring-o"></div>
     <div class="ring-o"></div><div class="ring-o"></div>
@@ -217,14 +218,15 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
 
 <section id="sports">
   <div class="section-tag">The Disciplines</div>
-  <div class="section-title">6 Events</div>
+  <div class="section-title">7 Events</div>
   <div class="sports-grid">
-    <div class="sport-card"><div class="sport-num">01</div><div class="sport-icon">🏃</div><div class="sport-name">Running — Short</div><div class="sport-slots">2 members · Wed 18:00</div></div>
-    <div class="sport-card"><div class="sport-num">02</div><div class="sport-icon">🏓</div><div class="sport-name">Table Tennis</div><div class="sport-slots">2 members · Wed 18:00</div></div>
-    <div class="sport-card"><div class="sport-num">03</div><div class="sport-icon">🏃</div><div class="sport-name">Running — Long</div><div class="sport-slots">2 members · Sat 14:00</div></div>
-    <div class="sport-card"><div class="sport-num">04</div><div class="sport-icon">🚲</div><div class="sport-name">Bike — Stadtrad</div><div class="sport-slots">2 members · Sat 16:00</div></div>
-    <div class="sport-card"><div class="sport-num">05</div><div class="sport-icon">🍺</div><div class="sport-name">Flunky Ball</div><div class="sport-slots">3 members · Sun 14:00</div></div>
-    <div class="sport-card"><div class="sport-num">06</div><div class="sport-icon">🛶</div><div class="sport-name">Canoeing</div><div class="sport-slots">2 members · Sun 15:00</div></div>
+    <div class="sport-card"><div class="sport-num">01</div><div class="sport-icon">🏃</div><div class="sport-name">Running — Short</div><div class="sport-slots">2 members · Wed 18:00</div><div class="sport-desc">Fast race — 200 m sprint</div></div>
+    <div class="sport-card"><div class="sport-num">02</div><div class="sport-icon">🏓</div><div class="sport-name">Table Tennis</div><div class="sport-slots">2 members · Wed 18:00</div><div class="sport-desc">Singles table tennis tournament</div></div>
+    <div class="sport-card"><div class="sport-num">03</div><div class="sport-icon">🏃</div><div class="sport-name">Running — Long</div><div class="sport-slots">2 members · Sat 14:00</div><div class="sport-desc">7.5 km run around the lake</div></div>
+    <div class="sport-card"><div class="sport-num">04</div><div class="sport-icon">🚲</div><div class="sport-name">Bike — Stadtrad</div><div class="sport-slots">2 members · Sat 16:00</div><div class="sport-desc">7.5 km around the lake with Stadtrad sharing bikes</div></div>
+    <div class="sport-card"><div class="sport-num">05</div><div class="sport-icon">🛶</div><div class="sport-name">Canoeing</div><div class="sport-slots">2 members · Sat 18:00</div><div class="sport-desc">Double canoeing — 1 km</div></div>
+    <div class="sport-card"><div class="sport-num">06</div><div class="sport-icon">🏐</div><div class="sport-name">Beach Volleyball</div><div class="sport-slots">3 members · Sun 14:00</div><div class="sport-desc">Beach volleyball tournament — 3 vs 3</div></div>
+    <div class="sport-card"><div class="sport-num">07</div><div class="sport-icon">🍺</div><div class="sport-name">Flunky Ball</div><div class="sport-slots">5 members · Sun 16:00</div><div class="sport-desc">Flunky Ball — 5 vs 5</div></div>
   </div>
 </section>
 
@@ -325,12 +327,13 @@ const acceptedTeams = [
 const medalsData = [];
   
 const events = [
-  { id: "run-short",   name: "Running — Short",     icon: "🏃", date: "Wed 4 Jun", time: "18:00", slots: 2 },
-  { id: "tabletennis", name: "Table Tennis",         icon: "🏓", date: "Wed 4 Jun", time: "18:00", slots: 2 },
-  { id: "run-long",    name: "Running — Long",       icon: "🏃", date: "Sat 7 Jun", time: "14:00", slots: 2 },
-  { id: "bike",        name: "Bike — Stadtrad",      icon: "🚲", date: "Sat 7 Jun", time: "16:00", slots: 2 },
-  { id: "flunkyball",  name: "Flunky Ball",          icon: "🍺", date: "Sun 8 Jun", time: "14:00", slots: 3 },
-  { id: "canoeing",    name: "Canoeing",             icon: "🛶", date: "Sun 8 Jun", time: "15:00", slots: 2 },
+  { id: "run-short",   name: "Running — Short",  icon: "🏃", date: "Wed 4 Jun", time: "18:00", slots: 2, desc: "Fast race — 200 m sprint" },
+  { id: "tabletennis", name: "Table Tennis",      icon: "🏓", date: "Wed 4 Jun", time: "18:00", slots: 2, desc: "Singles table tennis tournament" },
+  { id: "run-long",    name: "Running — Long",    icon: "🏃", date: "Sat 7 Jun", time: "14:00", slots: 2, desc: "7.5 km run around the lake" },
+  { id: "bike",        name: "Bike — Stadtrad",   icon: "🚲", date: "Sat 7 Jun", time: "16:00", slots: 2, desc: "7.5 km around the lake with Stadtrad sharing bikes" },
+  { id: "canoeing",    name: "Canoeing",          icon: "🛶", date: "Sat 7 Jun", time: "18:00", slots: 2, desc: "Double canoeing — 1 km" },
+  { id: "beachvolley", name: "Beach Volleyball",  icon: "🏐", date: "Sun 8 Jun", time: "14:00", slots: 3, desc: "Beach volleyball tournament — 3 vs 3" },
+  { id: "flunkyball",  name: "Flunky Ball",       icon: "🍺", date: "Sun 8 Jun", time: "16:00", slots: 5, desc: "Flunky Ball — 5 vs 5" },
 ];
 const SIGNUP_FORM_URL = "https://formspree.io/f/mgodzqon";
 
@@ -461,7 +464,7 @@ const dayDates  = {
 const dayLocations = {
   "Wed 4 Jun": { icon: "🌳", name: "Eppendorfer Park" },
   "Sat 7 Jun": { icon: "🚣", name: "Alster Lake" },
-  "Sun 8 Jun": { icon: "🚣", name: "Alster Lake" }
+  "Sun 8 Jun": { icon: "🌳", name: "Stadtpark" }
 };
   
 async function renderSchedule() {
@@ -557,7 +560,8 @@ async function openEvent(evId) {
     <span class="ep-badge">${ev.date}</span>
     <span class="ep-badge">${ev.time}</span>
     ${dayLocations[ev.date] ? `<span class="ep-badge">📍 ${dayLocations[ev.date].name}</span>` : ''}
-    <span class="ep-badge gold">${ev.slots} member${ev.slots>1?'s':''} per team</span>`;
+    <span class="ep-badge gold">${ev.slots} member${ev.slots>1?'s':''} per team</span>
+    ${ev.desc ? `<span class="ep-badge" style="background:rgba(255,255,255,0.1);font-style:italic;width:100%;justify-content:center;display:inline-block;margin-top:4px;">${ev.desc}</span>` : ''}`;
   renderEventReg(ev);
   await renderOpponents(ev);
 }
