@@ -387,7 +387,7 @@ let session = null; // { teamName, memberName, isCaptain, teamObj }
 function renderNavSession() {
   const el = document.getElementById('nav-session');
   if (!session) {
-    el.innerHTML = `<button class="nav-signin-btn" onclick="openSignIn()">Sign In</button>`;
+    el.innerHTML = '';
   } else {
     const cap = session.isCaptain ? `<span class="session-pill-captain">captain</span>` : '';
     el.innerHTML = `<div class="session-pill">
