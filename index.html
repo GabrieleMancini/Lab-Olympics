@@ -88,7 +88,8 @@ hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000p
 .ev-reg-count { font-size: 10px; background: var(--green-pale); color: var(--green); border: 1px solid var(--green-border); padding: 1px 6px; border-radius: 10px; font-weight: 700; }
 
 .teams-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 600px) { .teams-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
+@media (min-width: 600px)  { .teams-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px)  { .teams-grid { grid-template-columns: repeat(3, 1fr); } }
 .team-card { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--navy); padding: 16px; }
 .team-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); }
 .team-dept { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
@@ -958,15 +959,15 @@ renderMedals();
 // ✅ REPLACE THIS with your Firebase project config
 // (Firebase Console → Project Settings → Your apps → Web app)
 const firebaseConfig = {
-  apiKey:            "AIzaSyDWf55l0_UqCmuC2ilaQjA5KQZrapQFKNY",
-  authDomain:        "lab-olympics.firebaseapp.com",
-  databaseURL:       "https://lab-olympics-default-rtdb.firebaseio.com",
-  projectId:         "lab-olympics",
-  storageBucket:     "lab-olympics.firebasestorage.app",
-  messagingSenderId: "388108613528",
-  appId:             "1:388108613528:web:ff4ab369fce6ba60551ded"
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
 };
-  
+
 let firebaseReady = false;
 let rpDb = null;
 
