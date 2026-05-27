@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Lab Olympics 2026 — Cortex United</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
@@ -174,6 +180,107 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
 .spirit-icon { font-size: 22px; margin-bottom: 8px; }
 .spirit-rule { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--navy); line-height: 1.1; margin-bottom: 6px; }
 .spirit-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+/* ── LIVE RACE ENTRY CARD ── */
+.liverace-card {
+  background: var(--navy);
+  border: 1px solid #2e4a70;
+  border-top: 3px solid var(--gold);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-wrap: wrap;
+}
+.liverace-card:hover { background: #1f3558; }
+.liverace-left { display: flex; align-items: center; gap: 16px; }
+.liverace-icon { font-size: 36px; line-height: 1; }
+.liverace-info {}
+.liverace-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.live-dot-sm { width: 7px; height: 7px; border-radius: 50%; background: #4de8a0; animation: blink-sm 1.2s ease-in-out infinite; display: inline-block; }
+@keyframes blink-sm { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.liverace-title { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: #f5f0e8; line-height: 1; }
+.liverace-desc { font-size: 12px; color: rgba(245,240,232,0.55); margin-top: 4px; }
+.btn-liverace { background: var(--gold); color: var(--navy); border: none; font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; padding: 10px 22px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.btn-liverace:hover { background: #e8aa1a; }
+
+/* ── RACE PAGE ── */
+#race-page { display: none; min-height: 100vh; background: var(--cream); flex-direction: column; }
+.rp-back { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 16px 20px; background: var(--white); border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; color: var(--navy); }
+.rp-back:hover { color: var(--gold); }
+.rp-header { background: var(--navy); padding: 28px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.rp-header-left { display: flex; align-items: center; gap: 14px; }
+.rp-header-icon { font-size: 36px; line-height: 1; }
+.rp-header-title { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: #f5f0e8; line-height: 1; }
+.rp-header-sub { font-size: 12px; color: rgba(245,240,232,0.55); margin-top: 2px; }
+.rp-live-badge { display: flex; align-items: center; gap: 7px; padding: 6px 14px; border-radius: 20px; border: 1px solid #4de8a0; background: rgba(77,232,160,0.1); }
+.rp-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #4de8a0; animation: blink-sm 1.2s ease-in-out infinite; }
+.rp-live-text { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #4de8a0; }
+
+.rp-body { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 130px); overflow: hidden; }
+@media (max-width: 767px) {
+  .rp-body { grid-template-columns: 1fr; height: auto; overflow: visible; }
+}
+
+/* Tracker sidebar */
+.rp-sidebar { background: var(--white); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+.rp-sidebar-inner { padding: 20px; flex: 1; }
+.rp-card-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); border-bottom: 2px solid var(--gold); padding-bottom: 8px; margin-bottom: 16px; }
+
+/* Setup state */
+#rp-screen-setup { display: flex; flex-direction: column; gap: 12px; }
+.rp-label { font-size: 12px; font-weight: 600; color: var(--navy); display: block; margin-bottom: 4px; }
+.rp-input { font-family: inherit; font-size: 15px !important; padding: 11px 12px; border: 1px solid var(--border); background: var(--cream); width: 100%; }
+.rp-input:focus { outline: none; border-color: var(--navy); }
+.btn-rp-start { background: var(--navy); color: var(--white); border: none; padding: 13px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; cursor: pointer; width: 100%; transition: background 0.15s; }
+.btn-rp-start:hover { background: #243d60; }
+.btn-rp-start:disabled { opacity: 0.35; cursor: not-allowed; }
+.rp-hint { font-size: 11px; color: var(--muted); line-height: 1.6; padding: 10px; background: var(--gold-pale); border: 1px solid #e8c86a; }
+
+/* Tracking state */
+#rp-screen-tracking { display: none; flex-direction: column; gap: 14px; }
+.rp-status-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--green-pale); border: 1px solid var(--green-border); }
+.rp-status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: blink-sm 1s ease-in-out infinite; }
+.rp-status-text { font-size: 12px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 1px; }
+.rp-data-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.rp-data-key { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.rp-data-val { font-size: 12px; font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; text-align: right; max-width: 60%; word-break: break-all; }
+.btn-rp-stop { background: none; border: 1px solid var(--red-border); color: var(--red); padding: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 4px; }
+.btn-rp-stop:hover { background: var(--red-pale); }
+.rp-runner-name-display { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--gold); letter-spacing: 1px; }
+.rp-error { font-size: 12px; color: var(--red); padding: 8px; background: var(--red-pale); border: 1px solid var(--red-border); display: none; }
+
+/* Map */
+.rp-map-wrap { position: relative; }
+@media (max-width: 767px) { .rp-map-wrap { height: 55vh; } }
+#rp-map { position: absolute; inset: 0; }
+@media (max-width: 767px) { #rp-map { position: relative; height: 55vh; } }
+
+/* Runner list overlay on map */
+.rp-runner-overlay {
+  position: absolute; top: 12px; right: 12px; z-index: 500;
+  background: rgba(26,45,74,0.92);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  padding: 10px 14px;
+  min-width: 160px;
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
+}
+.rp-overlay-title { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.rp-runner-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.07); cursor: pointer; }
+.rp-runner-row:last-child { border-bottom: none; }
+.rp-runner-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.rp-runner-row-name { font-size: 12px; font-weight: 600; color: #f5f0e8; flex: 1; }
+.rp-runner-row-status { font-size: 9px; font-weight: 700; color: #4de8a0; text-transform: uppercase; }
+.rp-runner-row-status.off { color: rgba(245,240,232,0.3); }
+.rp-no-runners { font-size: 11px; color: rgba(245,240,232,0.4); text-align: center; padding: 8px 0; }
+.rp-fit-btn { position: absolute; bottom: 24px; left: 12px; z-index: 500; background: rgba(26,45,74,0.9); color: #f5f0e8; border: 1px solid rgba(255,255,255,0.15); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; padding: 6px 12px; cursor: pointer; backdrop-filter: blur(6px); }
+.rp-fit-btn:hover { border-color: var(--gold); color: var(--gold); }
+.leaflet-control-attribution { font-size: 9px !important; }
 </style>
 </head>
 <body>
@@ -210,6 +317,7 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
       <li><a href="#teams">Teams</a></li>
       <li><a href="#medals">Medals</a></li>
       <li><a href="#register">Register</a></li>
+      <li><a href="#" onclick="openRacePage();return false;" style="color:var(--gold);display:flex;align-items:center;gap:5px;"><span class="live-dot-sm"></span>Live Race</a></li>
     </ul>
     <div id="nav-session"></div>
   </div>
@@ -276,7 +384,23 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
 
 <hr class="divider">
 
-<section id="teams">
+<section id="liverace">
+  <div class="section-tag">Race Day</div>
+  <div class="section-title">Live Race Tracker</div>
+  <div class="liverace-card" onclick="openRacePage()">
+    <div class="liverace-left">
+      <div class="liverace-icon">🗺️</div>
+      <div class="liverace-info">
+        <div class="liverace-label"><span class="live-dot-sm"></span>Live · GPS Tracking</div>
+        <div class="liverace-title">Watch the Race Live</div>
+        <div class="liverace-desc">Runners share their location from their phones · Spectators see everyone on the map in real time</div>
+      </div>
+    </div>
+    <button class="btn-liverace">Open Map →</button>
+  </div>
+</section>
+
+<hr class="divider">
   <div class="section-tag">Accepted Teams</div>
   <div class="section-title">Registered Labs</div>
   <div class="teams-grid" id="teams-grid"></div>
@@ -359,6 +483,78 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
     </div>
   </div>
 </div>
+
+<!-- ════════════ RACE PAGE ════════════ -->
+<div id="race-page">
+
+  <div class="rp-back" onclick="closeRacePage()">&#8592; Back to website</div>
+
+  <div class="rp-header">
+    <div class="rp-header-left">
+      <div class="rp-header-icon">🗺️</div>
+      <div>
+        <div class="rp-header-title">Live Race Tracker</div>
+        <div class="rp-header-sub">Lab Olympics 2026 · Hamburg</div>
+      </div>
+    </div>
+    <div class="rp-live-badge">
+      <div class="rp-live-dot"></div>
+      <div class="rp-live-text">Live</div>
+    </div>
+  </div>
+
+  <div class="rp-body">
+
+    <!-- ── Tracker sidebar ── -->
+    <div class="rp-sidebar">
+      <div class="rp-sidebar-inner">
+        <div class="rp-card-title">📍 Share Your Location</div>
+
+        <!-- Setup screen -->
+        <div id="rp-screen-setup">
+          <div class="rp-hint">Running? Enter your name and tap Start. Your position will appear on the map for everyone to follow live.</div>
+          <div>
+            <label class="rp-label" for="rp-name">Your Name</label>
+            <input class="rp-input" id="rp-name" type="text" placeholder="e.g. Anna Berg" maxlength="30" autocomplete="off">
+          </div>
+          <button class="btn-rp-start" id="btn-rp-start" disabled onclick="rpStartTracking()">Start Tracking →</button>
+          <div class="rp-error" id="rp-error"></div>
+        </div>
+
+        <!-- Active tracking screen -->
+        <div id="rp-screen-tracking">
+          <div class="rp-status-row">
+            <div class="rp-status-dot"></div>
+            <div class="rp-status-text">Transmitting live</div>
+          </div>
+          <div class="rp-runner-name-display" id="rp-display-name"></div>
+          <div class="rp-data-row"><span class="rp-data-key">Coordinates</span><span class="rp-data-val" id="rp-d-coords">Acquiring…</span></div>
+          <div class="rp-data-row"><span class="rp-data-key">Accuracy</span><span class="rp-data-val" id="rp-d-accuracy">—</span></div>
+          <div class="rp-data-row"><span class="rp-data-key">Updates sent</span><span class="rp-data-val" id="rp-d-updates">0</span></div>
+          <div class="rp-data-row" style="border:none"><span class="rp-data-key">Elapsed</span><span class="rp-data-val" id="rp-d-time">00:00:00</span></div>
+          <button class="btn-rp-stop" onclick="rpStopTracking()">■ Stop Tracking</button>
+        </div>
+      </div>
+
+      <!-- Runner list below tracker -->
+      <div style="padding: 0 20px 20px;">
+        <div class="rp-card-title" style="margin-top:4px;">🏃 Runners Online</div>
+        <div id="rp-sidebar-runners"><div style="font-size:12px;color:var(--muted);padding:4px 0;">No runners sharing yet.</div></div>
+      </div>
+    </div>
+
+    <!-- ── Map ── -->
+    <div class="rp-map-wrap">
+      <div id="rp-map"></div>
+      <div class="rp-runner-overlay" id="rp-map-runners">
+        <div class="rp-overlay-title">Runners</div>
+        <div id="rp-overlay-list"><div class="rp-no-runners">No runners yet</div></div>
+      </div>
+      <button class="rp-fit-btn" onclick="rpFitAll()">⊞ Fit all</button>
+    </div>
+
+  </div>
+</div><!-- /race-page -->
 
 <script>
 /* ===================== DATA ===================== */
@@ -756,6 +952,274 @@ renderNavSession();
 renderTeams();
 renderSchedule();
 renderMedals();
+
+/* ===================== FIREBASE + RACE TRACKER ===================== */
+
+// ✅ REPLACE THIS with your Firebase project config
+// (Firebase Console → Project Settings → Your apps → Web app)
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+let firebaseReady = false;
+let rpDb = null;
+
+function initFirebase() {
+  if (firebaseReady) return;
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    rpDb = firebase.database();
+    firebaseReady = true;
+  } catch(e) {
+    console.warn('Firebase not configured yet:', e.message);
+  }
+}
+
+// ── Runner colors (auto-assigned) ──
+const RP_COLORS = ['#d4960e','#1a7a4a','#c0392b','#2980b9','#8e44ad','#16a085','#e67e22','#2c3e50'];
+const rpRunnerColors = {};
+let rpColorIdx = 0;
+function rpGetColor(name) {
+  if (!rpRunnerColors[name]) rpRunnerColors[name] = RP_COLORS[rpColorIdx++ % RP_COLORS.length];
+  return rpRunnerColors[name];
+}
+
+// ── Map (lazy-init when page opens) ──
+let rpMap = null;
+let rpMarkers = {};
+let rpRunnersData = {};
+let rpFirebaseListener = null;
+
+function rpInitMap() {
+  if (rpMap) return;
+  rpMap = L.map('rp-map', { zoomControl: false }).setView([53.575, 10.015], 13);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri', maxZoom: 19
+  }).addTo(rpMap);
+  L.control.zoom({ position: 'bottomright' }).addTo(rpMap);
+  setTimeout(() => rpMap.invalidateSize(), 100);
+}
+
+function rpListenFirebase() {
+  if (!rpDb || rpFirebaseListener) return;
+  rpFirebaseListener = rpDb.ref('runners').on('value', snapshot => {
+    const data = snapshot.val() || {};
+    Object.keys(rpRunnersData).forEach(k => { if (!data[k]) rpRemoveRunner(k); });
+    Object.entries(data).forEach(([key, r]) => { rpRunnersData[key] = r; rpUpsertMarker(key, r); });
+    rpUpdateOverlay();
+    rpUpdateSidebarRunners();
+  });
+}
+
+function rpUpsertMarker(key, r) {
+  if (!r.lat || !r.lng || (r.lat === 0 && r.lng === 0)) return;
+  const color    = rpGetColor(r.name);
+  const initials = r.name.slice(0,2).toUpperCase();
+  const isActive = r.active;
+  const pulse    = isActive ? `<div style="position:absolute;inset:-5px;border-radius:50%;border:2px solid ${color};animation:rp-pulse 2s ease-out infinite;"></div>` : '';
+  const iconHtml = `<div style="position:relative;display:flex;flex-direction:column;align-items:center;">
+    <div style="width:34px;height:34px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:12px;color:#fff;position:relative;">
+      ${pulse}${initials}
+    </div>
+    <div style="margin-top:2px;background:rgba(26,45,74,0.85);color:#f5f0e8;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;white-space:nowrap;">${r.name}</div>
+  </div>`;
+  const icon = L.divIcon({ html: iconHtml, className: '', iconSize: [50, 55], iconAnchor: [25, 17] });
+  if (rpMarkers[key]) {
+    rpMarkers[key].setLatLng([r.lat, r.lng]).setIcon(icon);
+  } else {
+    rpMarkers[key] = L.marker([r.lat, r.lng], { icon })
+      .addTo(rpMap)
+      .on('click', () => rpMap.flyTo([r.lat, r.lng], 16, { duration: 1 }));
+  }
+}
+
+function rpRemoveRunner(key) {
+  if (rpMarkers[key]) { rpMarkers[key].remove(); delete rpMarkers[key]; }
+  delete rpRunnersData[key];
+}
+
+function rpUpdateOverlay() {
+  const list     = document.getElementById('rp-overlay-list');
+  const sbList   = document.getElementById('rp-sidebar-runners');
+  const entries  = Object.entries(rpRunnersData);
+  if (!entries.length) {
+    list.innerHTML  = '<div class="rp-no-runners">No runners yet</div>';
+    sbList.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0;">No runners sharing yet.</div>';
+    return;
+  }
+  entries.sort(([,a],[,b]) => b.active - a.active || a.name.localeCompare(b.name));
+  list.innerHTML = entries.map(([key, r]) => {
+    const color = rpGetColor(r.name);
+    const active = r.active && r.lat && !(r.lat===0&&r.lng===0);
+    return `<div class="rp-runner-row" onclick="rpFlyTo('${key}')">
+      <div class="rp-runner-dot" style="background:${color};${active?'box-shadow:0 0 5px '+color:'opacity:0.35'}"></div>
+      <div class="rp-runner-row-name">${escHtml(r.name)}</div>
+      <div class="rp-runner-row-status ${active?'':'off'}">${active?'ON':'OFF'}</div>
+    </div>`;
+  }).join('');
+  sbList.innerHTML = entries.map(([key, r]) => {
+    const color = rpGetColor(r.name);
+    const active = r.active && r.lat && !(r.lat===0&&r.lng===0);
+    const ago = r.timestamp ? rpTimeAgo(r.timestamp) : 'never';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="rpFlyTo('${key}')">
+      <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;${active?'':'opacity:0.3'}"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(r.name)}</div>
+        <div style="font-size:11px;color:var(--muted);">${ago}</div>
+      </div>
+      <span style="font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:${active?'var(--green-pale)':'var(--cream)'};color:${active?'var(--green)':'var(--muted)'};">${active?'LIVE':'OFF'}</span>
+    </div>`;
+  }).join('');
+}
+function rpUpdateSidebarRunners() { /* handled inside rpUpdateOverlay */ }
+
+function rpFlyTo(key) {
+  const r = rpRunnersData[key];
+  if (r?.lat && rpMap) rpMap.flyTo([r.lat, r.lng], 16, { duration: 1 });
+}
+
+function rpFitAll() {
+  if (!rpMap) return;
+  const pts = Object.values(rpRunnersData).filter(r => r.lat && !(r.lat===0&&r.lng===0)).map(r => [r.lat, r.lng]);
+  if (!pts.length) return;
+  if (pts.length === 1) { rpMap.flyTo(pts[0], 15); return; }
+  rpMap.flyToBounds(L.latLngBounds(pts), { padding: [50, 50], duration: 1 });
+}
+
+function rpTimeAgo(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 10) return 'just now';
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  return Math.floor(s/3600) + 'h ago';
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Page open/close ──
+function openRacePage() {
+  initFirebase();
+  document.getElementById('main-page').style.display  = 'none';
+  document.getElementById('event-page').style.display = 'none';
+  const rp = document.getElementById('race-page');
+  rp.style.display = 'flex';
+  window.scrollTo(0, 0);
+  // Inject pulse keyframe once
+  if (!document.getElementById('rp-pulse-style')) {
+    const s = document.createElement('style');
+    s.id = 'rp-pulse-style';
+    s.textContent = '@keyframes rp-pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.2);opacity:0}}';
+    document.head.appendChild(s);
+  }
+  requestAnimationFrame(() => {
+    rpInitMap();
+    if (firebaseReady) rpListenFirebase();
+    else { /* firebase not configured — map still works without live data */ }
+  });
+}
+
+function closeRacePage() {
+  rpStopTracking();
+  document.getElementById('race-page').style.display = 'none';
+  document.getElementById('main-page').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+// ── Tracker logic ──
+let rpWatchId     = null;
+let rpUpdateCount = 0;
+let rpStartTime   = null;
+let rpTimer       = null;
+let rpRunnerKey   = null;
+let rpLastLat     = null, rpLastLng = null;
+const RP_MIN_DIST = 3;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const nameInput = document.getElementById('rp-name');
+  const btn       = document.getElementById('btn-rp-start');
+  if (nameInput && btn) {
+    nameInput.addEventListener('input', () => { btn.disabled = nameInput.value.trim().length < 2; });
+    nameInput.addEventListener('keydown', e => { if (e.key==='Enter' && !btn.disabled) rpStartTracking(); });
+  }
+});
+
+function rpStartTracking() {
+  const name = document.getElementById('rp-name').value.trim();
+  if (!name) return;
+  if (!navigator.geolocation) { rpShowError('GPS not supported on this browser.'); return; }
+  if (!firebaseReady) { rpShowError('Firebase not configured yet. See setup instructions.'); return; }
+
+  rpRunnerKey   = name.replace(/[.#$[\]/]/g, '_');
+  rpUpdateCount = 0;
+  rpStartTime   = Date.now();
+
+  document.getElementById('rp-display-name').textContent = name;
+  document.getElementById('rp-screen-setup').style.display    = 'none';
+  document.getElementById('rp-screen-tracking').style.display = 'flex';
+
+  rpTimer = setInterval(() => {
+    const s   = Math.floor((Date.now() - rpStartTime) / 1000);
+    const h   = String(Math.floor(s / 3600)).padStart(2,'0');
+    const m   = String(Math.floor((s % 3600) / 60)).padStart(2,'0');
+    const sec = String(s % 60).padStart(2,'0');
+    document.getElementById('rp-d-time').textContent = `${h}:${m}:${sec}`;
+  }, 1000);
+
+  rpDb.ref(`runners/${rpRunnerKey}`).set({ name, active: true, lat: 0, lng: 0, timestamp: Date.now() });
+  rpDb.ref(`runners/${rpRunnerKey}/active`).onDisconnect().set(false);
+
+  rpWatchId = navigator.geolocation.watchPosition(rpOnPosition, rpOnGeoError,
+    { enableHighAccuracy: true, maximumAge: 4000, timeout: 15000 });
+}
+
+function rpOnPosition(pos) {
+  const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+  if (rpLastLat !== null && rpHaversine(lat, lng, rpLastLat, rpLastLng) < RP_MIN_DIST) return;
+  rpLastLat = lat; rpLastLng = lng;
+  rpUpdateCount++;
+  document.getElementById('rp-d-coords').textContent   = `${lat.toFixed(5)}°, ${lng.toFixed(5)}°`;
+  document.getElementById('rp-d-accuracy').textContent = `± ${Math.round(accuracy)} m`;
+  document.getElementById('rp-d-updates').textContent  = rpUpdateCount;
+  if (rpDb && rpRunnerKey) {
+    rpDb.ref(`runners/${rpRunnerKey}`).update({ lat, lng, accuracy, timestamp: Date.now(), active: true });
+  }
+  if (rpMap) rpMap.flyTo([lat, lng], Math.max(rpMap.getZoom(), 14), { animate: false });
+}
+
+function rpOnGeoError(err) {
+  rpShowError('GPS error: ' + err.message);
+}
+
+function rpStopTracking() {
+  if (rpWatchId !== null) { navigator.geolocation.clearWatch(rpWatchId); rpWatchId = null; }
+  clearInterval(rpTimer);
+  if (rpDb && rpRunnerKey) rpDb.ref(`runners/${rpRunnerKey}/active`).set(false);
+  rpRunnerKey = null; rpLastLat = null; rpLastLng = null;
+  document.getElementById('rp-screen-tracking').style.display = 'none';
+  document.getElementById('rp-screen-setup').style.display    = 'flex';
+  document.getElementById('rp-name').value = '';
+  document.getElementById('btn-rp-start').disabled = true;
+}
+
+function rpShowError(msg) {
+  const el = document.getElementById('rp-error');
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+function rpHaversine(lat1, lon1, lat2, lon2) {
+  const R = 6371000, dLat = (lat2-lat1)*Math.PI/180, dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
 </script>
 </body>
 </html>
