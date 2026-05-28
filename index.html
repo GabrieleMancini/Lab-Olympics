@@ -524,9 +524,13 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
 
         <!-- Active tracking screen -->
         <div id="rp-screen-tracking">
-          <div class="rp-status-row">
+          <div class="rp-status-row" id="rp-gps-status">
             <div class="rp-status-dot"></div>
-            <div class="rp-status-text">Transmitting live</div>
+            <div class="rp-status-text" id="rp-gps-text">Acquiring GPS…</div>
+          </div>
+          <div id="rp-db-status" style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--gold-pale);border:1px solid #e8c86a;margin-top:4px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--gold);flex-shrink:0;"></div>
+            <div style="font-size:12px;font-weight:700;color:#a07000;text-transform:uppercase;letter-spacing:1px;" id="rp-db-text">Connecting to database…</div>
           </div>
           <div class="rp-runner-name-display" id="rp-display-name"></div>
           <div class="rp-data-row"><span class="rp-data-key">Coordinates</span><span class="rp-data-val" id="rp-d-coords">Acquiring…</span></div>
@@ -1174,7 +1178,27 @@ function rpStartTracking() {
     document.getElementById('rp-d-time').textContent = `${h}:${m}:${sec}`;
   }, 1000);
 
-  rpDb.ref(`runners/${rpRunnerKey}`).set({ name, active: true, lat: 0, lng: 0, timestamp: Date.now() });
+  // Reset status indicators
+  rpSetGpsStatus(false, 'Acquiring GPS…');
+  rpSetDbStatus(false, 'Connecting to database…');
+
+  // Test Firebase connection first
+  rpDb.ref('.info/connected').once('value', snap => {
+    if (snap.val() === true) {
+      rpSetDbStatus(true, '✓ Database connected');
+    } else {
+      rpSetDbStatus(false, 'Not connected — check internet');
+    }
+  });
+  // Also watch connection state live
+  rpDb.ref('.info/connected').on('value', snap => {
+    if (rpRunnerKey) {
+      rpSetDbStatus(snap.val() === true, snap.val() ? '✓ Database connected' : 'Reconnecting…');
+    }
+  });
+
+  rpDb.ref(`runners/${rpRunnerKey}`).set({ name, active: true, lat: 0, lng: 0, timestamp: Date.now() })
+    .catch(err => rpSetDbStatus(false, 'DB write failed: ' + err.message));
   rpDb.ref(`runners/${rpRunnerKey}/active`).onDisconnect().set(false);
 
   // iOS fix: call getCurrentPosition first to trigger the permission dialog,
@@ -1201,8 +1225,38 @@ function rpStartTracking() {
   );
 }
 
+function rpSetGpsStatus(ok, msg) {
+  const row  = document.getElementById('rp-gps-status');
+  const text = document.getElementById('rp-gps-text');
+  if (!row || !text) return;
+  row.style.background    = ok ? 'var(--green-pale)' : 'var(--red-pale)';
+  row.style.borderColor   = ok ? 'var(--green-border)' : 'var(--red-border)';
+  row.querySelector('.rp-status-dot').style.background = ok ? 'var(--green)' : 'var(--red)';
+  text.style.color = ok ? 'var(--green)' : 'var(--red)';
+  text.textContent = msg;
+}
+
+function rpSetDbStatus(ok, msg) {
+  const row  = document.getElementById('rp-db-status');
+  const text = document.getElementById('rp-db-text');
+  if (!row || !text) return;
+  if (ok) {
+    row.style.background  = 'var(--green-pale)';
+    row.style.borderColor = 'var(--green-border)';
+    row.querySelector('div').style.background = 'var(--green)';
+    text.style.color = 'var(--green)';
+  } else {
+    row.style.background  = 'var(--red-pale)';
+    row.style.borderColor = 'var(--red-border)';
+    row.querySelector('div').style.background = 'var(--red)';
+    text.style.color = 'var(--red)';
+  }
+  text.textContent = msg;
+}
+
 function rpOnPosition(pos) {
   const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+  rpSetGpsStatus(true, '✓ GPS locked · transmitting');
   if (rpLastLat !== null && rpHaversine(lat, lng, rpLastLat, rpLastLng) < RP_MIN_DIST) return;
   rpLastLat = lat; rpLastLng = lng;
   rpUpdateCount++;
@@ -1210,7 +1264,10 @@ function rpOnPosition(pos) {
   document.getElementById('rp-d-accuracy').textContent = `± ${Math.round(accuracy)} m`;
   document.getElementById('rp-d-updates').textContent  = rpUpdateCount;
   if (rpDb && rpRunnerKey) {
-    rpDb.ref(`runners/${rpRunnerKey}`).update({ lat, lng, accuracy, timestamp: Date.now(), active: true });
+    rpDb.ref(`runners/${rpRunnerKey}`)
+      .update({ lat, lng, accuracy, timestamp: Date.now(), active: true })
+      .then(() => rpSetDbStatus(true, '✓ Saved to database'))
+      .catch(err => rpSetDbStatus(false, 'DB error: ' + err.message));
   }
   if (rpMap) rpMap.setView([lat, lng], Math.max(rpMap.getZoom(), 15), { animate: true });
 }
