@@ -1023,6 +1023,8 @@ function rpListenFirebase() {
 }
 
 function rpUpsertMarker(key, r) {
+  // Remove pin if runner stopped sharing
+  if (!r.active) { rpRemoveRunner(key); return; }
   if (!r.lat || !r.lng || (r.lat === 0 && r.lng === 0)) return;
   const color    = rpGetColor(r.name);
   const initials = r.name.slice(0,2).toUpperCase();
@@ -1199,7 +1201,7 @@ function rpStartTracking() {
 
   rpDb.ref(`runners/${rpRunnerKey}`).set({ name, active: true, lat: 0, lng: 0, timestamp: Date.now() })
     .catch(err => rpSetDbStatus(false, 'DB write failed: ' + err.message));
-  rpDb.ref(`runners/${rpRunnerKey}/active`).onDisconnect().set(false);
+  rpDb.ref(`runners/${rpRunnerKey}`).onDisconnect().remove();
 
   // iOS fix: call getCurrentPosition first to trigger the permission dialog,
   // then start watchPosition once we have a confirmed first fix.
@@ -1285,7 +1287,7 @@ function rpOnGeoError(err) {
 function rpStopTracking() {
   if (rpWatchId !== null) { navigator.geolocation.clearWatch(rpWatchId); rpWatchId = null; }
   clearInterval(rpTimer);
-  if (rpDb && rpRunnerKey) rpDb.ref(`runners/${rpRunnerKey}/active`).set(false);
+  if (rpDb && rpRunnerKey) rpDb.ref(`runners/${rpRunnerKey}`).remove();
   rpRunnerKey = null; rpLastLat = null; rpLastLng = null;
   document.getElementById('rp-screen-tracking').style.display = 'none';
   document.getElementById('rp-screen-setup').style.display    = 'flex';
