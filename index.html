@@ -87,13 +87,13 @@ hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000p
 .ev-arrow { font-size: 13px; color: var(--gold); }
 .ev-reg-count { font-size: 10px; background: var(--green-pale); color: var(--green); border: 1px solid var(--green-border); padding: 1px 6px; border-radius: 10px; font-weight: 700; }
 
-.teams-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 600px)  { .teams-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 900px)  { .teams-grid { grid-template-columns: repeat(3, 1fr); } }
-.team-card { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--navy); padding: 16px; }
-.team-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--navy); }
-.team-dept { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
-.member-chip { display: inline-block; font-size: 11px; background: var(--cream); padding: 2px 8px; border-radius: 10px; margin: 2px; border: 1px solid var(--border); }
+.teams-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media (min-width: 600px)  { .teams-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 900px)  { .teams-grid { grid-template-columns: repeat(4, 1fr); } }
+.team-card { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--navy); padding: 11px 13px; }
+.team-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--navy); line-height: 1.1; }
+.team-dept { font-size: 11px; color: var(--muted); margin-bottom: 7px; }
+.member-chip { display: inline-block; font-size: 10px; background: var(--cream); padding: 1px 6px; border-radius: 10px; margin: 1px; border: 1px solid var(--border); }
 .member-chip.is-captain { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
 
 .medals-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 4px; }
@@ -402,6 +402,8 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
 </section>
 
 <hr class="divider">
+
+<section id="teams">
   <div class="section-tag">Accepted Teams</div>
   <div class="section-title">Registered Labs</div>
   <div class="teams-grid" id="teams-grid"></div>
