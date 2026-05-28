@@ -959,13 +959,13 @@ renderMedals();
 // ✅ REPLACE THIS with your Firebase project config
 // (Firebase Console → Project Settings → Your apps → Web app)
 const firebaseConfig = {
-  apiKey:            "AIzaSyDWf55l0_UqCmuC2ilaQjA5KQZrapQFKNY",
-  authDomain:        "lab-olympics.firebaseapp.com",
-  databaseURL:       "https://lab-olympics-default-rtdb.firebaseio.com",
-  projectId:         "lab-olympics",
-  storageBucket:     "lab-olympics.firebasestorage.app",
-  messagingSenderId: "388108613528",
-  appId:             "1:388108613528:web:ff4ab369fce6ba60551ded"
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
 };
 
 let firebaseReady = false;
@@ -1155,7 +1155,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function rpStartTracking() {
   const name = document.getElementById('rp-name').value.trim();
   if (!name) return;
-  if (!navigator.geolocation) { rpShowError('GPS not supported on this browser.'); return; }
+  if (!navigator.geolocation) { rpShowError('GPS not supported. Use Safari on iPhone.'); return; }
   if (!firebaseReady) { rpShowError('Firebase not configured yet. See setup instructions.'); return; }
 
   rpRunnerKey   = name.replace(/[.#$[\]/]/g, '_');
@@ -1177,8 +1177,28 @@ function rpStartTracking() {
   rpDb.ref(`runners/${rpRunnerKey}`).set({ name, active: true, lat: 0, lng: 0, timestamp: Date.now() });
   rpDb.ref(`runners/${rpRunnerKey}/active`).onDisconnect().set(false);
 
-  rpWatchId = navigator.geolocation.watchPosition(rpOnPosition, rpOnGeoError,
-    { enableHighAccuracy: true, maximumAge: 4000, timeout: 15000 });
+  // iOS fix: call getCurrentPosition first to trigger the permission dialog,
+  // then start watchPosition once we have a confirmed first fix.
+  const GEO_OPTS_HIGH = { enableHighAccuracy: true, maximumAge: 0, timeout: 30000 };
+  const GEO_OPTS_WATCH = { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 };
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      rpOnPosition(pos); // show first fix immediately
+      rpWatchId = navigator.geolocation.watchPosition(rpOnPosition, rpOnGeoError, GEO_OPTS_WATCH);
+    },
+    (err) => {
+      // Permission denied or error on first try
+      if (err.code === 1) {
+        rpShowError('Location access denied. Go to iPhone Settings → Safari → Location → Allow.');
+      } else {
+        rpShowError('GPS error: ' + err.message + '. Make sure Location is enabled for Safari.');
+      }
+      // Still start watching — on some devices watchPosition works even if getCurrentPosition timed out
+      rpWatchId = navigator.geolocation.watchPosition(rpOnPosition, rpOnGeoError, GEO_OPTS_WATCH);
+    },
+    GEO_OPTS_HIGH
+  );
 }
 
 function rpOnPosition(pos) {
@@ -1192,11 +1212,17 @@ function rpOnPosition(pos) {
   if (rpDb && rpRunnerKey) {
     rpDb.ref(`runners/${rpRunnerKey}`).update({ lat, lng, accuracy, timestamp: Date.now(), active: true });
   }
-  if (rpMap) rpMap.flyTo([lat, lng], Math.max(rpMap.getZoom(), 14), { animate: false });
+  if (rpMap) rpMap.setView([lat, lng], Math.max(rpMap.getZoom(), 15), { animate: true });
 }
 
 function rpOnGeoError(err) {
-  rpShowError('GPS error: ' + err.message);
+  if (err.code === 1) {
+    rpShowError('Location denied. Settings → Safari → Location → Allow.');
+  } else if (err.code === 3) {
+    rpShowError('GPS timeout — still trying. Make sure you\'re outdoors.');
+  } else {
+    rpShowError('GPS error: ' + err.message);
+  }
 }
 
 function rpStopTracking() {
