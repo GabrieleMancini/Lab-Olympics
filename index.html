@@ -96,6 +96,22 @@ hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000p
 .member-chip { display: inline-block; font-size: 10px; background: var(--cream); padding: 1px 6px; border-radius: 10px; margin: 1px; border: 1px solid var(--border); }
 .member-chip.is-captain { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
 
+/* POINTS RANKING */
+.points-table { background: var(--white); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+.points-header-row,
+.points-row { display: grid; grid-template-columns: 36px 1fr 90px; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--border); }
+.points-row:last-child { border-bottom: none; }
+.points-header-row { background: var(--navy); color: rgba(255,255,255,0.65); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.points-rank { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--gold-light); }
+.points-rank.first { color: var(--gold); }
+.points-team-name { font-weight: 600; font-size: 13px; color: var(--navy); }
+.points-team-dept { font-size: 11px; color: var(--muted); font-weight: 400; }
+.points-score { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--navy); text-align: right; }
+.points-score.first { color: var(--gold); }
+.points-row.first-place { border-left: 3px solid var(--gold); }
+
+.points-edit-wrap { display: none; } /* reserved, not used */
+
 .medals-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 4px; }
 .medals-table { min-width: 550px; background: var(--white); }
 .medals-header-row, .medals-row { display: grid; grid-template-columns: 40px 1fr 45px 45px 45px 60px; padding: 12px; align-items: center; border-bottom: 1px solid var(--border); }
@@ -316,6 +332,7 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
       <li><a href="#spirit">Spirit</a></li>
       <li><a href="#schedule">Schedule</a></li>
       <li><a href="#teams">Teams</a></li>
+      <li><a href="#points">Points</a></li>
       <li><a href="#medals">Medals</a></li>
       <li><a href="#register">Register</a></li>
       <li><a href="#" onclick="openRacePage();return false;" style="color:var(--gold);display:flex;align-items:center;gap:5px;"><span class="live-dot-sm"></span>Live Race</a></li>
@@ -407,6 +424,14 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <div class="section-tag">Accepted Teams</div>
   <div class="section-title">Registered Labs</div>
   <div class="teams-grid" id="teams-grid"></div>
+</section>
+
+<hr class="divider">
+
+<section id="points">
+  <div class="section-tag">Leaderboard</div>
+  <div class="section-title">Points Ranking</div>
+  <div id="points-content"><div style="color:var(--muted);font-size:13px;">Loading…</div></div>
 </section>
 
 <hr class="divider">
@@ -577,6 +602,10 @@ const acceptedTeams = [
   { name:"BeTHS", dept:"Neurology", captain:"Molly Zeitschel", members:["Molly Zeitschel","Bettina Schwab","Alessandro Gulberti","Oliver Thanscheidt","Justus","Jacob Reuss"] },
 ];
 const medalsData = [];
+const pointsData = [
+  // { name: "Department of Excellence", score: 0 },
+  // Add/update entries here to update the ranking. Score = total points.
+];
   
 const events = [
   { id: "run-short",   name: "Running — Short",  icon: "🏃", date: "Wed 3 Jun", time: "18:00", slots: 2, desc: "Short run — 1 km" },
@@ -789,7 +818,36 @@ function renderMedals() {
     </div>`).join('');
 }
 
-/* ===================== MAIN REGISTRATION FORM ===================== */
+/* ===================== POINTS ===================== */
+function renderPoints() {
+  const wrap = document.getElementById('points-content');
+
+  const ranked = acceptedTeams.map(t => {
+    const entry = pointsData.find(p => p.name === t.name);
+    return { name: t.name, dept: t.dept, score: entry ? entry.score : 0 };
+  }).sort((a, b) => b.score - a.score);
+
+  const hasAnyPoints = ranked.some(t => t.score > 0);
+
+  let html = `<div class="points-table">
+    <div class="points-header-row">
+      <span>#</span><span>Lab</span><span style="text-align:right">Points</span>
+    </div>`;
+
+  ranked.forEach((t, i) => {
+    const isFirst = i === 0 && hasAnyPoints;
+    html += `<div class="points-row${isFirst ? ' first-place' : ''}">
+      <span class="points-rank${isFirst ? ' first' : ''}">${i + 1}</span>
+      <span><div class="points-team-name">${t.name}</div><div class="points-team-dept">${t.dept}</div></span>
+      <span class="points-score${isFirst ? ' first' : ''}">${t.score}</span>
+    </div>`;
+  });
+
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+
 let memberCount = 5;
 function addMember() {
   memberCount++;
@@ -959,6 +1017,7 @@ renderNavSession();
 renderTeams();
 renderSchedule();
 renderMedals();
+renderPoints();
 
 /* ===================== FIREBASE + RACE TRACKER ===================== */
 
