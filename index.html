@@ -599,7 +599,7 @@ const acceptedTeams = [
   { name:"Synapses United", dept:"ZMNH", captain:"Alessio Cao", members:["Alessio Cao","Carolina Pinto","Charlotte Oldenburg","Kelsey Zingg","Kristina Ponimaskine","Danique Holtrup","Lisa Mahnke","Angeliki Nomikou","Selin Kiran","Daniela Beckmann","Daniel Ghinello","Marie Wisenharven"] },
   { name:"Tubulin Tornadoes", dept:"Molecular Neurogenetics", captain:"Ella Montali", members:["Ella Montali","Martina Quadrubbi","Dominik Böck","Dan Peristich","Yvonne Pechmann","Christos Papazoglou"] },
   { name:"LMNOP", dept:"Center for Mulecular Neurobiology", captain:"Antonia Gocke", members:["Antonia Gocke","Jan-Lucas Straeten","Lara Helbig","Tipeng Zhu","Josephine Hoppe","Jelena Navolic"] },
-  { name:"BeTHS", dept:"Neurology", captain:"Molly Zeitschel", members:["Molly Zeitschel","Bettina Schwab","Alessandro Gulberti","Oliver Thanscheidt","Justus","Jacob Reuss"] },
+  { name:"BeTHS", dept:"Neurology", captain:"Molly Zeitschel", members:["Molly Zeitschel","Bettina Schwab","Alessandro Gulberti","Oliver Thanscheidt","Justus","Jacob Reuss","Rami Almassri"] },
   { name:"Bitz Lab", dept:"ZMNH", captain:"Samuele Negri", members:["Samuele Negri","Maria Ramos Moreso","Thanos Manolis","Simeon Reichert","Tony Man"] },
 ];
 const medalsData = [];
@@ -623,7 +623,7 @@ const SIGNUP_FORM_URL = "https://formspree.io/f/mgodzqon";
 // In-memory only — clears on page refresh
 let session = null; // { teamName, memberName, isCaptain, teamObj }
 
-function renderNavSession() {
+function NavSession() {
   const el = document.getElementById('nav-session');
   if (!session) {
     el.innerHTML = '';
@@ -640,7 +640,7 @@ function renderNavSession() {
 
 function signOut() {
   session = null;
-  renderNavSession();
+  NavSession();
   if (document.getElementById('event-page').style.display === 'block') {
     renderEventReg(events.find(e => e.id === currentEventId));
   }
@@ -700,7 +700,7 @@ function confirmSignIn() {
   if (pendingEventId) {
     openEvent(pendingEventId);
   } else if (document.getElementById('event-page').style.display === 'block') {
-    renderEventReg(events.find(e => e.id === currentEventId));
+    EventReg(events.find(e => e.id === currentEventId));
   }
 }
 
@@ -755,7 +755,7 @@ const dayMeta = {
   "Sun 7 Jun": { meet: "14:00", duration: "~3h" }
 };
   
-async function renderSchedule() {
+async function Schedule() {
   const grid = document.getElementById('schedule-grid');
   const grouped = {}; dayOrder.forEach(d => { grouped[d] = []; });
   events.forEach(ev => { if (grouped[ev.date]) grouped[ev.date].push(ev); });
@@ -787,7 +787,7 @@ async function renderSchedule() {
 }
 
 /* ===================== TEAMS ===================== */
-function renderTeams() {
+function Teams() {
   const grid = document.getElementById('teams-grid');
   grid.innerHTML = !acceptedTeams.length
     ? '<div style="color:gray;padding:20px;font-size:13px;">No teams registered yet.</div>'
@@ -803,7 +803,7 @@ function renderTeams() {
 }
 
 /* ===================== MEDALS ===================== */
-function renderMedals() {
+function Medals() {
   const body = document.getElementById('medals-body');
   if (!medalsData.length) {
     body.innerHTML = '<div style="padding:20px;text-align:center;color:gray;font-size:13px;">Standings will appear once events conclude.</div>'; return;
@@ -820,7 +820,7 @@ function renderMedals() {
 }
 
 /* ===================== POINTS ===================== */
-function renderPoints() {
+function Points() {
   const wrap = document.getElementById('points-content');
 
   const ranked = acceptedTeams.map(t => {
@@ -882,11 +882,11 @@ async function openEvent(evId) {
     ${dayLocations[ev.date] ? `<span class="ep-badge">📍 ${dayLocations[ev.date].name}</span>` : ''}
     <span class="ep-badge gold">${ev.slots} member${ev.slots>1?'s':''} per team</span>
     ${ev.desc ? `<span class="ep-badge" style="background:rgba(255,255,255,0.1);font-style:italic;width:100%;justify-content:center;display:inline-block;margin-top:4px;">${ev.desc}</span>` : ''}`;
-  renderEventReg(ev);
-  await renderOpponents(ev);
+  EventReg(ev);
+  await Opponents(ev);
 }
 
-function renderEventReg(ev) {
+function EventReg(ev) {
   const wrap = document.getElementById('ep-reg-content');
 
   if (!acceptedTeams.length) {
@@ -904,13 +904,13 @@ function renderEventReg(ev) {
   }
 
   if (session.isCaptain) {
-    renderCaptainForm(ev);
+    CaptainForm(ev);
   } else {
-    renderMemberView(ev);
+    MemberView(ev);
   }
 }
 
-function renderCaptainForm(ev) {
+function CaptainForm(ev) {
   const wrap = document.getElementById('ep-reg-content');
   let inputs = '';
   for (let i=1; i<=ev.slots; i++) {
@@ -928,7 +928,7 @@ function renderCaptainForm(ev) {
   prefillExisting(ev.id, ev.slots);
 }
 
-async function renderMemberView(ev) {
+async function MemberView(ev) {
   const wrap = document.getElementById('ep-reg-content');
   const regs = await getRegistrations(ev.id);
   const myReg = regs.find(r => r.team === session.teamName);
@@ -975,8 +975,8 @@ async function submitEventReg(eventId, slots) {
     document.getElementById('ep-reg-success').style.display='block';
     btn.textContent='Confirmed!';
     prefillExisting(eventId, slots);
-    await renderOpponents(ev);
-    renderSchedule();
+    await Opponents(ev);
+    Schedule();
   } catch(e) { btn.disabled=false; btn.textContent='Confirm Participants'; alert('Error saving.'); }
 }
 
@@ -985,12 +985,12 @@ async function clearEventReg(eventId) {
   if (!confirm(`Remove ${session.teamName}'s registration for this event?`)) return;
   await clearRegistration(eventId, session.teamName);
   const ev=events.find(e=>e.id===eventId);
-  renderEventReg(ev);
-  await renderOpponents(ev);
-  renderSchedule();
+  EventReg(ev);
+  await Opponents(ev);
+  Schedule();
 }
 
-async function renderOpponents(ev) {
+async function Opponents(ev) {
   const wrap = document.getElementById('ep-opponents-content');
   wrap.innerHTML='<div class="ep-loading">Loading…</div>';
   const regs = await getRegistrations(ev.id);
@@ -1010,15 +1010,15 @@ function goHome() {
   document.getElementById('event-page').style.display='none';
   document.getElementById('main-page').style.display='block';
   window.scrollTo(0, document.getElementById('schedule').offsetTop - 70);
-  renderSchedule();
+  Schedule();
 }
 
 /* ===================== INIT ===================== */
-renderNavSession();
-renderTeams();
-renderSchedule();
-renderMedals();
-renderPoints();
+NavSession();
+Teams();
+Schedule();
+Medals();
+Points();
 
 /* ===================== FIREBASE + RACE TRACKER ===================== */
 
