@@ -306,13 +306,22 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
 <div class="signin-overlay" id="signin-overlay">
   <div class="signin-box">
     <div class="signin-title">Sign In</div>
-    <p class="signin-sub">Enter your name exactly as it appears on your team roster to sign in.</p>
+    <p class="signin-sub">Select your lab and then tap your name.</p>
     <div class="signin-error" id="signin-error"></div>
-    <select class="signin-field" id="signin-team">
-      <option value="">Select your lab…</option>
-    </select>
-    <input class="signin-field" id="signin-name" type="text" placeholder="Your full name" autocomplete="name">
-    <button class="btn-signin-confirm" onclick="confirmSignIn()">Sign In</button>
+
+    <!-- Step 1: lab selection -->
+    <div id="signin-step-lab">
+      <p style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;">Which lab are you from?</p>
+      <div id="signin-lab-buttons" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <!-- Step 2: member selection -->
+    <div id="signin-step-member" style="display:none;">
+      <button onclick="siBackToLab()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-bottom:12px;padding:0;text-decoration:underline;">← Back</button>
+      <p style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;">Who are you?</p>
+      <div id="signin-member-buttons" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+    </div>
+
     <button class="btn-signin-cancel" onclick="closeSignIn()">Cancel</button>
     <p class="signin-hint">
       <strong>Captains</strong> can select participants for each event.<br>
@@ -334,7 +343,6 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
       <li><a href="#teams">Teams</a></li>
       <li><a href="#points">Points</a></li>
       <li><a href="#medals">Medals</a></li>
-      <li><a href="#register">Register</a></li>
       <li><a href="#" onclick="openRacePage();return false;" style="color:var(--gold);display:flex;align-items:center;gap:5px;"><span class="live-dot-sm"></span>Live Race</a></li>
     </ul>
     <div id="nav-session"></div>
@@ -447,36 +455,6 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
       <div id="medals-body"></div>
     </div>
   </div>
-</section>
-
-<hr class="divider">
-
-<section id="register">
-  <div class="section-tag">Registration</div>
-  <div class="section-title">Join the Games</div>
-  <form class="form-wrap" id="reg-form" action="https://formspree.io/f/mgodzqon" method="POST">
-    <label>Lab Name</label>
-    <input type="text" name="lab_name" required>
-    <label>Department</label>
-    <input type="text" name="department" required>
-    <label>Captain Name</label>
-    <input type="text" name="captain_name" required>
-    <label>Captain Email</label>
-    <input type="email" name="_replyto" required>
-    <label>Captain Phone <span style="font-size:11px;font-weight:400;color:var(--muted);">— for the WhatsApp group 📱</span></label>
-    <input type="tel" name="captain_phone" placeholder="+49 …" required>
-    <label>Team Members (min 4)</label>
-    <div id="members-list">
-      <input type="text" name="member_1" placeholder="Name 1" required>
-      <input type="text" name="member_2" placeholder="Name 2" required>
-      <input type="text" name="member_3" placeholder="Name 3" required>
-      <input type="text" name="member_4" placeholder="Name 4" required>
-    </div>
-    <button type="button" class="btn-add" onclick="addMember()">+ Add Member</button>
-    <input type="hidden" name="_subject" value="New Lab Olympics Registration">
-    <button type="submit" class="btn-submit">Register Lab</button>
-    <div class="success-msg" id="reg-success">🎉 Registration request received!</div>
-  </form>
 </section>
 
 <footer>
@@ -637,12 +615,13 @@ function NavSession() {
     </div>`;
   }
 }
+function renderNavSession() { NavSession(); }
 
 function signOut() {
   session = null;
   NavSession();
   if (document.getElementById('event-page').style.display === 'block') {
-    renderEventReg(events.find(e => e.id === currentEventId));
+    EventReg(events.find(e => e.id === currentEventId));
   }
 }
 
@@ -651,52 +630,50 @@ let pendingEventId = null;
 
 function openSignIn(evId) {
   pendingEventId = evId || null;
-  const sel = document.getElementById('signin-team');
-  sel.innerHTML = '<option value="">Select your lab…</option>' +
-    acceptedTeams.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
-  document.getElementById('signin-name').value = '';
   document.getElementById('signin-error').style.display = 'none';
+  // Build lab buttons
+  const labBtns = document.getElementById('signin-lab-buttons');
+  labBtns.innerHTML = acceptedTeams.map(t =>
+    `<button onclick="siSelectLab('${escJs(t.name)}')" style="background:var(--cream);border:1px solid var(--border);padding:11px 14px;text-align:left;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--navy);transition:background 0.15s;" onmouseover="this.style.background='var(--gold-pale)'" onmouseout="this.style.background='var(--cream)'">
+      <span style="font-size:15px;">${t.name}</span><br>
+      <span style="font-size:11px;font-weight:400;color:var(--muted);">${t.dept}</span>
+    </button>`
+  ).join('');
+  document.getElementById('signin-step-lab').style.display = 'block';
+  document.getElementById('signin-step-member').style.display = 'none';
   document.getElementById('signin-overlay').classList.add('active');
-  setTimeout(() => document.getElementById('signin-name').focus(), 100);
 }
 
-function closeSignIn() {
-  document.getElementById('signin-overlay').classList.remove('active');
-  pendingEventId = null;
-}
-
-// Allow Enter key to confirm
-document.getElementById('signin-name').addEventListener('keydown', e => { if (e.key === 'Enter') confirmSignIn(); });
-
-function confirmSignIn() {
-  const teamName = document.getElementById('signin-team').value.trim();
-  const rawName  = document.getElementById('signin-name').value.trim();
-  const errEl    = document.getElementById('signin-error');
-
-  if (!teamName) { showSignInError('Please select your lab.'); return; }
-  if (!rawName)  { showSignInError('Please enter your full name.'); return; }
-
+function siSelectLab(teamName) {
   const team = acceptedTeams.find(t => t.name === teamName);
-  if (!team)     { showSignInError('Team not found.'); return; }
+  if (!team) return;
+  const memberBtns = document.getElementById('signin-member-buttons');
+  memberBtns.innerHTML = team.members.map(m => {
+    const isCap = m === team.captain;
+    return `<button onclick="siSelectMember('${escJs(teamName)}','${escJs(m)}')" style="background:${isCap ? 'var(--gold-pale)' : 'var(--cream)'};border:1px solid ${isCap ? 'var(--gold)' : 'var(--border)'};padding:8px 14px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--navy);border-radius:4px;transition:background 0.15s;" onmouseover="this.style.background='var(--gold-pale)'" onmouseout="this.style.background='${isCap ? 'var(--gold-pale)' : 'var(--cream)'}'">
+      ${m}${isCap ? ' <span style="font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;">★ Cap</span>' : ''}
+    </button>`;
+  }).join('');
+  document.getElementById('signin-step-lab').style.display = 'none';
+  document.getElementById('signin-step-member').style.display = 'block';
+}
 
-  const norm = s => s.toLowerCase().replace(/\s+/g, ' ').trim();
-  const matched = team.members.find(m => norm(m) === norm(rawName));
+function siBackToLab() {
+  document.getElementById('signin-step-lab').style.display = 'block';
+  document.getElementById('signin-step-member').style.display = 'none';
+}
 
-  if (!matched) {
-    showSignInError(`"${rawName}" is not on the ${teamName} roster. Check the exact spelling used during registration.`);
-    return;
-  }
-
+function siSelectMember(teamName, memberName) {
+  const team = acceptedTeams.find(t => t.name === teamName);
+  if (!team) return;
   session = {
     teamName:   team.name,
-    memberName: matched,
-    isCaptain:  norm(matched) === norm(team.captain),
+    memberName: memberName,
+    isCaptain:  memberName === team.captain,
     teamObj:    team
   };
-
   closeSignIn();
   renderNavSession();
-
   if (pendingEventId) {
     openEvent(pendingEventId);
   } else if (document.getElementById('event-page').style.display === 'block') {
@@ -704,9 +681,11 @@ function confirmSignIn() {
   }
 }
 
-function showSignInError(msg) {
-  const el = document.getElementById('signin-error');
-  el.textContent = msg; el.style.display = 'block';
+function escJs(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+function closeSignIn() {
+  document.getElementById('signin-overlay').classList.remove('active');
+  pendingEventId = null;
 }
 
 /* ===================== STORAGE ===================== */
@@ -849,21 +828,6 @@ function Points() {
 }
 
 
-let memberCount = 5;
-function addMember() {
-  memberCount++;
-  const inp = document.createElement('input');
-  inp.type='text'; inp.name=`member_${memberCount}`; inp.placeholder=`Name ${memberCount}`;
-  document.getElementById('members-list').appendChild(inp);
-}
-document.getElementById('reg-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn = this.querySelector('.btn-submit');
-  btn.textContent='Sending…'; btn.disabled=true;
-  const resp = await fetch(this.action, {method:'POST', body:new FormData(this), headers:{'Accept':'application/json'}});
-  if (resp.ok) { document.getElementById('reg-success').style.display='block'; btn.textContent='Sent!'; this.reset(); }
-  else { btn.disabled=false; btn.textContent='Register Lab'; alert('Submission failed.'); }
-});
 
 /* ===================== EVENT DETAIL PAGE ===================== */
 let currentEventId = null;
@@ -890,104 +854,192 @@ function EventReg(ev) {
   const wrap = document.getElementById('ep-reg-content');
 
   if (!acceptedTeams.length) {
-    wrap.innerHTML = `<p style="font-size:13px;color:var(--muted);">Team registration is still open. Once labs are accepted you can sign up here.</p>`;
-    return;
-  }
-  if (!session) {
-    wrap.innerHTML = `<div class="auth-gate">
-      <div class="auth-gate-icon">🔒</div>
-      <div class="auth-gate-title">Sign in to manage your team</div>
-      <div class="auth-gate-sub">Only registered team members can view or edit event participation.</div>
-      <button class="btn-gate-signin" onclick="openSignIn('${ev.id}')">Sign In</button>
-    </div>`;
+    wrap.innerHTML = `<p style="font-size:13px;color:var(--muted);">No labs registered yet.</p>`;
     return;
   }
 
-  if (session.isCaptain) {
-    CaptainForm(ev);
-  } else {
-    MemberView(ev);
-  }
-}
-
-function CaptainForm(ev) {
-  const wrap = document.getElementById('ep-reg-content');
-  let inputs = '';
-  for (let i=1; i<=ev.slots; i++) {
-    inputs += `<div><span class="member-label">Participant ${i}</span>
-      <input class="reg-member-input" id="ep-member-${i}" type="text" placeholder="Full name"></div>`;
-  }
+  // Show lab picker — anyone can use it
   wrap.innerHTML = `
-    <div class="reg-who">Signed in as <strong>${session.memberName}</strong> <span style="color:var(--gold);font-size:11px;font-weight:700;">★ Captain</span></div>
-    <div id="ep-existing-box"></div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Select the ${ev.slots} participant${ev.slots>1?'s':''} competing for your team. You can update this any time.</p>
-    ${inputs}
-    <button class="btn-reg-submit" onclick="submitEventReg('${ev.id}',${ev.slots})">Confirm Participants</button>
-    <button class="btn-reg-clear" id="ep-clear-btn" style="display:none" onclick="clearEventReg('${ev.id}')">Remove our registration</button>
-    <div class="reg-success" id="ep-reg-success">✅ Participants saved!</div>`;
-  prefillExisting(ev.id, ev.slots);
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Select your lab to sign up participants for this event.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;" id="ep-lab-list">
+      ${acceptedTeams.map(t => `
+        <button onclick="epOpenLabPicker('${escJs(ev.id)}','${escJs(t.name)}')"
+          style="background:var(--cream);border:1px solid var(--border);padding:12px 14px;text-align:left;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:space-between;transition:background 0.15s;"
+          onmouseover="this.style.background='var(--gold-pale)'"
+          onmouseout="this.style.background='var(--cream)'">
+          <span>
+            <span style="font-size:14px;font-weight:600;color:var(--navy);">${t.name}</span><br>
+            <span style="font-size:11px;color:var(--muted);">${t.dept}</span>
+          </span>
+          <span id="ep-lab-badge-${t.name.replace(/[^a-z0-9]/gi,'_')}" style="font-size:11px;color:var(--muted);">loading…</span>
+        </button>`).join('')}
+    </div>`;
+  // Load existing registrations to show status badges
+  loadLabBadges(ev);
 }
 
-async function MemberView(ev) {
-  const wrap = document.getElementById('ep-reg-content');
+async function loadLabBadges(ev) {
   const regs = await getRegistrations(ev.id);
-  const myReg = regs.find(r => r.team === session.teamName);
-  const regInfo = myReg
-    ? `<p style="margin-top:10px;font-size:13px;"><strong style="color:var(--navy);">Your team's participants:</strong><br>${myReg.members.join(', ')}</p>`
-    : `<p style="margin-top:10px;font-size:13px;color:var(--muted);">Your team hasn't registered participants yet. Ask your captain <strong style="color:var(--navy);">${session.teamObj.captain}</strong> to confirm the lineup.</p>`;
-
-  wrap.innerHTML = `
-    <div class="reg-who">Signed in as <strong>${session.memberName}</strong> · ${session.teamName}</div>
-    <div class="member-only-notice">
-      <strong>Registration is managed by your captain.</strong><br>
-      Only ${session.teamObj.captain} can select participants for events.
-      ${regInfo}
-    </div>`;
+  acceptedTeams.forEach(t => {
+    const key = t.name.replace(/[^a-z0-9]/gi,'_');
+    const el = document.getElementById(`ep-lab-badge-${key}`);
+    if (!el) return;
+    const reg = regs.find(r => r.team === t.name);
+    if (reg && reg.members.length) {
+      el.innerHTML = `<span style="background:var(--green-pale);color:var(--green);border:1px solid var(--green-border);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">✓ ${reg.members.length} registered</span>`;
+    } else {
+      el.innerHTML = `<span style="color:var(--muted);font-size:11px;">not signed up</span>`;
+    }
+  });
 }
 
-async function prefillExisting(eventId, slots) {
-  const regs = await getRegistrations(eventId);
-  const existing = regs.find(r => r.team === session.teamName);
-  const box = document.getElementById('ep-existing-box');
-  const clearBtn = document.getElementById('ep-clear-btn');
+// Modal overlay for member picker
+function epOpenLabPicker(evId, teamName) {
+  const ev   = events.find(e => e.id === evId);
+  const team = acceptedTeams.find(t => t.name === teamName);
+  if (!ev || !team) return;
+
+  // Create or reuse modal
+  let modal = document.getElementById('ep-member-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'ep-member-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(26,45,74,0.65);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;';
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div style="background:var(--white);border-top:4px solid var(--gold);max-width:480px;width:100%;padding:28px;position:relative;max-height:90vh;overflow-y:auto;">
+      <button onclick="epClosePicker()" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);">×</button>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--navy);line-height:1;">${team.name}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">${team.dept}</div>
+      <div style="font-size:13px;color:var(--navy);background:var(--gold-pale);border:1px solid #e8c86a;padding:8px 12px;margin-bottom:18px;border-radius:3px;">
+        ${ev.icon} <strong>${ev.name}</strong> &nbsp;·&nbsp; Select <strong>${ev.slots}</strong> participant${ev.slots>1?'s':''}
+      </div>
+      <div id="ep-picker-members" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;"></div>
+      <div id="ep-picker-counter" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+      <div id="ep-picker-existing" style="margin-bottom:12px;"></div>
+      <button id="ep-picker-confirm" onclick="epConfirmPicker('${escJs(evId)}','${escJs(teamName)}')" style="background:var(--navy);color:white;border:none;padding:13px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;cursor:pointer;width:100%;opacity:0.4;" disabled>Confirm Participants</button>
+      <button onclick="epClearAndClose('${escJs(evId)}','${escJs(teamName)}')" id="ep-picker-clear" style="display:none;background:none;border:1px solid var(--red-border);color:var(--red);padding:9px;font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-top:8px;">Remove registration</button>
+      <div id="ep-picker-success" style="display:none;background:var(--green-pale);border:1px solid var(--green-border);color:var(--green);padding:12px;font-weight:600;border-radius:4px;margin-top:12px;">✅ Participants saved!</div>
+    </div>`;
+
+  modal.style.display = 'flex';
+
+  // Populate member buttons
+  epRenderPickerMembers(evId, team, ev.slots);
+}
+
+let epSelected = new Set();
+
+async function epRenderPickerMembers(evId, team, slots) {
+  epSelected = new Set();
+  const regs = await getRegistrations(evId);
+  const existing = regs.find(r => r.team === team.name);
+
+  // Pre-select existing registrations
   if (existing && existing.members.length) {
-    if (box) box.innerHTML = `<div class="reg-existing-box"><strong>Currently registered</strong>${existing.members.join(', ')}</div>`;
-    existing.members.forEach((m,i) => { const inp=document.getElementById(`ep-member-${i+1}`); if(inp) inp.value=m; });
-    if (clearBtn) clearBtn.style.display='block';
+    existing.members.forEach(m => epSelected.add(m));
+    const existBox = document.getElementById('ep-picker-existing');
+    if (existBox) existBox.innerHTML = `<div style="background:var(--gold-pale);border:1px solid #e8c86a;padding:8px 12px;font-size:12px;border-radius:3px;"><strong style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);">Currently registered</strong><br>${existing.members.join(', ')}</div>`;
+    const clearBtn = document.getElementById('ep-picker-clear');
+    if (clearBtn) clearBtn.style.display = 'block';
+  }
+
+  const container = document.getElementById('ep-picker-members');
+  if (!container) return;
+
+  container.innerHTML = team.members.map(m => {
+    const isCap = m === team.captain;
+    const sel = epSelected.has(m);
+    return `<button id="ep-mb-${CSS.escape(m)}" onclick="epToggleMember('${escJs(m)}',${slots})"
+      style="padding:9px 16px;border:2px solid ${sel ? 'var(--navy)' : 'var(--border)'};background:${sel ? 'var(--navy)' : 'var(--cream)'};color:${sel ? 'white' : 'var(--navy)'};cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;border-radius:4px;transition:all 0.12s;">
+      ${m}${isCap ? ' ★' : ''}
+    </button>`;
+  }).join('');
+
+  epUpdateCounter(slots);
+}
+
+function epToggleMember(name, slots) {
+  if (epSelected.has(name)) {
+    epSelected.delete(name);
   } else {
-    if (box) box.innerHTML='';
-    if (clearBtn) clearBtn.style.display='none';
+    if (epSelected.size >= slots) {
+      // Deselect first selected to replace
+      const first = [...epSelected][0];
+      epSelected.delete(first);
+      const firstBtn = document.querySelector(`#ep-picker-members button[onclick*="${CSS.escape(escJs(first))}"]`);
+      // easier: just re-render styles
+    }
+    epSelected.add(name);
+  }
+  // Refresh all button styles
+  const container = document.getElementById('ep-picker-members');
+  if (container) {
+    container.querySelectorAll('button').forEach(btn => {
+      const btnName = btn.textContent.replace(' ★','').trim();
+      const sel = epSelected.has(btnName);
+      btn.style.border = `2px solid ${sel ? 'var(--navy)' : 'var(--border)'}`;
+      btn.style.background = sel ? 'var(--navy)' : 'var(--cream)';
+      btn.style.color = sel ? 'white' : 'var(--navy)';
+    });
+  }
+  epUpdateCounter(slots);
+}
+
+function epUpdateCounter(slots) {
+  const counter = document.getElementById('ep-picker-counter');
+  const confirmBtn = document.getElementById('ep-picker-confirm');
+  const n = epSelected.size;
+  if (counter) counter.textContent = `${n} of ${slots} selected`;
+  if (confirmBtn) {
+    const ready = n > 0;
+    confirmBtn.disabled = !ready;
+    confirmBtn.style.opacity = ready ? '1' : '0.4';
+    confirmBtn.style.cursor = ready ? 'pointer' : 'not-allowed';
   }
 }
 
-async function submitEventReg(eventId, slots) {
-  if (!session?.isCaptain) { alert('Only the team captain can submit registrations.'); return; }
-  const members=[];
-  for (let i=1;i<=slots;i++) { const v=(document.getElementById(`ep-member-${i}`)?.value||'').trim(); if(v) members.push(v); }
-  if (!members.length) { alert('Please enter at least one participant name.'); return; }
-  const btn=document.querySelector('.btn-reg-submit');
-  btn.textContent='Saving…'; btn.disabled=true;
+async function epConfirmPicker(evId, teamName) {
+  const members = [...epSelected];
+  if (!members.length) return;
+  const btn = document.getElementById('ep-picker-confirm');
+  btn.textContent = 'Saving…'; btn.disabled = true;
   try {
-    await saveRegistration(eventId, session.teamName, members);
-    const ev=events.find(e=>e.id===eventId);
+    await saveRegistration(evId, teamName, members);
+    const ev = events.find(e => e.id === evId);
+    // Also fire Formspree silently
     fetch(SIGNUP_FORM_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify({event:ev.name,team:session.teamName,captain:session.memberName,members:members.join(', '),_subject:`Sign-up: ${session.teamName} → ${ev.name}`})}).catch(()=>{});
-    document.getElementById('ep-reg-success').style.display='block';
-    btn.textContent='Confirmed!';
-    prefillExisting(eventId, slots);
+      body:JSON.stringify({event:ev.name,team:teamName,members:members.join(', '),_subject:`Sign-up: ${teamName} → ${ev.name}`})}).catch(()=>{});
+    const succ = document.getElementById('ep-picker-success');
+    if (succ) succ.style.display = 'block';
+    btn.textContent = 'Confirmed! ✓';
+    // Refresh opponents and schedule
     await Opponents(ev);
     Schedule();
-  } catch(e) { btn.disabled=false; btn.textContent='Confirm Participants'; alert('Error saving.'); }
+    EventReg(ev);
+    setTimeout(() => epClosePicker(), 1200);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Confirm Participants';
+    alert('Error saving. Try again.');
+  }
 }
 
-async function clearEventReg(eventId) {
-  if (!session?.isCaptain) return;
-  if (!confirm(`Remove ${session.teamName}'s registration for this event?`)) return;
-  await clearRegistration(eventId, session.teamName);
-  const ev=events.find(e=>e.id===eventId);
+async function epClearAndClose(evId, teamName) {
+  if (!confirm(`Remove ${teamName}'s registration for this event?`)) return;
+  await clearRegistration(evId, teamName);
+  const ev = events.find(e => e.id === evId);
+  epClosePicker();
   EventReg(ev);
   await Opponents(ev);
   Schedule();
+}
+
+function epClosePicker() {
+  const modal = document.getElementById('ep-member-modal');
+  if (modal) modal.style.display = 'none';
+  epSelected = new Set();
 }
 
 async function Opponents(ev) {
