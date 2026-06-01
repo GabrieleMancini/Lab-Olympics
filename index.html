@@ -690,18 +690,6 @@ function closeSignIn() {
 
 /* ===================== STORAGE ===================== */
 /* ===================== STORAGE (Firebase Realtime DB) ===================== */
-function getFirebaseDb() {
-  // Firebase is initialized lazily for the race tracker; init it now if needed
-  if (!firebaseReady) {
-    try {
-      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-      rpDb = firebase.database();
-      firebaseReady = true;
-    } catch(e) { return null; }
-  }
-  return rpDb;
-}
-
 async function getRegistrations(eventId) {
   try {
     const db = getFirebaseDb();
@@ -709,7 +697,6 @@ async function getRegistrations(eventId) {
     const snap = await db.ref(`registrations/${eventId}`).once('value');
     const val = snap.val();
     if (!val) return [];
-    // Firebase stores as object keyed by team name; convert to array
     return Object.values(val);
   } catch(e) { return []; }
 }
@@ -1127,8 +1114,6 @@ NavSession();
 Teams();
 Medals();
 Points();
-// Init Firebase early so registrations work on page load
-getFirebaseDb();
 Schedule();
 
 /* ===================== FIREBASE + RACE TRACKER ===================== */
@@ -1157,6 +1142,11 @@ function initFirebase() {
   } catch(e) {
     console.warn('Firebase not configured yet:', e.message);
   }
+}
+
+function getFirebaseDb() {
+  if (!firebaseReady) initFirebase();
+  return rpDb;
 }
 
 // ── Runner colors (auto-assigned) ──
