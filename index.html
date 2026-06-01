@@ -691,19 +691,19 @@ function closeSignIn() {
 /* ===================== STORAGE ===================== */
 async function getRegistrations(eventId) {
   try {
-    const r = await window.storage.get(`ev_reg:${eventId}`, true);
-    return r ? JSON.parse(r.value) : [];
+    const raw = localStorage.getItem(`ev_reg:${eventId}`);
+    return raw ? JSON.parse(raw) : [];
   } catch(e) { return []; }
 }
 async function saveRegistration(eventId, teamName, members) {
   const all = await getRegistrations(eventId);
   const idx = all.findIndex(r => r.team === teamName);
   if (idx >= 0) all[idx].members = members; else all.push({ team: teamName, members });
-  await window.storage.set(`ev_reg:${eventId}`, JSON.stringify(all), true);
+  localStorage.setItem(`ev_reg:${eventId}`, JSON.stringify(all));
 }
 async function clearRegistration(eventId, teamName) {
   const all = await getRegistrations(eventId);
-  await window.storage.set(`ev_reg:${eventId}`, JSON.stringify(all.filter(r => r.team !== teamName)), true);
+  localStorage.setItem(`ev_reg:${eventId}`, JSON.stringify(all.filter(r => r.team !== teamName)));
 }
 
 
