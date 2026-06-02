@@ -1321,6 +1321,7 @@ function goHome() {
     if (db) db.ref(`registrations/${opponentsEventId}`).off('value', opponentsListener);
     opponentsListener = null; opponentsEventId = null;
   }
+  ttStopListening();
   document.getElementById('event-page').style.display='none';
   document.getElementById('main-page').style.display='block';
   window.scrollTo(0, document.getElementById('schedule').offsetTop - 70);
@@ -1331,255 +1332,377 @@ function goHome() {
 
 const TT_IND_PTS = [55,45,37,33,30,27,25,22,19,16,14,11,8,5,3,0];
 
+// Groups defined by LAB + slot index (0 = first player, 1 = second player)
+// Player names are resolved dynamically from Firebase registrations
 const TT_GROUPS = [
-  { id:'g1', label:'Group 1', side:'Side 1', players:['Sina Nabil','Samuele Negri','C_1'] },
-  { id:'g2', label:'Group 2', side:'Side 1', players:['Daniela Beckmann','Antonia Gocke','F_1'] },
-  { id:'g3', label:'Group 3', side:'Side 1', players:['Veronika Koren','Ella Montali','I_1'] },
-  { id:'g4', label:'Group 4', side:'Side 2', players:['Marco Müller','Peggy Putthoff','Siddharth Paliwal'] },
-  { id:'g5', label:'Group 5', side:'Side 2', players:['Maria Ramos Moreso','Josephine Hoppe','Dominik Böck'] },
-  { id:'g6', label:'Group 6', side:'Side 2', players:['C_2','F_2','I_2'] },
+  { id:'g1', label:'Group 1', side:'Side 1', slots:[
+    {lab:'Epidermis Express',                                    idx:0},
+    {lab:'Bitz Lab',                                             idx:0},
+    {lab:'CMON LAB',                                             idx:0},
+  ]},
+  { id:'g2', label:'Group 2', side:'Side 1', slots:[
+    {lab:'Synapses United',                                      idx:0},
+    {lab:'LMNOP',                                                idx:0},
+    {lab:'BeTHS',                                                idx:0},
+  ]},
+  { id:'g3', label:'Group 3', side:'Side 1', slots:[
+    {lab:'Department of Excellence',                             idx:0},
+    {lab:'Tubulin Tornadoes',                                    idx:0},
+    {lab:'Institute of Neuroimmunology and Multiple Successes',  idx:0},
+  ]},
+  { id:'g4', label:'Group 4', side:'Side 2', slots:[
+    {lab:'Epidermis Express',                                    idx:1},
+    {lab:'Synapses United',                                      idx:1},
+    {lab:'Department of Excellence',                             idx:1},
+  ]},
+  { id:'g5', label:'Group 5', side:'Side 2', slots:[
+    {lab:'Bitz Lab',                                             idx:1},
+    {lab:'LMNOP',                                                idx:1},
+    {lab:'Tubulin Tornadoes',                                    idx:1},
+  ]},
+  { id:'g6', label:'Group 6', side:'Side 2', slots:[
+    {lab:'CMON LAB',                                             idx:1},
+    {lab:'BeTHS',                                                idx:1},
+    {lab:'Institute of Neuroimmunology and Multiple Successes',  idx:1},
+  ]},
 ];
+
+// Short display names for unregistered placeholders
+const TT_LAB_SHORT = {
+  'Department of Excellence':                            'DoE',
+  'Epidermis Express':                                   'EpiEx',
+  'Institute of Neuroimmunology and Multiple Successes': 'INMS',
+  'CMON LAB':                                            'CMON',
+  'Synapses United':                                     'SynU',
+  'Tubulin Tornadoes':                                   'TubT',
+  'LMNOP':                                               'LMNOP',
+  'BeTHS':                                               'BeTHS',
+  'Bitz Lab':                                            'Bitz',
+};
 
 const TT_SCHEDULE = [
-  { time:'~18:15', t1:'G1: Sina vs Samuele',      t2:'G2: Daniela vs Antonia',    phase:'Group', cls:'' },
-  { time:'~18:25', t1:'G3: Veronika vs Ella',      t2:'G4: Marco vs Peggy',        phase:'Group', cls:'' },
-  { time:'~18:35', t1:'G5: Maria vs Josephine',    t2:'G6: C_2 vs F_2',            phase:'Group', cls:'' },
-  { time:'~18:45', t1:'G1: Sina vs C_1',           t2:'G2: Daniela vs F_1',        phase:'Group', cls:'' },
-  { time:'~18:55', t1:'G3: Veronika vs I_1',       t2:'G4: Marco vs Siddharth',    phase:'Group', cls:'' },
-  { time:'~19:05', t1:'G5: Maria vs Dominik',      t2:'G6: C_2 vs I_2',            phase:'Group', cls:'' },
-  { time:'~19:15', t1:'G1: Samuele vs C_1',        t2:'G2: Antonia vs F_1',        phase:'Group', cls:'' },
-  { time:'~19:25', t1:'G3: Ella vs I_1',           t2:'G4: Peggy vs Siddharth',    phase:'Group', cls:'' },
-  { time:'~19:35', t1:'G5: Josephine vs Dominik',  t2:'G6: F_2 vs I_2',            phase:'Group', cls:'' },
-  { time:'~19:45', t1:'Quarterfinal 1',            t2:'Quarterfinal 2',            phase:'Knockouts', cls:'tt-ko-row' },
-  { time:'~19:55', t1:'Quarterfinal 3',            t2:'Quarterfinal 4',            phase:'Knockouts', cls:'tt-ko-row' },
-  { time:'~20:05', t1:'Semifinal 1',               t2:'Semifinal 2',               phase:'Knockouts', cls:'tt-ko-row' },
-  { time:'~20:15', t1:'Grand Final',               t2:'3rd-Place Game',            phase:'Finals',    cls:'tt-final-row' },
+  {time:'~18:15',t1:'G1 · Match 1',          t2:'G2 · Match 1',          phase:'Group',     cls:''},
+  {time:'~18:25',t1:'G3 · Match 1',          t2:'G4 · Match 1',          phase:'Group',     cls:''},
+  {time:'~18:35',t1:'G5 · Match 1',          t2:'G6 · Match 1',          phase:'Group',     cls:''},
+  {time:'~18:45',t1:'G1 · Match 2',          t2:'G2 · Match 2',          phase:'Group',     cls:''},
+  {time:'~18:55',t1:'G3 · Match 2',          t2:'G4 · Match 2',          phase:'Group',     cls:''},
+  {time:'~19:05',t1:'G5 · Match 2',          t2:'G6 · Match 2',          phase:'Group',     cls:''},
+  {time:'~19:15',t1:'G1 · Match 3',          t2:'G2 · Match 3',          phase:'Group',     cls:''},
+  {time:'~19:25',t1:'G3 · Match 3',          t2:'G4 · Match 3',          phase:'Group',     cls:''},
+  {time:'~19:35',t1:'G5 · Match 3',          t2:'G6 · Match 3',          phase:'Group',     cls:''},
+  {time:'~19:45',t1:'Quarterfinal 1',         t2:'Quarterfinal 2',        phase:'Knockouts', cls:'tt-ko-row'},
+  {time:'~19:55',t1:'Quarterfinal 3',         t2:'Quarterfinal 4',        phase:'Knockouts', cls:'tt-ko-row'},
+  {time:'~20:05',t1:'Semifinal 1',            t2:'Semifinal 2',           phase:'Knockouts', cls:'tt-ko-row'},
+  {time:'~20:15',t1:'Grand Final',            t2:'3rd-Place Game',        phase:'Finals',    cls:'tt-final-row'},
 ];
 
-// Generate round-robin matches for a group
+// ── Resolve player names from registrations ──
+// Returns groups with a .players array (real names or "SHORT P1"/"SHORT P2" fallbacks)
+function ttResolveGroups(regs) {
+  // Build lab → members map
+  const byLab = {};
+  (regs||[]).forEach(r => { byLab[r.team] = r.members || []; });
+
+  return TT_GROUPS.map(g => ({
+    ...g,
+    players: g.slots.map(s => {
+      const members = byLab[s.lab] || [];
+      if (members[s.idx]) return members[s.idx];
+      const short = TT_LAB_SHORT[s.lab] || s.lab.slice(0,4).toUpperCase();
+      return `${short} P${s.idx+1}`;
+    })
+  }));
+}
+
+// Reverse lookup: player name → lab name
+function ttGetLab(playerName, resolvedGroups) {
+  for (const g of resolvedGroups)
+    for (let i=0; i<g.players.length; i++)
+      if (g.players[i] === playerName) return g.slots[i].lab;
+  for (const t of acceptedTeams)
+    if (t.members.includes(playerName)) return t.name;
+  return null;
+}
+
+// ── Group match helpers ──
 function ttGroupMatches(g) {
   const p = g.players, out = [];
   for (let i=0; i<p.length; i++)
     for (let j=i+1; j<p.length; j++)
-      out.push({ key:`tt_${g.id}_${i}_${j}`, a:p[i], b:p[j] });
+      out.push({ key:`tt_${g.id}_${i}_${j}`, a:p[i], b:p[j], ia:i, ib:j });
   return out;
 }
 
-// Points: diff>1 = 3/0 (standard); diff==1 = 2/1 (advantage)
+// Determines group-stage points from a match score.
+// Standard win (winner reaches 11 with ≥2 lead):  3 / 0
+// Advantage win (winner had to go past 11):        2 / 1
+// Draw or invalid:                                null / null
 function ttMatchPts(sA, sB) {
   if (sA === sB) return [null, null];
-  return Math.abs(sA-sB) === 1
-    ? (sA>sB ? [2,1] : [1,2])
-    : (sA>sB ? [3,0] : [0,3]);
+  const winner = Math.max(sA, sB);
+  const aWins  = sA > sB;
+  // Any score where the winner needed more than 11 points = advantage game
+  // (covers 12-10, 13-11, 15-13, 15-14, etc.)
+  const isAdvantage = winner > 11;
+  if (isAdvantage) return aWins ? [2, 1] : [1, 2];
+  return aWins ? [3, 0] : [0, 3];
 }
 
-// Calculate standings for one group
 function ttCalcGroup(g, scores) {
   const s = {};
-  g.players.forEach(p => s[p] = {p:0,w:0,l:0,plus:0,minus:0,pts:0});
+  g.players.forEach(p => s[p]={p:0,w:0,l:0,plus:0,minus:0,pts:0});
   ttGroupMatches(g).forEach(m => {
     const sc = scores[m.key];
     if (!sc) return;
-    const sA = parseInt(sc.a), sB = parseInt(sc.b);
+    const sA=parseInt(sc.a), sB=parseInt(sc.b);
     if (isNaN(sA)||isNaN(sB)) return;
-    const [pA, pB] = ttMatchPts(sA, sB);
+    const [pA,pB] = ttMatchPts(sA,sB);
     if (pA===null) return;
     s[m.a].p++; s[m.b].p++;
     s[m.a].plus+=sA; s[m.a].minus+=sB;
     s[m.b].plus+=sB; s[m.b].minus+=sA;
-    if (sA>sB) { s[m.a].w++; s[m.b].l++; } else { s[m.b].w++; s[m.a].l++; }
+    if (sA>sB){s[m.a].w++;s[m.b].l++;}else{s[m.b].w++;s[m.a].l++;}
     s[m.a].pts+=pA; s[m.b].pts+=pB;
   });
-  return g.players.map(p => ({name:p,...s[p]}))
-    .sort((a,b) => b.pts-a.pts || (b.plus-b.minus)-(a.plus-a.minus));
+  return g.players.map(p=>({name:p,...s[p]}))
+    .sort((a,b)=>b.pts-a.pts||(b.plus-b.minus)-(a.plus-a.minus));
 }
 
-// Look up which lab a player belongs to
-function ttGetLab(name) {
-  for (const t of acceptedTeams) if (t.members.includes(name)) return t.name;
-  return null;
-}
+// ── Core recomputation ──
+function ttFullRecompute(scores, resolvedGroups) {
+  const gs={};
+  resolvedGroups.forEach(g=>{gs[g.id]=ttCalcGroup(g,scores);});
 
-// ── Core recomputation — pure function, takes scores → returns everything ──
-function ttFullRecompute(scores) {
-  // 1. Group standings
-  const gs = {};
-  TT_GROUPS.forEach(g => { gs[g.id] = ttCalcGroup(g, scores); });
+  const gW = id => gs[id]?.[0]?.name||null;
+  const seconds = resolvedGroups.map(g=>{
+    const r=gs[g.id]?.[1];
+    return r?.name?{name:r.name,pts:r.pts||0,gd:(r.plus||0)-(r.minus||0)}:null;
+  }).filter(Boolean).sort((a,b)=>b.pts-a.pts||b.gd-a.gd);
 
-  // 2. Winners & 2nd-place for best-of-2nd selection
-  const gW = id => gs[id]?.[0]?.name || null;
-  const seconds = TT_GROUPS.map(g => {
-    const r = gs[g.id]?.[1];
-    return r?.name ? {name:r.name, pts:r.pts||0, gd:(r.plus||0)-(r.minus||0)} : null;
-  }).filter(Boolean).sort((a,b) => b.pts-a.pts || b.gd-a.gd);
+  const best2nd  = seconds[0]?.name||null;
+  const best2nd2 = seconds[1]?.name||null;
 
-  const best2nd  = seconds[0]?.name || null;
-  const best2nd2 = seconds[1]?.name || null;
-
-  // 3. QF assignments (group stage must be complete enough)
-  const qfSlots = {
-    qf1:{a:gW('g1'), b:gW('g3')},
-    qf2:{a:gW('g2'), b:best2nd},
-    qf3:{a:gW('g4'), b:gW('g6')},
-    qf4:{a:gW('g5'), b:best2nd2},
+  const qfSlots={
+    qf1:{a:gW('g1'),b:gW('g3')},
+    qf2:{a:gW('g2'),b:best2nd},
+    qf3:{a:gW('g4'),b:gW('g6')},
+    qf4:{a:gW('g5'),b:best2nd2},
   };
 
-  // 4. KO resolver
-  const res = (id, pA, pB) => {
-    if (!pA||!pB) return {w:null,l:null};
-    const s = scores[`tt_ko_${id}`];
-    if (!s||s.a===undefined||s.b===undefined) return {w:null,l:null};
-    const sA=parseInt(s.a), sB=parseInt(s.b);
-    if (isNaN(sA)||isNaN(sB)||sA===sB) return {w:null,l:null};
-    return sA>sB ? {w:pA,l:pB} : {w:pB,l:pA};
+  const res=(id,pA,pB)=>{
+    if(!pA||!pB)return{w:null,l:null};
+    const s=scores[`tt_ko_${id}`];
+    if(!s||s.a===undefined||s.b===undefined)return{w:null,l:null};
+    const sA=parseInt(s.a),sB=parseInt(s.b);
+    if(isNaN(sA)||isNaN(sB)||sA===sB)return{w:null,l:null};
+    return sA>sB?{w:pA,l:pB}:{w:pB,l:pA};
   };
 
-  const r_qf1 = res('qf1', qfSlots.qf1.a, qfSlots.qf1.b);
-  const r_qf2 = res('qf2', qfSlots.qf2.a, qfSlots.qf2.b);
-  const r_qf3 = res('qf3', qfSlots.qf3.a, qfSlots.qf3.b);
-  const r_qf4 = res('qf4', qfSlots.qf4.a, qfSlots.qf4.b);
+  const r_qf1=res('qf1',qfSlots.qf1.a,qfSlots.qf1.b);
+  const r_qf2=res('qf2',qfSlots.qf2.a,qfSlots.qf2.b);
+  const r_qf3=res('qf3',qfSlots.qf3.a,qfSlots.qf3.b);
+  const r_qf4=res('qf4',qfSlots.qf4.a,qfSlots.qf4.b);
 
-  const sfSlots = {
-    sf1:{a:r_qf1.w, b:r_qf2.w},
-    sf2:{a:r_qf3.w, b:r_qf4.w},
-  };
+  const sfSlots={sf1:{a:r_qf1.w,b:r_qf2.w},sf2:{a:r_qf3.w,b:r_qf4.w}};
+  const r_sf1=res('sf1',sfSlots.sf1.a,sfSlots.sf1.b);
+  const r_sf2=res('sf2',sfSlots.sf2.a,sfSlots.sf2.b);
 
-  const r_sf1 = res('sf1', sfSlots.sf1.a, sfSlots.sf1.b);
-  const r_sf2 = res('sf2', sfSlots.sf2.a, sfSlots.sf2.b);
+  const finSlots={a:r_sf1.w,b:r_sf2.w};
+  const thrdSlots={a:r_sf1.l,b:r_sf2.l};
+  const r_fin=res('final',finSlots.a,finSlots.b);
+  const r_thrd=res('3rd',thrdSlots.a,thrdSlots.b);
 
-  const finSlots  = {a:r_sf1.w, b:r_sf2.w};
-  const thrdSlots = {a:r_sf1.l, b:r_sf2.l};
+  const qfLosers=[r_qf1.l,r_qf2.l,r_qf3.l,r_qf4.l].filter(Boolean);
+  const elim2nd=seconds.slice(2).map(s=>s.name);
+  const thirds=resolvedGroups.map(g=>gs[g.id]?.[2]?.name).filter(Boolean);
+  const groupElim=[...elim2nd,...thirds];
 
-  const r_fin  = res('final', finSlots.a,  finSlots.b);
-  const r_thrd = res('3rd',   thrdSlots.a, thrdSlots.b);
+  const ranking=[r_fin.w,r_fin.l,r_thrd.w,r_thrd.l,...qfLosers,...groupElim];
 
-  // 5. Final ranking
-  const qfLosers   = [r_qf1.l, r_qf2.l, r_qf3.l, r_qf4.l].filter(Boolean);
-  const elim2nd    = seconds.slice(2).map(s => s.name);
-  const thirds     = TT_GROUPS.map(g => gs[g.id]?.[2]?.name).filter(Boolean);
-  const groupElim  = [...elim2nd, ...thirds];
+  const playerPts={};
+  ranking.forEach((p,i)=>{if(p&&i<TT_IND_PTS.length)playerPts[p]=TT_IND_PTS[i];});
 
-  const ranking = [
-    r_fin.w, r_fin.l, r_thrd.w, r_thrd.l,
-    ...qfLosers,
-    ...groupElim,
-  ];
-
-  // 6. Player points & lab scores
-  const playerPts = {};
-  ranking.forEach((p,i) => { if (p && i < TT_IND_PTS.length) playerPts[p] = TT_IND_PTS[i]; });
-
-  const labScores = {};
-  acceptedTeams.forEach(t => labScores[t.name] = 0);
-  Object.entries(playerPts).forEach(([player, pts]) => {
-    for (const t of acceptedTeams)
-      if (t.members.includes(player)) { labScores[t.name] += pts; break; }
+  const labScores={};
+  acceptedTeams.forEach(t=>labScores[t.name]=0);
+  Object.entries(playerPts).forEach(([player,pts])=>{
+    const lab=ttGetLab(player,resolvedGroups);
+    if(lab&&labScores[lab]!==undefined)labScores[lab]+=pts;
   });
 
-  return { gs, qfSlots, sfSlots, finSlots, thrdSlots,
-           r_qf1, r_qf2, r_qf3, r_qf4, r_sf1, r_sf2, r_fin, r_thrd,
-           ranking, playerPts, labScores, seconds };
+  return{gs,qfSlots,sfSlots,finSlots,thrdSlots,
+         r_qf1,r_qf2,r_qf3,r_qf4,r_sf1,r_sf2,r_fin,r_thrd,
+         ranking,playerPts,labScores,seconds,resolvedGroups};
 }
 
 // ── Firebase ──
-async function ttLoadScores() {
-  try {
-    const db = getFirebaseDb();
-    if (!db) return {};
-    const snap = await db.ref('tt_scores').once('value');
-    return snap.val() || {};
-  } catch(e) { return {}; }
+async function ttLoadScores(){
+  try{const db=getFirebaseDb();if(!db)return{};
+    const s=await db.ref('tt_scores').once('value');return s.val()||{};}
+  catch(e){return{};}
 }
 
-// Called every time any score changes
+async function ttLoadRegs(){
+  try{const db=getFirebaseDb();if(!db)return[];
+    const s=await db.ref('registrations/tabletennis').once('value');
+    const v=s.val();return v?Object.values(v):[];}
+  catch(e){return[];}
+}
+
+// Called on every score input change
 async function ttHandleScoreChange(key, valA, valB) {
+  const sA = parseInt(valA), sB = parseInt(valB);
+
+  // Validate: a legal TT score requires the winner to have ≥11 pts,
+  // a ≥2 pt lead (unless at hard cap 15), and no score above 15.
+  const winner = Math.max(sA, sB), loser = Math.min(sA, sB);
+  const invalid =
+    isNaN(sA) || isNaN(sB) || sA < 0 || sB < 0 ||
+    winner > 15 ||
+    winner < 11 ||
+    (winner < 15 && winner - loser < 2) ||   // not enough lead (e.g. 11-10)
+    (winner === 15 && loser > 14);             // impossible 15-15
+
+  if (invalid) {
+    // Flash the inputs red briefly to signal bad input
+    ['a','b'].forEach(s => {
+      const el = document.getElementById(`tt-in-${key}-${s}`) ||
+                 document.getElementById(`tt-ko-${key.replace('tt_ko_','')}-${s}`);
+      if (el) { el.style.borderColor='var(--red)'; setTimeout(()=>{el.style.borderColor='';},1500); }
+    });
+    return;
+  }
+
   const db = getFirebaseDb();
-  if (db) await db.ref(`tt_scores/${key}`).set({a:parseInt(valA), b:parseInt(valB)});
-  const scores = await ttLoadScores();
-  const state  = ttFullRecompute(scores);
+  if (db) await db.ref(`tt_scores/${key}`).set({ a: sA, b: sB });
+  const [scores, regs] = await Promise.all([ttLoadScores(), ttLoadRegs()]);
+  const rg    = ttResolveGroups(regs);
+  const state = ttFullRecompute(scores, rg);
   if (db) await db.ref('discipline_scores/tabletennis').set(state.labScores);
   ttRenderState(state, scores);
   await Points();
-  // flash dot
   const dot = document.getElementById(`tt-dot-${key}`);
-  if (dot) { dot.style.opacity='1'; setTimeout(()=>{dot.style.opacity='0';},1400); }
+  if (dot) { dot.style.opacity='1'; setTimeout(()=>{ dot.style.opacity='0'; }, 1400); }
 }
 
-// Handlers called by inline onchange attributes
-function ttGroupScoreChange(key, side, el) {
-  const other = document.getElementById(`tt-in-${key}-${side==='a'?'b':'a'}`);
-  if (!other || other.value==='' || el.value==='') return;
-  const vA = side==='a' ? el.value : other.value;
-  const vB = side==='b' ? el.value : other.value;
-  ttHandleScoreChange(key, vA, vB);
+function ttGroupScoreChange(key,side,el){
+  const other=document.getElementById(`tt-in-${key}-${side==='a'?'b':'a'}`);
+  if(!other||other.value===''||el.value==='')return;
+  const vA=side==='a'?el.value:other.value;
+  const vB=side==='b'?el.value:other.value;
+  ttHandleScoreChange(key,vA,vB);
 }
 
-function ttKOScoreChange(id, side, el) {
-  const other = document.getElementById(`tt-ko-${id}-${side==='a'?'b':'a'}`);
-  if (!other || other.value==='' || el.value==='') return;
-  const vA = side==='a' ? el.value : other.value;
-  const vB = side==='b' ? el.value : other.value;
-  ttHandleScoreChange(`tt_ko_${id}`, vA, vB);
+function ttKOScoreChange(id,side,el){
+  const other=document.getElementById(`tt-ko-${id}-${side==='a'?'b':'a'}`);
+  if(!other||other.value===''||el.value==='')return;
+  const vA=side==='a'?el.value:other.value;
+  const vB=side==='b'?el.value:other.value;
+  ttHandleScoreChange(`tt_ko_${id}`,vA,vB);
+}
+
+// ── Firebase live listener for registrations ──
+let ttRegListener=null;
+
+function ttStartListening(){
+  const db=getFirebaseDb();
+  if(!db||ttRegListener)return;
+  ttRegListener=db.ref('registrations/tabletennis').on('value',async snap=>{
+    const v=snap.val();
+    const regs=v?Object.values(v):[];
+    const scores=await ttLoadScores();
+    const rg=ttResolveGroups(regs);
+    ttRenderState(ttFullRecompute(scores,rg),scores);
+  });
+}
+
+function ttStopListening(){
+  const db=getFirebaseDb();
+  if(db&&ttRegListener){
+    db.ref('registrations/tabletennis').off('value',ttRegListener);
+    ttRegListener=null;
+  }
 }
 
 // ── Entry point ──
-async function ttRender() {
-  const scores = await ttLoadScores();
-  ttRenderState(ttFullRecompute(scores), scores);
+async function ttRender(){
+  const [scores, regs] = await Promise.all([ttLoadScores(), ttLoadRegs()]);
+  const rg    = ttResolveGroups(regs);
+  const state = ttFullRecompute(scores, rg);
+
+  // Initialise discipline_scores/tabletennis to zero for all labs so the
+  // main ranking reads 0 for TT before any match is played.
+  // Only write non-zero scores once at least one match result exists.
+  const db = getFirebaseDb();
+  if (db) {
+    const hasAnyScore = Object.keys(scores).length > 0;
+    if (!hasAnyScore) {
+      const zeros = {};
+      acceptedTeams.forEach(t => zeros[t.name] = 0);
+      await db.ref('discipline_scores/tabletennis').set(zeros);
+    } else {
+      await db.ref('discipline_scores/tabletennis').set(state.labScores);
+    }
+  }
+
+  ttRenderState(state, scores);
+  ttStartListening();
 }
 
-// ── Full render from computed state ──
-function ttRenderState(st, scores) {
-  const wrap = document.getElementById('tt-draw-inner');
-  if (!wrap) return;
-  const {gs, qfSlots, sfSlots, finSlots, thrdSlots,
-         r_qf1,r_qf2,r_qf3,r_qf4,r_sf1,r_sf2,r_fin,r_thrd,
-         ranking, playerPts, labScores} = st;
+// ── Full render ──
+function ttRenderState(st,scores){
+  const wrap=document.getElementById('tt-draw-inner');
+  if(!wrap)return;
+  const{gs,qfSlots,sfSlots,finSlots,thrdSlots,
+        r_qf1,r_qf2,r_qf3,r_qf4,r_sf1,r_sf2,r_fin,r_thrd,
+        ranking,playerPts,labScores,resolvedGroups}=st;
 
-  const tbd = n => n || `<span style="color:var(--muted);font-style:italic;font-weight:400">TBD</span>`;
-  const nm  = n => n || 'TBD';
+  const tbd=n=>n||`<span style="color:var(--muted);font-style:italic;font-weight:400">TBD</span>`;
+  const nm=n=>n||'TBD';
+  const isPlaceholder=n=>n&&/^[A-Z]+\sP[12]$/.test(n);
 
-  let html = '';
+  let html='';
 
   // Rulebook
-  html += `<div class="tt-rulebox">
+  html+=`<div class="tt-rulebox">
     <strong>🏓 Tournament Rules</strong>
     <ul>
       <li><strong>Serving:</strong> Switch every 3 serves.</li>
-      <li><strong>Match:</strong> First to 11 pts, 2-pt lead required. Hard cap at 15.</li>
-      <li><strong>Group points:</strong> Standard win <strong>3 pts</strong> · Advantage win <strong>2 pts</strong> · Advantage loss <strong>1 pt</strong> · Standard loss <strong>0 pts</strong></li>
-      <li><strong>Advancement:</strong> 6 group winners + 2 best 2nd-place → Quarterfinals.</li>
+      <li><strong>Match:</strong> First to 11 pts with a 2-pt lead. Hard cap at 15.</li>
+      <li><strong>Group points:</strong> Standard win <strong>3 pts</strong> · Advantage win (1-pt margin) <strong>2 pts</strong> · Advantage loss <strong>1 pt</strong> · Standard loss <strong>0 pts</strong></li>
+      <li><strong>Advancement:</strong> 6 group winners + 2 best 2nd-place players → Quarterfinals.</li>
     </ul>
   </div>`;
 
-  // Group stage
-  ['Side 1', 'Side 2'].forEach(side => {
-    html += `<div class="tt-section-title">Group Stage · ${side}</div><div class="tt-groups-grid">`;
-    TT_GROUPS.filter(g => g.side===side).forEach(g => {
-      const standing = gs[g.id];
-      const leaderPts = standing?.[0]?.pts;
-      html += `<div class="tt-gcard">
+  // Groups
+  ['Side 1','Side 2'].forEach(side=>{
+    html+=`<div class="tt-section-title">Group Stage · ${side}</div><div class="tt-groups-grid">`;
+    resolvedGroups.filter(g=>g.side===side).forEach(g=>{
+      const standing=gs[g.id];
+      const leaderPts=standing?.[0]?.pts;
+      html+=`<div class="tt-gcard">
         <div class="tt-gcard-title">${g.label}</div>
         <table class="tt-stand">
           <thead><tr><th>Player</th><th>P</th><th>W</th><th>L</th><th>+</th><th>−</th><th>Pts</th></tr></thead>
           <tbody>`;
-      (standing||[]).forEach(p => {
-        const lead = p.pts>0 && p.pts===leaderPts;
-        html += `<tr class="${lead?'tt-leader':''}">
-          <td class="tt-pname">${p.name}</td>
+      (standing||[]).forEach(p=>{
+        const lead=p.pts>0&&p.pts===leaderPts;
+        const ph=isPlaceholder(p.name);
+        html+=`<tr class="${lead?'tt-leader':''}">
+          <td class="tt-pname" style="${ph?'color:var(--muted);font-style:italic;font-weight:400':''}">${p.name}</td>
           <td>${p.p||''}</td><td>${p.w||''}</td><td>${p.l||''}</td>
           <td>${p.plus||''}</td><td>${p.minus||''}</td>
           <td class="tt-pts">${p.p>0?p.pts:''}</td>
         </tr>`;
       });
-      html += `</tbody></table><div class="tt-matches">`;
-      ttGroupMatches(g).forEach((m,idx) => {
-        const s = scores[m.key]||{};
-        html += `<div class="tt-match">
+      html+=`</tbody></table><div class="tt-matches">`;
+      ttGroupMatches(g).forEach((m,idx)=>{
+        const s=scores[m.key]||{};
+        const phA=isPlaceholder(m.a), phB=isPlaceholder(m.b);
+        html+=`<div class="tt-match">
           <span class="tt-match-label">G${idx+1}</span>
-          <span class="tt-match-player">${m.a}</span>
+          <span class="tt-match-player" style="${phA?'color:var(--muted);font-style:italic':''}">${m.a}</span>
           <span class="tt-match-vs">vs</span>
-          <span class="tt-match-player" style="text-align:right">${m.b}</span>
+          <span class="tt-match-player" style="${phB?'color:var(--muted);font-style:italic':''}text-align:right">${m.b}</span>
           <div class="tt-score-wrap">
             <input class="tt-score-input" type="number" min="0" max="15"
               value="${s.a!==undefined?s.a:''}" placeholder="–"
@@ -1592,18 +1715,23 @@ function ttRenderState(st, scores) {
           </div>
         </div>`;
       });
-      html += `</div></div>`;
+      html+=`</div></div>`;
     });
-    html += `</div>`;
+    html+=`</div>`;
   });
 
-  // Knockout bracket (dynamic SVG)
-  html += `<div class="tt-section-title">Knockout Bracket</div>`;
-  html += `<p class="tt-bracket-note">Slots fill automatically as group stage completes. Enter scores to advance the bracket.</p>`;
-  html += `<div class="tt-bracket-wrap">${ttBracketSVG(nm(qfSlots.qf1.a),nm(qfSlots.qf1.b),nm(qfSlots.qf2.a),nm(qfSlots.qf2.b),nm(qfSlots.qf3.a),nm(qfSlots.qf3.b),nm(qfSlots.qf4.a),nm(qfSlots.qf4.b),nm(sfSlots.sf1.a),nm(sfSlots.sf1.b),nm(sfSlots.sf2.a),nm(sfSlots.sf2.b),nm(finSlots.a),nm(finSlots.b),nm(thrdSlots.a),nm(thrdSlots.b))}</div>`;
+  // Bracket
+  html+=`<div class="tt-section-title">Knockout Bracket</div>`;
+  html+=`<p class="tt-bracket-note">Slots fill automatically as group results come in. Score inputs unlock when both players are confirmed.</p>`;
+  html+=`<div class="tt-bracket-wrap">${ttBracketSVG(
+    nm(qfSlots.qf1.a),nm(qfSlots.qf1.b),nm(qfSlots.qf2.a),nm(qfSlots.qf2.b),
+    nm(qfSlots.qf3.a),nm(qfSlots.qf3.b),nm(qfSlots.qf4.a),nm(qfSlots.qf4.b),
+    nm(sfSlots.sf1.a),nm(sfSlots.sf1.b),nm(sfSlots.sf2.a),nm(sfSlots.sf2.b),
+    nm(finSlots.a),nm(finSlots.b),nm(thrdSlots.a),nm(thrdSlots.b)
+  )}</div>`;
 
-  // KO match cards
-  const koMatches = [
+  // KO cards
+  const koMatches=[
     {id:'qf1',label:'QF 1 · Top Half',    pA:qfSlots.qf1.a,  pB:qfSlots.qf1.b},
     {id:'qf2',label:'QF 2 · Top Half',    pA:qfSlots.qf2.a,  pB:qfSlots.qf2.b},
     {id:'qf3',label:'QF 3 · Bottom Half', pA:qfSlots.qf3.a,  pB:qfSlots.qf3.b},
@@ -1613,16 +1741,16 @@ function ttRenderState(st, scores) {
     {id:'final',label:'🏆 Final',          pA:finSlots.a,     pB:finSlots.b},
     {id:'3rd', label:'3rd-Place Game',     pA:thrdSlots.a,    pB:thrdSlots.b},
   ];
-  html += `<div class="tt-ko-matches">`;
-  koMatches.forEach(m => {
-    const s = scores[`tt_ko_${m.id}`]||{};
-    const ok = m.pA && m.pB;
-    html += `<div class="tt-ko-card${m.id==='final'?' tt-final-card':''}">
+  html+=`<div class="tt-ko-matches">`;
+  koMatches.forEach(m=>{
+    const s=scores[`tt_ko_${m.id}`]||{};
+    const ok=m.pA&&m.pB&&!isPlaceholder(m.pA)&&!isPlaceholder(m.pB);
+    html+=`<div class="tt-ko-card${m.id==='final'?' tt-final-card':''}">
       <div class="tt-ko-label">${m.label}</div>
       <div class="tt-ko-match">
         <span class="tt-ko-player${!m.pA?' tbd':''}">${tbd(m.pA)}</span>
         <div class="tt-score-wrap">
-          ${ok ? `
+          ${ok?`
             <input class="tt-score-input" type="number" min="0" max="15"
               value="${s.a!==undefined?s.a:''}" placeholder="–"
               id="tt-ko-${m.id}-a" onchange="ttKOScoreChange('${m.id}','a',this)">
@@ -1631,69 +1759,67 @@ function ttRenderState(st, scores) {
               value="${s.b!==undefined?s.b:''}" placeholder="–"
               id="tt-ko-${m.id}-b" onchange="ttKOScoreChange('${m.id}','b',this)">
             <div class="tt-saved-dot" id="tt-dot-tt_ko_${m.id}"></div>
-          ` : `<span style="font-size:11px;color:var(--muted);padding:0 8px">—</span>`}
+          `:`<span style="font-size:11px;color:var(--muted);padding:0 8px">—</span>`}
         </div>
         <span class="tt-ko-player${!m.pB?' tbd':''}" style="text-align:right">${tbd(m.pB)}</span>
       </div>
     </div>`;
   });
-  html += `</div>`;
+  html+=`</div>`;
 
-  // Final ranking — auto-filled
-  html += `<div class="tt-section-title">Final Ranking & Points</div>`;
-  html += `<table class="tt-rank-table">
+  // Final ranking
+  html+=`<div class="tt-section-title">Final Ranking & Points</div>`;
+  html+=`<table class="tt-rank-table">
     <thead><tr><th>#</th><th>Player</th><th>Lab</th><th style="text-align:right">Ind. Pts</th></tr></thead>
     <tbody>`;
-  for (let i=0; i<16; i++) {
-    const player = ranking[i] || null;
-    const lab    = player ? (ttGetLab(player) || '—') : '—';
-    const pts    = player ? (playerPts[player] ?? TT_IND_PTS[i]) : TT_IND_PTS[i];
-    const cls    = i<4 ? 'tt-ko' : i<8 ? 'tt-ko2' : '';
-    html += `<tr class="${cls}">
+  for(let i=0;i<16;i++){
+    const player=ranking[i]||null;
+    const lab=player?ttGetLab(player,resolvedGroups)||'—':'—';
+    const pts=TT_IND_PTS[i];
+    const cls=i<4?'tt-ko':i<8?'tt-ko2':'';
+    html+=`<tr class="${cls}">
       <td class="tt-rk">${i+1}</td>
-      <td style="font-weight:600;font-size:13px">${player||'<span style="color:var(--muted);font-style:italic;font-weight:400">TBD</span>'}</td>
+      <td style="font-weight:600;font-size:13px">${player||`<span style="color:var(--muted);font-style:italic;font-weight:400">TBD</span>`}</td>
       <td style="font-size:12px;color:var(--muted)">${player?lab:''}</td>
       <td style="text-align:right;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--navy)">${player?pts:''}</td>
     </tr>`;
   }
-  html += `</tbody></table>`;
+  html+=`</tbody></table>`;
 
-  // Lab scores for TT
-  html += `<div class="tt-section-title">Lab Scores — Table Tennis</div>`;
-  const labRanked = acceptedTeams.map(t => ({name:t.name, score:labScores[t.name]||0}))
-    .sort((a,b) => b.score-a.score);
-  const maxScore = labRanked[0]?.score || 0;
-  html += `<div class="points-table">
-    <div class="points-header-row"><span>#</span><span>Lab</span><span style="text-align:right">TT Points</span></div>`;
-  labRanked.forEach((t,i) => {
-    const top = i===0 && maxScore>0;
-    html += `<div class="points-row${top?' first-place':''}">
+  // Lab TT scores
+  html+=`<div class="tt-section-title">Lab Scores — Table Tennis</div>`;
+  const lr=acceptedTeams.map(t=>({name:t.name,score:labScores[t.name]||0})).sort((a,b)=>b.score-a.score);
+  const mx=lr[0]?.score||0;
+  html+=`<div class="points-table"><div class="points-header-row"><span>#</span><span>Lab</span><span style="text-align:right">TT Points</span></div>`;
+  lr.forEach((t,i)=>{
+    const top=i===0&&mx>0;
+    html+=`<div class="points-row${top?' first-place':''}">
       <span class="points-rank${top?' first':''}">${i+1}</span>
       <span class="points-team-name">${t.name}</span>
       <span class="points-score${top?' first':''}">${t.score}</span>
     </div>`;
   });
-  html += `</div>`;
+  html+=`</div>`;
 
   // Schedule
-  html += `<div class="tt-section-title">Estimated Schedule</div>`;
-  html += `<p class="tt-bracket-note">~10 min per match · 2 tables running in parallel.</p>`;
-  html += `<div style="overflow-x:auto"><table class="tt-sched-table">
+  html+=`<div class="tt-section-title">Estimated Schedule</div>`;
+  html+=`<p class="tt-bracket-note">~10 min per match · 2 tables running in parallel.</p>`;
+  html+=`<div style="overflow-x:auto"><table class="tt-sched-table">
     <thead><tr><th>Time</th><th>Table 1</th><th>Table 2</th><th>Phase</th></tr></thead><tbody>`;
-  TT_SCHEDULE.forEach(r => {
-    html += `<tr class="${r.cls}"><td>${r.time}</td><td>${r.t1}</td><td>${r.t2}</td><td style="font-size:11px;color:var(--muted)">${r.phase}</td></tr>`;
+  TT_SCHEDULE.forEach(r=>{
+    html+=`<tr class="${r.cls}"><td>${r.time}</td><td>${r.t1}</td><td>${r.t2}</td><td style="font-size:11px;color:var(--muted)">${r.phase}</td></tr>`;
   });
-  html += `</tbody></table></div>`;
+  html+=`</tbody></table></div>`;
 
-  wrap.innerHTML = html;
+  wrap.innerHTML=html;
 }
 
-// Dynamic bracket SVG — slots filled with actual names
-function ttBracketSVG(q1a,q1b,q2a,q2b,q3a,q3b,q4a,q4b,s1a,s1b,s2a,s2b,fa,fb,ta,tb) {
-  const trunc = (s,n=22) => s.length>n ? s.slice(0,n-1)+'…' : s;
-  const t = (x,y,v) => `<text x="${x}" y="${y}" style="font-family:'DM Sans',sans-serif;font-size:10px;font-weight:${v==='TBD'?400:600};fill:${v==='TBD'?'#aaa':'#1a2d4a'};font-style:${v==='TBD'?'italic':'normal'}">${trunc(v)}</text>`;
-  const rl = (x,y,v) => `<text x="${x}" y="${y}" style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;fill:#888">${v}</text>`;
-  return `<svg viewBox="0 0 850 540" xmlns="http://www.w3.org/2000/svg" style="font-family:'DM Sans',sans-serif;">
+function ttBracketSVG(q1a,q1b,q2a,q2b,q3a,q3b,q4a,q4b,s1a,s1b,s2a,s2b,fa,fb,ta,tb){
+  const trunc=(s,n=22)=>s.length>n?s.slice(0,n-1)+'…':s;
+  const isTBD=v=>v==='TBD';
+  const t=(x,y,v)=>`<text x="${x}" y="${y}" style="font-family:'DM Sans',sans-serif;font-size:10px;font-weight:${isTBD(v)?400:600};fill:${isTBD(v)?'#bbb':'#1a2d4a'};font-style:${isTBD(v)?'italic':'normal'}">${trunc(v)}</text>`;
+  const rl=(x,y,v)=>`<text x="${x}" y="${y}" style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;fill:#888">${v}</text>`;
+  return`<svg viewBox="0 0 850 540" xmlns="http://www.w3.org/2000/svg">
 ${rl(20,11,'QF 1 · top')}
 <rect x="20" y="20" width="230" height="64" rx="5" fill="white" stroke="#1a2d4a" stroke-width="1.5"/>
 <line x1="20" y1="52" x2="250" y2="52" stroke="#e8e4db" stroke-width="1"/>
