@@ -1470,68 +1470,81 @@ function ttCalcGroup(g, scores) {
 
 // ── Core recomputation ──
 function ttFullRecompute(scores, resolvedGroups) {
-  const gs={};
-  resolvedGroups.forEach(g=>{gs[g.id]=ttCalcGroup(g,scores);});
+  const gs = {};
+  resolvedGroups.forEach(g => { gs[g.id] = ttCalcGroup(g, scores); });
 
-  const gW = id => gs[id]?.[0]?.name||null;
-  const seconds = resolvedGroups.map(g=>{
-    const r=gs[g.id]?.[1];
-    return r?.name?{name:r.name,pts:r.pts||0,gd:(r.plus||0)-(r.minus||0)}:null;
-  }).filter(Boolean).sort((a,b)=>b.pts-a.pts||b.gd-a.gd);
+  // A group is only "done" when every player has played all their matches (p === 2)
+  const groupDone = id => gs[id]?.length > 0 && gs[id].every(p => p.p === 2);
 
-  const best2nd  = seconds[0]?.name||null;
-  const best2nd2 = seconds[1]?.name||null;
+  // Group winner — null until the group is fully complete
+  const gW = id => groupDone(id) ? (gs[id]?.[0]?.name || null) : null;
 
-  const qfSlots={
-    qf1:{a:gW('g1'),b:gW('g3')},
-    qf2:{a:gW('g2'),b:best2nd},
-    qf3:{a:gW('g4'),b:gW('g6')},
-    qf4:{a:gW('g5'),b:best2nd2},
+  // Best 2nd-place — only from completed groups
+  const seconds = resolvedGroups.map(g => {
+    if (!groupDone(g.id)) return null;
+    const r = gs[g.id]?.[1];
+    return r?.name ? { name: r.name, pts: r.pts || 0, gd: (r.plus || 0) - (r.minus || 0) } : null;
+  }).filter(Boolean).sort((a, b) => b.pts - a.pts || b.gd - a.gd);
+
+  const best2nd  = seconds[0]?.name || null;
+  const best2nd2 = seconds[1]?.name || null;
+
+  const qfSlots = {
+    qf1: { a: gW('g1'), b: gW('g3') },
+    qf2: { a: gW('g2'), b: best2nd  },
+    qf3: { a: gW('g4'), b: gW('g6') },
+    qf4: { a: gW('g5'), b: best2nd2 },
   };
 
-  const res=(id,pA,pB)=>{
-    if(!pA||!pB)return{w:null,l:null};
-    const s=scores[`tt_ko_${id}`];
-    if(!s||s.a===undefined||s.b===undefined)return{w:null,l:null};
-    const sA=parseInt(s.a),sB=parseInt(s.b);
-    if(isNaN(sA)||isNaN(sB)||sA===sB)return{w:null,l:null};
-    return sA>sB?{w:pA,l:pB}:{w:pB,l:pA};
+  const res = (id, pA, pB) => {
+    if (!pA || !pB) return { w: null, l: null };
+    const s = scores[`tt_ko_${id}`];
+    if (!s || s.a === undefined || s.b === undefined) return { w: null, l: null };
+    const sA = parseInt(s.a), sB = parseInt(s.b);
+    if (isNaN(sA) || isNaN(sB) || sA === sB) return { w: null, l: null };
+    return sA > sB ? { w: pA, l: pB } : { w: pB, l: pA };
   };
 
-  const r_qf1=res('qf1',qfSlots.qf1.a,qfSlots.qf1.b);
-  const r_qf2=res('qf2',qfSlots.qf2.a,qfSlots.qf2.b);
-  const r_qf3=res('qf3',qfSlots.qf3.a,qfSlots.qf3.b);
-  const r_qf4=res('qf4',qfSlots.qf4.a,qfSlots.qf4.b);
+  const r_qf1 = res('qf1', qfSlots.qf1.a, qfSlots.qf1.b);
+  const r_qf2 = res('qf2', qfSlots.qf2.a, qfSlots.qf2.b);
+  const r_qf3 = res('qf3', qfSlots.qf3.a, qfSlots.qf3.b);
+  const r_qf4 = res('qf4', qfSlots.qf4.a, qfSlots.qf4.b);
 
-  const sfSlots={sf1:{a:r_qf1.w,b:r_qf2.w},sf2:{a:r_qf3.w,b:r_qf4.w}};
-  const r_sf1=res('sf1',sfSlots.sf1.a,sfSlots.sf1.b);
-  const r_sf2=res('sf2',sfSlots.sf2.a,sfSlots.sf2.b);
+  const sfSlots = { sf1: { a: r_qf1.w, b: r_qf2.w }, sf2: { a: r_qf3.w, b: r_qf4.w } };
+  const r_sf1 = res('sf1', sfSlots.sf1.a, sfSlots.sf1.b);
+  const r_sf2 = res('sf2', sfSlots.sf2.a, sfSlots.sf2.b);
 
-  const finSlots={a:r_sf1.w,b:r_sf2.w};
-  const thrdSlots={a:r_sf1.l,b:r_sf2.l};
-  const r_fin=res('final',finSlots.a,finSlots.b);
-  const r_thrd=res('3rd',thrdSlots.a,thrdSlots.b);
+  const finSlots  = { a: r_sf1.w, b: r_sf2.w };
+  const thrdSlots = { a: r_sf1.l, b: r_sf2.l };
+  const r_fin  = res('final', finSlots.a,  finSlots.b);
+  const r_thrd = res('3rd',   thrdSlots.a, thrdSlots.b);
 
-  const qfLosers=[r_qf1.l,r_qf2.l,r_qf3.l,r_qf4.l].filter(Boolean);
-  const elim2nd=seconds.slice(2).map(s=>s.name);
-  const thirds=resolvedGroups.map(g=>gs[g.id]?.[2]?.name).filter(Boolean);
-  const groupElim=[...elim2nd,...thirds];
+  // Group-eliminated players — only from completed groups
+  const qfLosers  = [r_qf1.l, r_qf2.l, r_qf3.l, r_qf4.l].filter(Boolean);
+  const elim2nd   = seconds.slice(2).map(s => s.name);
+  const thirds    = resolvedGroups.map(g => {
+    if (!groupDone(g.id)) return null;
+    return gs[g.id]?.[2]?.name || null;
+  }).filter(Boolean);
+  const groupElim = [...elim2nd, ...thirds];
 
-  const ranking=[r_fin.w,r_fin.l,r_thrd.w,r_thrd.l,...qfLosers,...groupElim];
+  const ranking = [r_fin.w, r_fin.l, r_thrd.w, r_thrd.l, ...qfLosers, ...groupElim];
 
-  const playerPts={};
-  ranking.forEach((p,i)=>{if(p&&i<TT_IND_PTS.length)playerPts[p]=TT_IND_PTS[i];});
+  // Points only assigned to players actually in the ranking
+  const playerPts = {};
+  ranking.forEach((p, i) => { if (p && i < TT_IND_PTS.length) playerPts[p] = TT_IND_PTS[i]; });
 
-  const labScores={};
-  acceptedTeams.forEach(t=>labScores[t.name]=0);
-  Object.entries(playerPts).forEach(([player,pts])=>{
-    const lab=ttGetLab(player,resolvedGroups);
-    if(lab&&labScores[lab]!==undefined)labScores[lab]+=pts;
+  // Lab scores — start at 0, only add when player has earned points
+  const labScores = {};
+  acceptedTeams.forEach(t => labScores[t.name] = 0);
+  Object.entries(playerPts).forEach(([player, pts]) => {
+    const lab = ttGetLab(player, resolvedGroups);
+    if (lab && labScores[lab] !== undefined) labScores[lab] += pts;
   });
 
-  return{gs,qfSlots,sfSlots,finSlots,thrdSlots,
-         r_qf1,r_qf2,r_qf3,r_qf4,r_sf1,r_sf2,r_fin,r_thrd,
-         ranking,playerPts,labScores,seconds,resolvedGroups};
+  return { gs, qfSlots, sfSlots, finSlots, thrdSlots,
+           r_qf1, r_qf2, r_qf3, r_qf4, r_sf1, r_sf2, r_fin, r_thrd,
+           ranking, playerPts, labScores, seconds, resolvedGroups, groupDone };
 }
 
 // ── Firebase ──
@@ -1652,9 +1665,9 @@ async function ttRender(){
 function ttRenderState(st,scores){
   const wrap=document.getElementById('tt-draw-inner');
   if(!wrap)return;
-  const{gs,qfSlots,sfSlots,finSlots,thrdSlots,
-        r_qf1,r_qf2,r_qf3,r_qf4,r_sf1,r_sf2,r_fin,r_thrd,
-        ranking,playerPts,labScores,resolvedGroups}=st;
+  const { gs, qfSlots, sfSlots, finSlots, thrdSlots,
+          r_qf1, r_qf2, r_qf3, r_qf4, r_sf1, r_sf2, r_fin, r_thrd,
+          ranking, playerPts, labScores, resolvedGroups, groupDone } = st;
 
   const tbd=n=>n||`<span style="color:var(--muted);font-style:italic;font-weight:400">TBD</span>`;
   const nm=n=>n||'TBD';
@@ -1679,8 +1692,10 @@ function ttRenderState(st,scores){
     resolvedGroups.filter(g=>g.side===side).forEach(g=>{
       const standing=gs[g.id];
       const leaderPts=standing?.[0]?.pts;
+      const done=groupDone(g.id);
+      const doneBadge=done?` <span style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;background:#eaf5f4;color:#0a625c;border:1px solid #9fcfc9;padding:2px 7px;border-radius:10px;vertical-align:middle">✓ Done</span>`:'';
       html+=`<div class="tt-gcard">
-        <div class="tt-gcard-title">${g.label}</div>
+        <div class="tt-gcard-title">${g.label}${doneBadge}</div>
         <table class="tt-stand">
           <thead><tr><th>Player</th><th>P</th><th>W</th><th>L</th><th>+</th><th>−</th><th>Pts</th></tr></thead>
           <tbody>`;
