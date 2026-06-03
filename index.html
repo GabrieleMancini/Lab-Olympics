@@ -686,6 +686,11 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <div id="tt-draw">
     <div class="tt-wrap" id="tt-draw-inner"></div>
   </div>
+
+  <!-- Running Short Tournament Draw (only shown for run-short event) -->
+  <div id="rs-draw" style="display:none; border-top:3px solid var(--navy);">
+    <div class="tt-wrap" id="rs-draw-inner"></div>
+  </div>
 </div>
 
 <!-- ════════════ RACE PAGE ════════════ -->
@@ -1075,6 +1080,16 @@ async function openEvent(evId) {
   } else {
     ttDraw.style.display = 'none';
   }
+
+  // Running Short tournament draw
+  const rsDraw = document.getElementById('rs-draw');
+  if (evId === 'run-short') {
+    rsDraw.style.display = 'block';
+    rsRender();
+  } else {
+    rsDraw.style.display = 'none';
+    rsStopListening();
+  }
 }
 
 function EventReg(ev) {
@@ -1322,6 +1337,7 @@ function goHome() {
     opponentsListener = null; opponentsEventId = null;
   }
   ttStopListening();
+  rsStopListening();
   document.getElementById('event-page').style.display='none';
   document.getElementById('main-page').style.display='block';
   window.scrollTo(0, document.getElementById('schedule').offsetTop - 70);
@@ -1883,6 +1899,602 @@ ${t(592,441,ta)}${t(592,473,tb)}
 <polyline points="530,427 555,427 555,283 580,283" fill="none" stroke="#9aa6b6" stroke-width="1.5"/>
 </svg>`;
 }
+/* ===================== RUNNING SHORT TOURNAMENT — DRAW & RESULTS ===================== */
+
+// Points table for individual disciplines (18 runners, positions 1-18)
+// Extending the 16-player table: 17th=0, 18th=0 (last two always 0)
+const RS_IND_PTS = [55,45,37,33,30,27,25,22,19,16,14,11,8,5,3,0,0,0];
+
+// Short lab names (same as TT)
+const RS_LAB_SHORT = {
+  'Department of Excellence':                            'DoE',
+  'Epidermis Express':                                   'EpiEx',
+  'Institute of Neuroimmunology and Multiple Successes': 'INMS',
+  'CMON LAB':                                            'CMON',
+  'Synapses United':                                     'SynU',
+  'Tubulin Tornadoes':                                   'TubT',
+  'LMNOP':                                               'LMNOP',
+  'BeTHS':                                               'BeTHS',
+  'Bitz Lab':                                            'Bitz',
+};
+
+// Seeded draw: computed once from registrations, then stored in Firebase so everyone sees the same draw.
+// Format stored in Firebase: rs_draw = { sf1: [ {lab, name}, ... ], sf2: [ ... ] }
+
+let rsRegListener = null;
+
+function rsStopListening() {
+  const db = getFirebaseDb();
+  if (db && rsRegListener) {
+    db.ref('registrations/run-short').off('value', rsRegListener);
+    rsRegListener = null;
+  }
+}
+
+// Resolve runner name: if registered use name, else lab short + P1/P2
+function rsResolveName(lab, idx, byLab) {
+  const members = byLab[lab] || [];
+  if (members[idx]) return members[idx];
+  const short = RS_LAB_SHORT[lab] || lab.slice(0,4).toUpperCase();
+  return `${short} P${idx+1}`;
+}
+
+// Seeded random shuffle that splits 18 runners into 2 groups of 9
+// with ONE member per lab per group.
+// seed is a number derived from the Firebase draw key so it's deterministic.
+function rsSeededShuffle(arr, seed) {
+  // Mulberry32 PRNG
+  let s = seed >>> 0;
+  function rand() { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+// Build the two semifinals from registrations.
+// Returns { sf1: [{lab, name, idx}], sf2: [...] } or null if not possible.
+function rsBuildDraw(regs, seed) {
+  const byLab = {};
+  (regs || []).forEach(r => { byLab[r.team] = r.members || []; });
+
+  // Build list of all runners: each lab contributes 2 slots (idx 0 and 1)
+  const slots = [];
+  acceptedTeams.forEach(lab => {
+    slots.push({ lab: lab.name, idx: 0, name: rsResolveName(lab.name, 0, byLab) });
+    slots.push({ lab: lab.name, idx: 1, name: rsResolveName(lab.name, 1, byLab) });
+  });
+  // slots.length = 18 (9 labs × 2)
+
+  // We need to split 18 into two groups of 9 such that each lab has exactly 1 in each group.
+  // Strategy: for each lab, randomly assign slot 0 or slot 1 to group A and the other to group B.
+  let s = seed >>> 0;
+  function rand() { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+
+  const sf1 = [], sf2 = [];
+  acceptedTeams.forEach(lab => {
+    const flip = rand() < 0.5;
+    const a = { lab: lab.name, idx: flip ? 0 : 1, name: rsResolveName(lab.name, flip ? 0 : 1, byLab) };
+    const b = { lab: lab.name, idx: flip ? 1 : 0, name: rsResolveName(lab.name, flip ? 1 : 0, byLab) };
+    sf1.push(a);
+    sf2.push(b);
+  });
+
+  // Shuffle order within each semifinal (cosmetic)
+  const shuffle = (arr) => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a; };
+  return { sf1: shuffle(sf1), sf2: shuffle(sf2) };
+}
+
+// Load draw from Firebase (or generate & save if not yet there)
+async function rsLoadOrGenerateDraw(regs) {
+  const db = getFirebaseDb();
+  if (db) {
+    const snap = await db.ref('rs_draw').once('value');
+    if (snap.val()) return snap.val(); // already exists
+    // Generate from seed = timestamp rounded to day (so consistent within a day)
+    const seed = Math.floor(Date.now() / 86400000);
+    const draw = rsBuildDraw(regs, seed);
+    await db.ref('rs_draw').set(draw);
+    return draw;
+  }
+  // Offline fallback
+  const seed = 20260603;
+  return rsBuildDraw(regs, seed);
+}
+
+async function rsLoadRegs() {
+  try { const db=getFirebaseDb(); if(!db)return[];
+    const s=await db.ref('registrations/run-short').once('value');
+    const v=s.val(); return v?Object.values(v):[];
+  } catch(e){return[];}
+}
+
+async function rsLoadResults() {
+  try { const db=getFirebaseDb(); if(!db)return{};
+    const s=await db.ref('rs_results').once('value'); return s.val()||{};
+  } catch(e){return{};}
+}
+
+// Save finish order for a heat: results.sf1 = ["name1","name2",...] (ordered 1st to last)
+async function rsSaveResults(results) {
+  const db = getFirebaseDb();
+  if (db) await db.ref('rs_results').set(results);
+}
+
+// Reverse lookup: runner name → lab name
+function rsGetLab(name, draw) {
+  if (!draw) return null;
+  for (const r of [...(draw.sf1||[]),...(draw.sf2||[])]) if (r.name===name) return r.lab;
+  for (const t of acceptedTeams) if (t.members.includes(name)) return t.name;
+  return null;
+}
+
+// Compute overall ranking from results
+function rsComputeRanking(draw, results) {
+  // Final: top 4 of each SF → 8 runners
+  // Small final: bottom 5 of each SF → 10 runners
+  const sf1Order = results.sf1 || [];
+  const sf2Order = results.sf2 || [];
+  const finalOrder = results.final || [];   // 8 runners, ordered
+  const smallOrder = results.small || [];   // 10 runners, ordered
+
+  // Overall ranking: final (positions 1-8) then small final (positions 9-18)
+  const overall = [...finalOrder, ...smallOrder];
+  return overall;
+}
+
+// Compute lab points from ranking
+function rsComputeLabScores(overall, draw) {
+  const labScores = {};
+  acceptedTeams.forEach(t => labScores[t.name] = 0);
+  const playerPts = {};
+  overall.forEach((name, i) => { if(name && i < RS_IND_PTS.length) playerPts[name] = RS_IND_PTS[i]; });
+  Object.entries(playerPts).forEach(([name, pts]) => {
+    const lab = rsGetLab(name, draw);
+    if (lab && labScores[lab] !== undefined) labScores[lab] += pts;
+  });
+  return { labScores, playerPts };
+}
+
+// Entry point
+async function rsRender() {
+  const [regs, results] = await Promise.all([rsLoadRegs(), rsLoadResults()]);
+  const draw = await rsLoadOrGenerateDraw(regs);
+  window._rsDraw = draw; // store globally for interactive handlers
+  rsRenderState(draw, results);
+  rsStartListening(draw);
+}
+
+let rsScoresListener = null;
+function rsStartListening(draw) {
+  const db = getFirebaseDb();
+  if (!db || rsRegListener) return;
+  rsRegListener = db.ref('rs_results').on('value', async snap => {
+    const results = snap.val() || {};
+    rsRenderState(draw, results);
+  });
+}
+
+function rsRenderState(draw, results) {
+  const wrap = document.getElementById('rs-draw-inner');
+  if (!wrap) return;
+
+  const sf1 = draw.sf1 || [];
+  const sf2 = draw.sf2 || [];
+  const sf1Order = results.sf1 || [];
+  const sf2Order = results.sf2 || [];
+  const finalOrder = results.final || [];
+  const smallOrder = results.small || [];
+
+  const sf1Done = sf1Order.length === sf1.length && sf1.length > 0;
+  const sf2Done = sf2Order.length === sf2.length && sf2.length > 0;
+
+  // Derive final slots: top 4 from each semifinal
+  const finalSlots = sf1Done && sf2Done
+    ? [...sf1Order.slice(0,4), ...sf2Order.slice(0,4)]
+    : [];
+  // Small final: bottom 5 from each
+  const smallSlots = sf1Done && sf2Done
+    ? [...sf1Order.slice(4), ...sf2Order.slice(4)]
+    : [];
+
+  const overall = rsComputeRanking(draw, results);
+  const { labScores, playerPts } = rsComputeLabScores(overall, draw);
+
+  const isPlaceholder = n => n && /^[A-Z]+\sP[12]$/.test(n);
+  const tbd = n => n || `<span style="color:var(--muted);font-style:italic;font-weight:400">TBD</span>`;
+
+  let html = '';
+
+  // Rulebox
+  html += `<div class="tt-rulebox">
+    <strong>🏃 Running Short — Tournament Format</strong>
+    <ul>
+      <li><strong>18 runners</strong> drawn randomly into <strong>2 Semifinals of 9</strong> — one runner per lab per semifinal.</li>
+      <li>After each semifinal: enter the <strong>finishing order</strong> (1st to 9th).</li>
+      <li><strong>Top 4</strong> of each semifinal advance to the <strong>Final</strong> (8 runners).</li>
+      <li><strong>Bottom 5</strong> of each semifinal compete in the <strong>Small Final</strong> (positions 9–18).</li>
+      <li>Points: overall positions 1–18 scored by the individual discipline table.</li>
+    </ul>
+  </div>`;
+
+  // ── Semifinals ──
+  html += `<div class="tt-section-title">Semifinals — The Draw</div>`;
+  html += `<div class="tt-groups-grid">`;
+
+  [1, 2].forEach(sfNum => {
+    const sfKey = `sf${sfNum}`;
+    const runners = sfNum === 1 ? sf1 : sf2;
+    const order = sfNum === 1 ? sf1Order : sf2Order;
+    const done = order.length === runners.length && runners.length > 0;
+    const doneBadge = done ? ` <span style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;background:#eaf5f4;color:#0a625c;border:1px solid #9fcfc9;padding:2px 7px;border-radius:10px;vertical-align:middle">✓ Done</span>` : '';
+
+    html += `<div class="tt-gcard">
+      <div class="tt-gcard-title">Semifinal ${sfNum}${doneBadge}</div>`;
+
+    if (done) {
+      // Show finishing order
+      html += `<table class="tt-stand"><thead><tr><th>Pos</th><th>Runner</th><th>Lab</th><th>→</th></tr></thead><tbody>`;
+      order.forEach((name, i) => {
+        const inFinal = i < 4;
+        const lab = rsGetLab(name, draw) || '—';
+        html += `<tr class="${inFinal ? 'tt-leader' : ''}">
+          <td style="text-align:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:${inFinal?'var(--gold)':'var(--muted)'};">${i+1}</td>
+          <td class="tt-pname" style="${isPlaceholder(name)?'color:var(--muted);font-style:italic;font-weight:400':''}">${name}</td>
+          <td style="font-size:11px;color:var(--muted);">${lab}</td>
+          <td style="font-size:10px;font-weight:700;color:${inFinal?'#0a625c':'var(--muted)'};">${inFinal?'→ Final':'→ Small F.'}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+      // Edit button
+      html += `<button onclick="rsEditSemifinal(${sfNum})" style="background:none;border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:600;padding:6px 12px;cursor:pointer;margin-top:8px;width:100%;">✏️ Edit finish order</button>`;
+    } else {
+      // Show draw / entry form
+      html += `<table class="tt-stand"><thead><tr><th>Runner</th><th>Lab</th></tr></thead><tbody>`;
+      runners.forEach(r => {
+        html += `<tr>
+          <td class="tt-pname" style="${isPlaceholder(r.name)?'color:var(--muted);font-style:italic;font-weight:400':''}">${r.name}</td>
+          <td style="font-size:11px;color:var(--muted);">${RS_LAB_SHORT[r.lab] || r.lab}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+      if (runners.length > 0) {
+        html += rsFinishOrderForm(sfNum, runners);
+      }
+    }
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+
+  // ── Finals ──
+  if (sf1Done && sf2Done) {
+    html += `<div class="tt-section-title">Finals</div>`;
+    html += `<div class="tt-groups-grid">`;
+
+    // Main Final
+    const finalDone = finalOrder.length === 8;
+    const finalDoneBadge = finalDone ? ` <span style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;background:#eaf5f4;color:#0a625c;border:1px solid #9fcfc9;padding:2px 7px;border-radius:10px;vertical-align:middle">✓ Done</span>` : '';
+    html += `<div class="tt-gcard tt-final-card">
+      <div class="tt-gcard-title">🏆 Final (Positions 1–8)${finalDoneBadge}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Top 4 from each semifinal</div>`;
+
+    if (finalDone) {
+      html += `<table class="tt-stand"><thead><tr><th>Pos</th><th>Runner</th><th>Lab</th><th>Pts</th></tr></thead><tbody>`;
+      finalOrder.forEach((name, i) => {
+        const lab = rsGetLab(name, draw) || '—';
+        html += `<tr class="${i<3?'tt-leader':''}">
+          <td style="text-align:center;font-family:'Bebas Neue',sans-serif;font-size:18px;">${i+1}</td>
+          <td class="tt-pname">${name}</td>
+          <td style="font-size:11px;color:var(--muted);">${lab}</td>
+          <td class="tt-pts">${RS_IND_PTS[i]}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+      html += `<button onclick="rsEditFinal('final')" style="background:none;border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:600;padding:6px 12px;cursor:pointer;margin-top:8px;width:100%;">✏️ Edit finish order</button>`;
+    } else {
+      html += `<table class="tt-stand"><thead><tr><th>#</th><th>Runner</th><th>Lab</th></tr></thead><tbody>`;
+      finalSlots.forEach((name, i) => {
+        const lab = rsGetLab(name, draw) || '—';
+        html += `<tr>
+          <td style="text-align:center;font-size:11px;color:var(--muted);">${i<4?'SF1':'SF2'} ${(i%4)+1}</td>
+          <td class="tt-pname">${name}</td>
+          <td style="font-size:11px;color:var(--muted);">${lab}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+      if (finalSlots.length === 8) {
+        html += rsFinishOrderFormFinal('final', finalSlots, 'final');
+      }
+    }
+    html += `</div>`;
+
+    // Small Final
+    const smallDone = smallOrder.length === 10;
+    const smallDoneBadge = smallDone ? ` <span style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:700;background:#eaf5f4;color:#0a625c;border:1px solid #9fcfc9;padding:2px 7px;border-radius:10px;vertical-align:middle">✓ Done</span>` : '';
+    html += `<div class="tt-gcard">
+      <div class="tt-gcard-title">Small Final (Positions 9–18)${smallDoneBadge}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Bottom 5 from each semifinal</div>`;
+
+    if (smallDone) {
+      html += `<table class="tt-stand"><thead><tr><th>Pos</th><th>Runner</th><th>Lab</th><th>Pts</th></tr></thead><tbody>`;
+      smallOrder.forEach((name, i) => {
+        const lab = rsGetLab(name, draw) || '—';
+        html += `<tr>
+          <td style="text-align:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--muted);">${i+9}</td>
+          <td class="tt-pname">${name}</td>
+          <td style="font-size:11px;color:var(--muted);">${lab}</td>
+          <td class="tt-pts">${RS_IND_PTS[i+8]}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+      html += `<button onclick="rsEditFinal('small')" style="background:none;border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:600;padding:6px 12px;cursor:pointer;margin-top:8px;width:100%;">✏️ Edit finish order</button>`;
+    } else {
+      html += `<table class="tt-stand"><thead><tr><th>#</th><th>Runner</th><th>Lab</th></tr></thead><tbody>`;
+      smallSlots.forEach((name, i) => {
+        const lab = rsGetLab(name, draw) || '—';
+        html += `<tr>
+          <td style="text-align:center;font-size:11px;color:var(--muted);">${i<5?'SF1':'SF2'} ${(i%5)+5}</td>
+          <td class="tt-pname">${name}</td>
+          <td style="font-size:11px;color:var(--muted);">${lab}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+      if (smallSlots.length === 10) {
+        html += rsFinishOrderFormFinal('small', smallSlots, 'small');
+      }
+    }
+    html += `</div>`;
+
+    html += `</div>`;
+  }
+
+  // ── Final Ranking ──
+  html += `<div class="tt-section-title">Final Ranking & Points</div>`;
+  html += `<table class="tt-rank-table">
+    <thead><tr><th>#</th><th>Runner</th><th>Lab</th><th style="text-align:right">Pts</th></tr></thead>
+    <tbody>`;
+  for (let i = 0; i < 18; i++) {
+    const name = overall[i] || null;
+    const lab = name ? rsGetLab(name, draw) || '—' : '—';
+    const pts = RS_IND_PTS[i];
+    const cls = i < 4 ? 'tt-ko' : i < 8 ? 'tt-ko2' : '';
+    html += `<tr class="${cls}">
+      <td class="tt-rk">${i+1}</td>
+      <td style="font-weight:600;font-size:13px">${name || `<span style="color:var(--muted);font-style:italic;font-weight:400">TBD</span>`}</td>
+      <td style="font-size:12px;color:var(--muted)">${name ? lab : ''}</td>
+      <td style="text-align:right;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--navy)">${name ? pts : ''}</td>
+    </tr>`;
+  }
+  html += `</tbody></table>`;
+
+  // ── Lab Scores ──
+  html += `<div class="tt-section-title">Lab Scores — Running Short</div>`;
+  const lr = acceptedTeams.map(t=>({name:t.name,score:labScores[t.name]||0})).sort((a,b)=>b.score-a.score);
+  const mx = lr[0]?.score||0;
+  html += `<div class="points-table"><div class="points-header-row"><span>#</span><span>Lab</span><span style="text-align:right">RS Points</span></div>`;
+  lr.forEach((t,i)=>{
+    const top=i===0&&mx>0;
+    html+=`<div class="points-row${top?' first-place':''}">
+      <span class="points-rank${top?' first':''}">${i+1}</span>
+      <span class="points-team-name">${t.name}</span>
+      <span class="points-score${top?' first':''}">${t.score}</span>
+    </div>`;
+  });
+  html+=`</div>`;
+
+  // Admin: reset draw button (small, at bottom)
+  html += `<div style="margin-top:32px;padding-top:16px;border-top:1px solid var(--border);text-align:right;">
+    <button onclick="rsResetDraw()" style="background:none;border:1px solid var(--red-border);color:var(--red);font-size:11px;font-weight:600;padding:6px 14px;cursor:pointer;">🔄 Reset draw & results</button>
+  </div>`;
+
+  wrap.innerHTML = html;
+
+  // Update Firebase discipline scores
+  if (overall.length > 0) {
+    const db = getFirebaseDb();
+    if (db) db.ref('discipline_scores/run-short').set(labScores).catch(()=>{});
+  }
+}
+
+// Build a drag-and-drop / number-entry finish order form for a semifinal
+function rsFinishOrderForm(sfNum, runners) {
+  const sfKey = `sf${sfNum}`;
+  const ids = runners.map(r => r.name);
+  const idsJson = JSON.stringify(ids).replace(/"/g,'&quot;');
+  let html = `<div style="margin-top:10px;border-top:1px dashed var(--border);padding-top:10px;">
+    <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Enter Finish Order</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Select runners in order from 1st to 9th:</div>
+    <div id="rs-order-${sfKey}" style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;"></div>
+    <div id="rs-remaining-${sfKey}" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">`;
+  runners.forEach((r, i) => {
+    const ph = /^[A-Z]+\sP[12]$/.test(r.name);
+    html += `<button onclick="rsSelectRunner(${sfNum},'${escJs(r.name)}')" id="rs-btn-${sfKey}-${i}"
+      style="background:var(--cream);border:1px solid var(--border);padding:5px 10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:${ph?'var(--muted)':'var(--navy)'};border-radius:3px;font-style:${ph?'italic':'normal'};"
+      title="${r.lab}">${r.name}</button>`;
+  });
+  html += `</div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="rsUndoLast(${sfNum})" style="background:none;border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:600;padding:6px 10px;cursor:pointer;flex:1;">↩ Undo</button>
+      <button onclick="rsConfirmSemifinal(${sfNum})" id="rs-confirm-sf${sfNum}" style="background:var(--navy);color:white;border:none;padding:8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;flex:2;opacity:0.4;" disabled>Confirm →</button>
+    </div>
+  </div>`;
+  // Init JS arrays
+  html += `<script>window._rsOrder${sfNum}=[];<\/script>`;
+  return html;
+}
+
+// Ditto for finals (8 or 10 runners)
+function rsFinishOrderFormFinal(key, runners, type) {
+  const n = runners.length;
+  const label = type === 'final' ? '8 finalists' : '10 runners';
+  let html = `<div style="margin-top:10px;border-top:1px dashed var(--border);padding-top:10px;">
+    <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">Enter Finish Order (${label})</div>
+    <div id="rs-order-${key}" style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;"></div>
+    <div id="rs-remaining-${key}" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">`;
+  runners.forEach((name, i) => {
+    const ph = /^[A-Z]+\sP[12]$/.test(name);
+    html += `<button onclick="rsSelectFinalRunner('${escJs(key)}','${escJs(name)}')" id="rs-finbtn-${key}-${i}"
+      style="background:var(--cream);border:1px solid var(--border);padding:5px 10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:${ph?'var(--muted)':'var(--navy)'};border-radius:3px;font-style:${ph?'italic':'normal'};">${name}</button>`;
+  });
+  html += `</div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="rsUndoFinal('${escJs(key)}')" style="background:none;border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:600;padding:6px 10px;cursor:pointer;flex:1;">↩ Undo</button>
+      <button onclick="rsConfirmFinal('${escJs(key)}')" id="rs-confirmfin-${key}" style="background:var(--navy);color:white;border:none;padding:8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;flex:2;opacity:0.4;" disabled>Confirm →</button>
+    </div>
+  </div>`;
+  html += `<script>window._rsFinalOrder_${key}=[];<\/script>`;
+  return html;
+}
+
+// ── Interactive selection handlers ──
+function rsSelectRunner(sfNum, name) {
+  const sfKey = `sf${sfNum}`;
+  if (!window[`_rsOrder${sfNum}`]) window[`_rsOrder${sfNum}`] = [];
+  const order = window[`_rsOrder${sfNum}`];
+  if (order.includes(name)) return;
+  order.push(name);
+
+  // Hide button
+  const btns = document.querySelectorAll(`[id^="rs-btn-${sfKey}-"]`);
+  btns.forEach(b => { if (b.textContent.trim() === name) { b.style.display='none'; } });
+
+  // Update order display
+  const orderDiv = document.getElementById(`rs-order-${sfKey}`);
+  if (orderDiv) {
+    orderDiv.innerHTML = order.map((n,i) =>
+      `<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:${i<4?'#eaf5f4':'var(--cream)'};border:1px solid ${i<4?'#9fcfc9':'var(--border)'};border-radius:3px;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${i<4?'#0a625c':'var(--muted)'};">${i+1}</span>
+        <span style="font-size:12px;font-weight:600;">${n}</span>
+        <span style="font-size:10px;color:var(--muted);margin-left:auto;">${i<4?'→ Final':'→ Small Final'}</span>
+      </div>`
+    ).join('');
+  }
+
+  // The max for a semifinal is 9
+  const sfRunners = (sfNum === 1 ? window._rsDraw?.sf1 : window._rsDraw?.sf2) || [];
+  const total = sfRunners.length || 9;
+  const btn = document.getElementById(`rs-confirm-sf${sfNum}`);
+  if (btn) { btn.disabled = order.length < total; btn.style.opacity = order.length >= total ? '1' : '0.4'; }
+}
+
+function rsUndoLast(sfNum) {
+  const sfKey = `sf${sfNum}`;
+  if (!window[`_rsOrder${sfNum}`]) return;
+  const order = window[`_rsOrder${sfNum}`];
+  if (!order.length) return;
+  const name = order.pop();
+  // Restore button
+  const btns = document.querySelectorAll(`[id^="rs-btn-${sfKey}-"]`);
+  btns.forEach(b => { if (b.textContent.trim() === name) b.style.display=''; });
+  // Re-render order
+  const orderDiv = document.getElementById(`rs-order-${sfKey}`);
+  if (orderDiv) {
+    orderDiv.innerHTML = order.map((n,i)=>
+      `<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:${i<4?'#eaf5f4':'var(--cream)'};border:1px solid ${i<4?'#9fcfc9':'var(--border)'};border-radius:3px;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${i<4?'#0a625c':'var(--muted)'};">${i+1}</span>
+        <span style="font-size:12px;font-weight:600;">${n}</span>
+        <span style="font-size:10px;color:var(--muted);margin-left:auto;">${i<4?'→ Final':'→ Small Final'}</span>
+      </div>`).join('');
+  }
+  const btn = document.getElementById(`rs-confirm-sf${sfNum}`);
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
+}
+
+async function rsConfirmSemifinal(sfNum) {
+  const order = window[`_rsOrder${sfNum}`];
+  if (!order || order.length < 1) return;
+  const results = await rsLoadResults();
+  results[`sf${sfNum}`] = [...order];
+  await rsSaveResults(results);
+  // rsRenderState will be triggered by Firebase listener
+}
+
+function rsEditSemifinal(sfNum) {
+  if (!confirm(`Clear SF${sfNum} results and re-enter?`)) return;
+  rsLoadResults().then(async results => {
+    delete results[`sf${sfNum}`];
+    // Also clear final and small if they exist since order changes
+    delete results.final;
+    delete results.small;
+    await rsSaveResults(results);
+  });
+}
+
+// Finals
+function rsSelectFinalRunner(key, name) {
+  const orderKey = `_rsFinalOrder_${key}`;
+  if (!window[orderKey]) window[orderKey] = [];
+  const order = window[orderKey];
+  if (order.includes(name)) return;
+  order.push(name);
+  const total = key === 'final' ? 8 : 10;
+
+  const btns = document.querySelectorAll(`[id^="rs-finbtn-${key}-"]`);
+  btns.forEach(b => { if(b.textContent.trim()===name) b.style.display='none'; });
+
+  const orderDiv = document.getElementById(`rs-order-${key}`);
+  const offset = key === 'final' ? 0 : 8;
+  if (orderDiv) {
+    orderDiv.innerHTML = order.map((n,i)=>
+      `<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:${i<3&&key==='final'?'#eaf5f4':'var(--cream)'};border:1px solid ${i<3&&key==='final'?'#9fcfc9':'var(--border)'};border-radius:3px;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--navy);">${i+1+offset}</span>
+        <span style="font-size:12px;font-weight:600;">${n}</span>
+        <span style="font-size:10px;color:var(--muted);margin-left:auto;">${RS_IND_PTS[i+offset]} pts</span>
+      </div>`).join('');
+  }
+  const btn = document.getElementById(`rs-confirmfin-${key}`);
+  if (btn) { btn.disabled = order.length < total; btn.style.opacity = order.length >= total ? '1' : '0.4'; }
+}
+
+function rsUndoFinal(key) {
+  const orderKey = `_rsFinalOrder_${key}`;
+  if (!window[orderKey] || !window[orderKey].length) return;
+  const order = window[orderKey];
+  const name = order.pop();
+  const btns = document.querySelectorAll(`[id^="rs-finbtn-${key}-"]`);
+  btns.forEach(b => { if(b.textContent.trim()===name) b.style.display=''; });
+  const total = key === 'final' ? 8 : 10;
+  const offset = key === 'final' ? 0 : 8;
+  const orderDiv = document.getElementById(`rs-order-${key}`);
+  if (orderDiv) {
+    orderDiv.innerHTML = order.map((n,i)=>
+      `<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:var(--cream);border:1px solid var(--border);border-radius:3px;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--navy);">${i+1+offset}</span>
+        <span style="font-size:12px;font-weight:600;">${n}</span>
+      </div>`).join('');
+  }
+  const btn = document.getElementById(`rs-confirmfin-${key}`);
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
+}
+
+async function rsConfirmFinal(key) {
+  const orderKey = `_rsFinalOrder_${key}`;
+  const order = window[orderKey];
+  if (!order || !order.length) return;
+  const results = await rsLoadResults();
+  results[key] = [...order];
+  await rsSaveResults(results);
+}
+
+function rsEditFinal(key) {
+  if (!confirm(`Clear ${key} results and re-enter?`)) return;
+  rsLoadResults().then(async results => {
+    delete results[key];
+    await rsSaveResults(results);
+  });
+}
+
+async function rsResetDraw() {
+  if (!confirm('Reset the entire running short draw and all results? This cannot be undone.')) return;
+  const db = getFirebaseDb();
+  if (db) {
+    await db.ref('rs_draw').remove();
+    await db.ref('rs_results').remove();
+    await db.ref('discipline_scores/run-short').remove();
+  }
+  rsRender();
+}
+
 /* ===================== SCORING RULES PAGE ===================== */
 function openRulesPage() {
   document.getElementById('main-page').style.display  = 'none';
