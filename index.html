@@ -427,11 +427,12 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <div class="nav-logo" onclick="goHome()">Lab <span>Olympics</span> 2026</div>
   <div class="nav-right">
     <ul class="nav-links">
-      <li><a href="#spirit">Spirit</a></li>
       <li><a href="#schedule">Schedule</a></li>
-      <li><a href="#teams">Teams</a></li>
       <li><a href="#points">Points</a></li>
       <li><a href="#medals">Medals</a></li>
+      <li><a href="#teams">Teams</a></li>
+      <li><a href="#sports">Events</a></li>
+      <li><a href="#spirit">Spirit</a></li>
       <li><a href="#" onclick="openRacePage();return false;" style="color:var(--gold);display:flex;align-items:center;gap:5px;"><span class="live-dot-sm"></span>Live Race</a></li>
     </ul>
     <div id="nav-session"></div>
@@ -448,6 +449,67 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
     <div class="ring-o"></div><div class="ring-o"></div>
   </div>
 </div>
+
+<section id="schedule">
+  <div class="section-tag">Event Schedule</div>
+  <div class="section-title">The Week</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Click any event to register participants.</p>
+  <div class="schedule-grid" id="schedule-grid"></div>
+</section>
+
+<hr class="divider">
+
+<section id="points">
+  <div class="section-tag">Leaderboard</div>
+  <div class="section-title">Points Ranking</div>
+  <div id="points-content"><div style="color:var(--muted);font-size:13px;">Loading…</div></div>
+  <div class="points-rules-link">
+    <button class="btn-rules-link" onclick="openRulesPage()">📐 How points are calculated →</button>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section id="medals">
+  <div class="section-tag">Standings</div>
+  <div class="section-title">Medal Count</div>
+  <div class="medals-wrapper">
+    <div class="medals-table">
+      <div class="medals-header-row">
+        <span>#</span><span>Lab</span><span>🥇</span><span>🥈</span><span>🥉</span><span>Total</span>
+      </div>
+      <div id="medals-body"></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section id="teams">
+  <div class="section-tag">Accepted Teams</div>
+  <div class="section-title">Registered Labs</div>
+  <div class="teams-grid" id="teams-grid"></div>
+</section>
+
+<hr class="divider">
+
+<section id="liverace">
+  <div class="section-tag">Race Day</div>
+  <div class="section-title">Live Race Tracker</div>
+  <div class="liverace-card" onclick="openRacePage()">
+    <div class="liverace-left">
+      <div class="liverace-icon">🗺️</div>
+      <div class="liverace-info">
+        <div class="liverace-label"><span class="live-dot-sm"></span>Live · GPS Tracking</div>
+        <div class="liverace-title">Watch the Race Live</div>
+        <div class="liverace-desc">Runners share their location from their phones · Spectators see everyone on the map in real time</div>
+      </div>
+    </div>
+    <button class="btn-liverace">Open Map →</button>
+  </div>
+</section>
+
+<hr class="divider">
 
 <section id="sports">
   <div class="section-tag">The Disciplines</div>
@@ -484,67 +546,6 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
       <div class="spirit-icon">👐</div>
       <div class="spirit-rule">Bring everyone along</div>
       <p class="spirit-desc">Don't pick your lineup always based on who's the best athlete, make sure everyone gets to play.</p>
-    </div>
-  </div>
-</section>
-
-<hr class="divider">
-
-<section id="schedule">
-  <div class="section-tag">Event Schedule</div>
-  <div class="section-title">The Week</div>
-  <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Click any event to register participants.</p>
-  <div class="schedule-grid" id="schedule-grid"></div>
-</section>
-
-<hr class="divider">
-
-<section id="liverace">
-  <div class="section-tag">Race Day</div>
-  <div class="section-title">Live Race Tracker</div>
-  <div class="liverace-card" onclick="openRacePage()">
-    <div class="liverace-left">
-      <div class="liverace-icon">🗺️</div>
-      <div class="liverace-info">
-        <div class="liverace-label"><span class="live-dot-sm"></span>Live · GPS Tracking</div>
-        <div class="liverace-title">Watch the Race Live</div>
-        <div class="liverace-desc">Runners share their location from their phones · Spectators see everyone on the map in real time</div>
-      </div>
-    </div>
-    <button class="btn-liverace">Open Map →</button>
-  </div>
-</section>
-
-<hr class="divider">
-
-<section id="teams">
-  <div class="section-tag">Accepted Teams</div>
-  <div class="section-title">Registered Labs</div>
-  <div class="teams-grid" id="teams-grid"></div>
-</section>
-
-<hr class="divider">
-
-<section id="points">
-  <div class="section-tag">Leaderboard</div>
-  <div class="section-title">Points Ranking</div>
-  <div id="points-content"><div style="color:var(--muted);font-size:13px;">Loading…</div></div>
-  <div class="points-rules-link">
-    <button class="btn-rules-link" onclick="openRulesPage()">📐 How points are calculated →</button>
-  </div>
-</section>
-
-<hr class="divider">
-
-<section id="medals">
-  <div class="section-tag">Standings</div>
-  <div class="section-title">Medal Count</div>
-  <div class="medals-wrapper">
-    <div class="medals-table">
-      <div class="medals-header-row">
-        <span>#</span><span>Lab</span><span>🥇</span><span>🥈</span><span>🥉</span><span>Total</span>
-      </div>
-      <div id="medals-body"></div>
     </div>
   </div>
 </section>
@@ -2057,11 +2058,19 @@ function rsComputeLabScores(overall, draw) {
 
 // Entry point
 async function rsRender() {
-  const [regs, results] = await Promise.all([rsLoadRegs(), rsLoadResults()]);
-  const draw = await rsLoadOrGenerateDraw(regs);
-  window._rsDraw = draw; // store globally for interactive handlers
-  rsRenderState(draw, results);
-  rsStartListening(draw);
+  const wrap = document.getElementById('rs-draw-inner');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px;">Loading draw…</div>';
+  try {
+    const [regs, results] = await Promise.all([rsLoadRegs(), rsLoadResults()]);
+    const draw = await rsLoadOrGenerateDraw(regs);
+    window._rsDraw = draw; // store globally for interactive handlers
+    rsRenderState(draw, results);
+    rsStartListening(draw);
+  } catch(e) {
+    console.error('rsRender error:', e);
+    wrap.innerHTML = `<div style="padding:24px;color:var(--red);font-size:13px;">Error loading draw: ${e.message}</div>`;
+  }
 }
 
 let rsScoresListener = null;
@@ -2077,6 +2086,11 @@ function rsStartListening(draw) {
 function rsRenderState(draw, results) {
   const wrap = document.getElementById('rs-draw-inner');
   if (!wrap) return;
+  try { _rsRenderStateInner(draw, results, wrap); }
+  catch(e) { console.error('rsRenderState error:', e); wrap.innerHTML = `<div style="padding:24px;color:var(--red);font-size:13px;">Render error: ${e.message}</div>`; }
+}
+
+function _rsRenderStateInner(draw, results, wrap) {
 
   const sf1 = draw.sf1 || [];
   const sf2 = draw.sf2 || [];
@@ -2318,8 +2332,7 @@ function rsFinishOrderForm(sfNum, runners) {
       <button onclick="rsConfirmSemifinal(${sfNum})" id="rs-confirm-sf${sfNum}" style="background:var(--navy);color:white;border:none;padding:8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;flex:2;opacity:0.4;" disabled>Confirm →</button>
     </div>
   </div>`;
-  // Init JS arrays
-  html += `<script>window._rsOrder${sfNum}=[];<\/script>`;
+  window[`_rsOrder${sfNum}`] = [];
   return html;
 }
 
@@ -2342,7 +2355,7 @@ function rsFinishOrderFormFinal(key, runners, type) {
       <button onclick="rsConfirmFinal('${escJs(key)}')" id="rs-confirmfin-${key}" style="background:var(--navy);color:white;border:none;padding:8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;flex:2;opacity:0.4;" disabled>Confirm →</button>
     </div>
   </div>`;
-  html += `<script>window._rsFinalOrder_${key}=[];<\/script>`;
+  window[`_rsFinalOrder_${key}`] = [];
   return html;
 }
 
