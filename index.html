@@ -1532,13 +1532,16 @@ function ttFullRecompute(scores, resolvedGroups) {
     qf4: { a: gW('g5'), b: best2nd2 },
   };
 
+  // res() returns winner, loser AND the points each scored — needed to rank losers at same stage
   const res = (id, pA, pB) => {
-    if (!pA || !pB) return { w: null, l: null };
+    if (!pA || !pB) return { w: null, l: null, wScore: 0, lScore: 0 };
     const s = scores[`tt_ko_${id}`];
-    if (!s || s.a === undefined || s.b === undefined) return { w: null, l: null };
+    if (!s || s.a === undefined || s.b === undefined) return { w: null, l: null, wScore: 0, lScore: 0 };
     const sA = parseInt(s.a), sB = parseInt(s.b);
-    if (isNaN(sA) || isNaN(sB) || sA === sB) return { w: null, l: null };
-    return sA > sB ? { w: pA, l: pB } : { w: pB, l: pA };
+    if (isNaN(sA) || isNaN(sB) || sA === sB) return { w: null, l: null, wScore: 0, lScore: 0 };
+    return sA > sB
+      ? { w: pA, l: pB, wScore: sA, lScore: sB }
+      : { w: pB, l: pA, wScore: sB, lScore: sA };
   };
 
   const r_qf1 = res('qf1', qfSlots.qf1.a, qfSlots.qf1.b);
@@ -1555,8 +1558,41 @@ function ttFullRecompute(scores, resolvedGroups) {
   const r_fin  = res('final', finSlots.a,  finSlots.b);
   const r_thrd = res('3rd',   thrdSlots.a, thrdSlots.b);
 
-  // Group-eliminated players — only from completed groups
-  const qfLosers  = [r_qf1.l, r_qf2.l, r_qf3.l, r_qf4.l].filter(Boolean);
+  // Helper: look up a player's group-stage stats for use as tiebreaker
+  const groupStat = name => {
+    for (const g of resolvedGroups) {
+      const p = (gs[g.id] || []).find(p => p.name === name);
+      if (p) return { pts: p.pts || 0, gd: (p.plus||0)-(p.minus||0), plus: p.plus||0 };
+    }
+    return { pts: 0, gd: 0, plus: 0 };
+  };
+
+  // Sort QF losers by points scored in their QF match (higher = better), group stats as tiebreaker
+  const qfLoserObjs = [
+    r_qf1.l ? { name: r_qf1.l, koScore: r_qf1.lScore } : null,
+    r_qf2.l ? { name: r_qf2.l, koScore: r_qf2.lScore } : null,
+    r_qf3.l ? { name: r_qf3.l, koScore: r_qf3.lScore } : null,
+    r_qf4.l ? { name: r_qf4.l, koScore: r_qf4.lScore } : null,
+  ].filter(Boolean);
+  qfLoserObjs.sort((a, b) => {
+    if (b.koScore !== a.koScore) return b.koScore - a.koScore;
+    const ga = groupStat(a.name), gb = groupStat(b.name);
+    return gb.pts - ga.pts || gb.gd - ga.gd || gb.plus - ga.plus;
+  });
+  const qfLosers = qfLoserObjs.map(o => o.name);
+
+  // Positions 3 & 4: use 3rd-place game if played, otherwise rank SF losers by their SF score
+  const sfLoserObjs = [
+    r_sf1.l ? { name: r_sf1.l, koScore: r_sf1.lScore } : null,
+    r_sf2.l ? { name: r_sf2.l, koScore: r_sf2.lScore } : null,
+  ].filter(Boolean);
+  sfLoserObjs.sort((a, b) => {
+    if (b.koScore !== a.koScore) return b.koScore - a.koScore;
+    const ga = groupStat(a.name), gb = groupStat(b.name);
+    return gb.pts - ga.pts || gb.gd - ga.gd || gb.plus - ga.plus;
+  });
+  const pos3 = r_thrd.w || sfLoserObjs[0]?.name || null;
+  const pos4 = r_thrd.l || sfLoserObjs[1]?.name || null;
 
   // Collect all group-stage eliminated players with their stats, then sort together
   // by group-stage points desc, then point-difference (for - against) desc
@@ -1587,7 +1623,7 @@ function ttFullRecompute(scores, resolvedGroups) {
 
   const groupElim = elimCandidates.map(e => e.name);
 
-  const ranking = [r_fin.w, r_fin.l, r_thrd.w, r_thrd.l, ...qfLosers, ...groupElim];
+  const ranking = [r_fin.w, r_fin.l, pos3, pos4, ...qfLosers, ...groupElim];
 
   // Points only assigned to players actually in the ranking
   const playerPts = {};
@@ -2559,66 +2595,43 @@ function openRulesPage() {
 }
 
 function renderRulesPage() {
-  const nLabs = acceptedTeams.length;            // e.g. 9
-  const nInd  = nLabs * 2;                       // e.g. 18 (2 athletes/lab for TT & running short)
-
-  // ── Non-linear curve for 2-athlete individual events (nInd positions) ──
-  // Top-heavy: 1st+2nd = 100, last = 0
-  const indPts = TT_IND_PTS.slice(0, nInd);      // already sized correctly
-
-  // ── Non-linear curve for single-athlete / team events (nLabs positions) ──
-  // Derived from nLabs: scale same curve shape so 1st = 100, last = 0
+  const nLabs = acceptedTeams.length;
+  const nInd  = nLabs * 2;
+  const indPts = TT_IND_PTS.slice(0, nInd);
   const teamPtsMap = {
-    9:  [100, 82, 68, 55, 38, 22, 8, 3, 0],
-    8:  [100, 82, 68, 55, 38, 22, 8, 0],
-    7:  [100, 82, 68, 55, 38, 22, 0],
+    9: [100,82,68,55,38,22,8,3,0],
+    8: [100,82,68,55,38,22,8,0],
+    7: [100,82,68,55,38,22,0],
   };
-  const teamPts = teamPtsMap[nLabs] || Array.from({length: nLabs}, (_,i) => i === 0 ? 100 : Math.max(0, Math.round(100 * Math.pow((nLabs-1-i)/(nLabs-1), 1.8))));
-
-  const ordinal = n => { const s=['th','st','nd','rd']; const v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
-  const rowCls  = i => i < 3 ? ' class="top3"' : '';
-
-  // Individual 2-col split
-  const half = Math.ceil(nInd / 2);
-  let indRows1 = '', indRows2 = '';
-  for (let i = 0; i < half; i++)
-    indRows1 += `<tr${rowCls(i)}><td>${ordinal(i+1)}</td><td>${indPts[i]}</td></tr>`;
-  for (let i = half; i < nInd; i++)
-    indRows2 += `<tr${rowCls(i)}><td>${ordinal(i+1)}</td><td>${indPts[i]}</td></tr>`;
-
-  // Team / single rows
-  let teamRows = '';
-  for (let i = 0; i < nLabs; i++)
-    teamRows += `<tr${rowCls(i)}><td>${ordinal(i+1)}</td><td>${teamPts[i]}</td></tr>`;
-
-  // Disciplines table rows
-  const discRows = [
+  const teamPts = teamPtsMap[nLabs] || Array.from({length:nLabs},(_,i)=>i===0?100:Math.max(0,Math.round(100*Math.pow((nLabs-1-i)/(nLabs-1),1.8))));
+  const ordinal = n => { const s=['th','st','nd','rd'],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
+  const rowCls  = i => i<3?' class="top3"':'';
+  const half = Math.ceil(nInd/2);
+  let indRows1='', indRows2='';
+  for(let i=0;i<half;i++) indRows1+=`<tr${rowCls(i)}><td>${ordinal(i+1)}</td><td>${indPts[i]}</td></tr>`;
+  for(let i=half;i<nInd;i++) indRows2+=`<tr${rowCls(i)}><td>${ordinal(i+1)}</td><td>${indPts[i]}</td></tr>`;
+  let teamRows='';
+  for(let i=0;i<nLabs;i++) teamRows+=`<tr${rowCls(i)}><td>${ordinal(i+1)}</td><td>${teamPts[i]}</td></tr>`;
+  const discRows=[
     ['01','Running — Short','Individual (×2 per lab)','2','100'],
-    ['02','Table Tennis',   'Individual (×2 per lab)','2','100'],
-    ['03','Running — Long', 'Individual',             '1','100'],
-    ['04','Bike — Stadtrad','Individual',             '1','100'],
-    ['05','Staffel',        'Individual relay',       '2','100'],
-    ['06','Minigames',      'Team',                   '4','100'],
-    ['07','Beach Volleyball','Team',                  '3','100'],
-    ['08','Flunky Ball',    'Team',                   '3','100'],
-  ].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td><strong>${r[4]}</strong></td></tr>`).join('');
-
+    ['02','Table Tennis','Individual (×2 per lab)','2','100'],
+    ['03','Running — Long','Individual','1','100'],
+    ['04','Bike — Stadtrad','Individual','1','100'],
+    ['05','Staffel','Individual relay','2','100'],
+    ['06','Minigames','Team','4','100'],
+    ['07','Beach Volleyball','Team','3','100'],
+    ['08','Flunky Ball','Team','3','100'],
+  ].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td><strong>${r[4]}</strong></td></tr>`).join('');
   document.getElementById('rules-body-dynamic').innerHTML = `
     <div class="rules-section">
       <div class="rules-section-title">How It Works</div>
       <p class="rules-desc">Every discipline contributes <strong>equally</strong> to the final lab ranking. The maximum points a lab can earn is <strong>100 per discipline</strong>, regardless of whether it is an individual or team event. Points follow a non-linear curve: winning is dramatically rewarded, but every finishing position still earns something — last place always scores zero. There are currently <strong>${nLabs} labs</strong> competing.</p>
     </div>
-
     <div class="rules-section">
       <div class="rules-section-title">The 8 Disciplines</div>
-      <table class="rtable">
-        <thead><tr><th>#</th><th>Discipline</th><th>Format</th><th>Athletes / Lab</th><th>Max pts</th></tr></thead>
-        <tbody>${discRows}
-          <tr class="total-row"><td colspan="4" style="text-align:right;">Maximum total score</td><td>800</td></tr>
-        </tbody>
-      </table>
+      <table class="rtable"><thead><tr><th>#</th><th>Discipline</th><th>Format</th><th>Athletes / Lab</th><th>Max pts</th></tr></thead>
+      <tbody>${discRows}<tr class="total-row"><td colspan="4" style="text-align:right;">Maximum total score</td><td>800</td></tr></tbody></table>
     </div>
-
     <div class="rules-section">
       <div class="rules-section-title">Individual Disciplines 01–02 — 2 athletes/lab, ${nInd} competitors total</div>
       <p class="rules-desc">Each lab enters <strong>2 athletes</strong> who compete individually. The lab score is the <strong>sum of both athletes' points</strong>.</p>
@@ -2629,22 +2642,19 @@ function renderRulesPage() {
       </div>
       <div class="rules-max">Max lab score: 1st (${indPts[0]}) + 2nd (${indPts[1]}) = ${indPts[0]+indPts[1]} pts</div>
     </div>
-
     <div class="rules-section">
       <div class="rules-section-title">Individual Disciplines 03–05 — 1 athlete or relay/lab, ${nLabs} competitors</div>
-      <p class="rules-desc"><strong>Running Long</strong> and <strong>Bike — Stadtrad</strong>: each lab enters <strong>1 athlete</strong> — the finishing position earns points directly. <strong>Staffel</strong>: each lab enters <strong>2 athletes</strong> as a relay team (one bikes, passes the baton, the other runs) — the team's finishing position earns points directly.</p>
+      <p class="rules-desc"><strong>Running Long</strong> and <strong>Bike — Stadtrad</strong>: each lab enters <strong>1 athlete</strong> — the finishing position earns points directly. <strong>Staffel</strong>: relay team of 2 (one bikes, passes the baton, the other runs) — one result per lab.</p>
       <div class="rules-note">🔁 For the Staffel, the lab earns the relay team's finishing position points — no summing, one result per lab.</div>
       <table class="rtable"><thead><tr><th>Place</th><th>Points</th></tr></thead><tbody>${teamRows}</tbody></table>
       <div class="rules-max">Max lab score: 1st place = ${teamPts[0]} pts</div>
     </div>
-
     <div class="rules-section">
       <div class="rules-section-title">Team Disciplines 06–08 — ${nLabs} labs</div>
       <p class="rules-desc">Each lab competes as <strong>one team</strong> against the other ${nLabs-1} labs. The lab earns the points for their finishing position directly.</p>
       <table class="rtable"><thead><tr><th>Place</th><th>Points</th></tr></thead><tbody>${teamRows}</tbody></table>
       <div class="rules-max">Max lab score: 1st place = ${teamPts[0]} pts</div>
     </div>
-
     <div class="rules-section">
       <div class="rules-section-title">Tiebreakers</div>
       <p class="rules-desc">If two labs finish on the same total points:</p>
