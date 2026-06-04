@@ -973,15 +973,32 @@ async function Schedule() {
   const grid = document.getElementById('schedule-grid');
   const grouped = {}; dayOrder.forEach(d => { grouped[d] = []; });
   events.forEach(ev => { if (grouped[ev.date]) grouped[ev.date].push(ev); });
+
+  // Load all published discipline scores once to know which events are completed
+  let completedEvents = new Set();
+  try {
+    const db = getFirebaseDb();
+    if (db) {
+      const snap = await db.ref('discipline_scores').once('value');
+      const disc = snap.val() || {};
+      Object.entries(disc).forEach(([evId, scores]) => {
+        if (scores && Object.values(scores).some(v => v > 0)) completedEvents.add(evId);
+      });
+    }
+  } catch(e) {}
+
   let html = '';
   for (const day of dayOrder) {
     const evs = grouped[day]; if (!evs.length) continue;
     const items = await Promise.all(evs.map(async ev => {
       const count = (await getRegistrations(ev.id)).length;
       const badge = count > 0 ? `<span class="ev-reg-count">${count} team${count!==1?'s':''}</span>` : '';
+      const doneBadge = completedEvents.has(ev.id)
+        ? `<span style="font-size:10px;font-weight:700;background:#eaf5f4;color:#0a625c;border:1px solid #9fcfc9;padding:2px 8px;border-radius:10px;">✓ Completed</span>`
+        : '';
       return `<li onclick="openEvent('${ev.id}')">
         <span>${ev.icon}</span><span class="ev-name">${ev.name}</span>
-        ${badge}<span class="ev-slots">${ev.slots}/team</span>
+        ${doneBadge}${badge}<span class="ev-slots">${ev.slots}/team</span>
         <span class="ev-arrow">›</span>
       </li>`;
     }));
@@ -1066,6 +1083,17 @@ async function Medals() {
 
 /* ===================== PUSH EVENT RESULTS ===================== */
 // Shared function: write labScores + podium to Firebase, refresh main page widgets
+// Returns true if this event's results have been officially published.
+// Once published, auto-writes from score inputs/renders are blocked.
+async function isPublished(eventId) {
+  try {
+    const db = getFirebaseDb();
+    if (!db) return false;
+    const snap = await db.ref(`discipline_published/${eventId}`).once('value');
+    return snap.val() === true;
+  } catch(e) { return false; }
+}
+
 async function pushEventResults(eventId, labScores, podium) {
   // podium = { gold: labName, silver: labName, bronze: labName }
   const db = getFirebaseDb();
@@ -1074,7 +1102,8 @@ async function pushEventResults(eventId, labScores, podium) {
   if (podium && (podium.gold || podium.silver || podium.bronze)) {
     await db.ref(`discipline_medals/${eventId}`).set(podium);
   }
-  await Promise.all([Points(), Medals()]);
+  await db.ref(`discipline_published/${eventId}`).set(true);
+  await Promise.all([Points(), Medals(), Schedule()]);
 }
 
 // Points lookup tables (9 labs)
@@ -1910,7 +1939,9 @@ async function ttHandleScoreChange(key, valA, valB) {
   const [scores, regs] = await Promise.all([ttLoadScores(), ttLoadRegs()]);
   const rg    = ttResolveGroups(regs);
   const state = ttFullRecompute(scores, rg);
-  if (db) await db.ref('discipline_scores/tabletennis').set(state.labScores);
+  if (db && !(await isPublished('tabletennis'))) {
+    await db.ref('discipline_scores/tabletennis').set(state.labScores);
+  }
   ttRenderState(state, scores);
   await Points();
   const dot = document.getElementById(`tt-dot-${key}`);
@@ -1962,11 +1993,9 @@ async function ttRender(){
   const rg    = ttResolveGroups(regs);
   const state = ttFullRecompute(scores, rg);
 
-  // Initialise discipline_scores/tabletennis to zero for all labs so the
-  // main ranking reads 0 for TT before any match is played.
-  // Only write non-zero scores once at least one match result exists.
+  // Only auto-write discipline_scores if results haven't been officially published yet
   const db = getFirebaseDb();
-  if (db) {
+  if (db && !(await isPublished('tabletennis'))) {
     const hasAnyScore = Object.keys(scores).length > 0;
     if (!hasAnyScore) {
       const zeros = {};
@@ -2642,10 +2671,12 @@ function _rsRenderStateInner(draw, results, wrap) {
   window.rsCurrentOverall   = overall;
   window.rsCurrentDraw      = draw;
 
-  // Update Firebase discipline scores
+  // Update Firebase discipline scores only if not yet officially published
   if (overall.length > 0) {
     const db = getFirebaseDb();
-    if (db) db.ref('discipline_scores/run-short').set(labScores).catch(()=>{});
+    if (db && !(await isPublished('run-short'))) {
+      db.ref('discipline_scores/run-short').set(labScores).catch(()=>{});
+    }
   }
 }
 
@@ -2843,6 +2874,7 @@ async function rsResetDraw() {
     await db.ref('rs_draw').remove();
     await db.ref('rs_results').remove();
     await db.ref('discipline_scores/run-short').remove();
+    await db.ref('discipline_published/run-short').remove();
   }
   rsRender();
 }
