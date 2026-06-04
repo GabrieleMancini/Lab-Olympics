@@ -2434,14 +2434,15 @@ function rsStartListening(draw) {
   });
 }
 
-function rsRenderState(draw, results) {
+async function rsRenderState(draw, results) {
   const wrap = document.getElementById('rs-draw-inner');
   if (!wrap) return;
-  try { _rsRenderStateInner(draw, results, wrap); }
+  const published = await isPublished('run-short');
+  try { _rsRenderStateInner(draw, results, wrap, published); }
   catch(e) { console.error('rsRenderState error:', e); wrap.innerHTML = `<div style="padding:24px;color:var(--red);font-size:13px;">Render error: ${e.message}</div>`; }
 }
 
-function _rsRenderStateInner(draw, results, wrap) {
+function _rsRenderStateInner(draw, results, wrap, published) {
 
   const sf1 = draw.sf1 || [];
   const sf2 = draw.sf2 || [];
@@ -2674,7 +2675,7 @@ function _rsRenderStateInner(draw, results, wrap) {
   // Update Firebase discipline scores only if not yet officially published
   if (overall.length > 0) {
     const db = getFirebaseDb();
-    if (db && !(await isPublished('run-short'))) {
+    if (db && !published) {
       db.ref('discipline_scores/run-short').set(labScores).catch(()=>{});
     }
   }
