@@ -2910,11 +2910,10 @@ function closeRulesPage() {
 }
 
 /* ===================== INIT ===================== */
+// NavSession and Teams don't need Firebase — run immediately
 NavSession();
 Teams();
-Medals();
-Points();
-Schedule();
+// Points, Medals, Schedule need Firebase — run after it's initialised
 
 /* ===================== FIREBASE + RACE TRACKER ===================== */
 
@@ -2948,6 +2947,12 @@ function getFirebaseDb() {
   if (!firebaseReady) initFirebase();
   return rpDb;
 }
+
+// Firebase is now ready — run the functions that depend on it
+initFirebase();
+Medals();
+Points();
+Schedule();
 
 // ── Runner colors (auto-assigned) ──
 const RP_COLORS = ['#d4960e','#1a7a4a','#c0392b','#2980b9','#8e44ad','#16a085','#e67e22','#2c3e50'];
