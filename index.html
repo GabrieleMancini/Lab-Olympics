@@ -127,6 +127,57 @@ label { font-size: 13px; font-weight: 600; color: var(--navy); display: block; m
 
 footer { background: var(--navy); color: #fff; text-align: center; padding: 40px 20px; font-size: 12px; }
 
+/* PHOTOS SECTION */
+.photos-section-wrap { background: var(--navy); padding: 0; margin: 0 auto; max-width: 100%; }
+.photos-banner {
+  display: block; position: relative; cursor: pointer; overflow: hidden;
+  text-decoration: none; max-width: 1000px; margin: 0 auto;
+}
+.photos-banner img {
+  width: 100%; display: block; max-height: 420px; object-fit: cover;
+  transition: transform 0.4s ease; filter: brightness(0.72);
+}
+.photos-banner:hover img { transform: scale(1.03); filter: brightness(0.55); }
+.photos-banner-overlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px;
+  text-align: center; padding: 20px;
+}
+.photos-banner-tag { font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); }
+.photos-banner-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 8vw, 72px); color: #f5f0e8; line-height: 1; }
+.photos-banner-sub { font-size: 14px; color: rgba(245,240,232,0.7); max-width: 420px; }
+.photos-banner-btn {
+  margin-top: 8px; background: var(--gold); color: var(--navy);
+  font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px;
+  padding: 10px 28px; border: none; cursor: pointer; transition: background 0.2s;
+  text-decoration: none; display: inline-block;
+}
+.photos-banner:hover .photos-banner-btn { background: #e8aa1a; }
+.photos-sample-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
+  max-width: 1000px; margin: 3px auto 0; background: var(--navy);
+}
+@media (max-width: 600px) { .photos-sample-grid { grid-template-columns: repeat(2, 1fr); } }
+.photos-sample-item {
+  aspect-ratio: 1; overflow: hidden; cursor: pointer;
+  text-decoration: none; display: block; position: relative;
+}
+.photos-sample-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s, filter 0.35s; filter: brightness(0.85); }
+.photos-sample-item:hover img { transform: scale(1.07); filter: brightness(1); }
+.photos-sample-item .photo-overlay {
+  position: absolute; inset: 0; background: rgba(26,45,74,0); display: flex;
+  align-items: center; justify-content: center; transition: background 0.3s;
+}
+.photos-sample-item:hover .photo-overlay { background: rgba(26,45,74,0.45); }
+.photos-drive-bar {
+  max-width: 1000px; margin: 3px auto 0; background: var(--gold);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 20px; cursor: pointer; text-decoration: none; transition: background 0.2s;
+}
+.photos-drive-bar:hover { background: #e8aa1a; }
+.photos-drive-bar-text { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--navy); letter-spacing: 2px; }
+.photos-drive-bar-sub { font-size: 12px; color: rgba(26,45,74,0.7); font-weight: 600; }
+
 /* SIGN-IN OVERLAY */
 .signin-overlay { display: none; background: rgba(26,45,74,0.6); min-height: 100vh; align-items: flex-start; justify-content: center; padding: 80px 20px 40px; }
 .signin-overlay.active { display: flex; }
@@ -430,6 +481,7 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
       <li><a href="#schedule">Schedule</a></li>
       <li><a href="#points">Points</a></li>
       <li><a href="#medals">Medals</a></li>
+      <li><a href="#photos" style="color:var(--gold);">📸 Photos</a></li>
       <li><a href="#teams">Teams</a></li>
       <li><a href="#sports">Events</a></li>
       <li><a href="#spirit">Spirit</a></li>
@@ -482,6 +534,57 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
     </div>
   </div>
 </section>
+
+<hr class="divider">
+
+<!-- ════════════ PHOTOS SECTION ════════════ -->
+<div id="photos" class="photos-section-wrap">
+
+  <!-- Hero banner linking to Google Drive -->
+  <a class="photos-banner" href="https://drive.google.com/drive/folders/1i2wB94Ada8irZvII9DEgH-IlB1O-iM8_?usp=sharing" target="_blank" rel="noopener">
+    <img src="FOTO.JPG" alt="Lab Olympics 2026 — Photos" onerror="this.style.background='var(--navy)';this.style.minHeight='260px';">
+    <div class="photos-banner-overlay">
+      <div class="photos-banner-tag">📸 Captured Moments</div>
+      <div class="photos-banner-title">Photos</div>
+      <div class="photos-banner-sub">All the best shots from the 2026 Lab Olympics — running, laughing, competing, celebrating.</div>
+      <span class="photos-banner-btn">View All Photos →</span>
+    </div>
+  </a>
+
+  <!-- Sample thumbnails (placeholder Unsplash photos — replace with real ones or remove) -->
+  <div class="photos-sample-grid">
+    <a class="photos-sample-item" href="https://drive.google.com/drive/folders/1i2wB94Ada8irZvII9DEgH-IlB1O-iM8_?usp=sharing" target="_blank" rel="noopener">
+      <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&q=70" alt="Lab Olympics photo">
+      <div class="photo-overlay"></div>
+    </a>
+    <a class="photos-sample-item" href="https://drive.google.com/drive/folders/1i2wB94Ada8irZvII9DEgH-IlB1O-iM8_?usp=sharing" target="_blank" rel="noopener">
+      <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&q=70" alt="Lab Olympics photo">
+      <div class="photo-overlay"></div>
+    </a>
+    <a class="photos-sample-item" href="https://drive.google.com/drive/folders/1i2wB94Ada8irZvII9DEgH-IlB1O-iM8_?usp=sharing" target="_blank" rel="noopener">
+      <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=70" alt="Lab Olympics photo">
+      <div class="photo-overlay"></div>
+    </a>
+  </div>
+
+  <!-- Drive link bar -->
+  <a class="photos-drive-bar" href="https://drive.google.com/drive/folders/1i2wB94Ada8irZvII9DEgH-IlB1O-iM8_?usp=sharing" target="_blank" rel="noopener">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 87.3 78" fill="none" style="flex-shrink:0;">
+      <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+      <path d="M43.65 25L29.9 1.2C28.55 2 27.4 3.1 26.6 4.5L1.2 47.5C.4 48.9 0 50.45 0 52h27.5z" fill="#00ac47"/>
+      <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.8l5.85 11.5z" fill="#ea4335"/>
+      <path d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+      <path d="M59.8 52H27.5L13.75 75.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+      <path d="M73.4 26.5l-12.6-21.8C59.95 3.3 58.8 2.2 57.4 1.4L43.65 25 59.8 52h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+    </svg>
+    <div>
+      <div class="photos-drive-bar-text">📁 Open Full Photo Album on Google Drive</div>
+      <div class="photos-drive-bar-sub">All photos from all three days — click to browse &amp; download</div>
+    </div>
+  </a>
+
+</div>
+<!-- /photos-section -->
 
 <hr class="divider">
 
