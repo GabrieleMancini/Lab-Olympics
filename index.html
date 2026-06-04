@@ -1083,17 +1083,6 @@ async function Medals() {
 
 /* ===================== PUSH EVENT RESULTS ===================== */
 // Shared function: write labScores + podium to Firebase, refresh main page widgets
-// Returns true if this event's results have been officially published.
-// Once published, auto-writes from score inputs/renders are blocked.
-async function isPublished(eventId) {
-  try {
-    const db = getFirebaseDb();
-    if (!db) return false;
-    const snap = await db.ref(`discipline_published/${eventId}`).once('value');
-    return snap.val() === true;
-  } catch(e) { return false; }
-}
-
 async function pushEventResults(eventId, labScores, podium) {
   // podium = { gold: labName, silver: labName, bronze: labName }
   const db = getFirebaseDb();
@@ -1102,7 +1091,6 @@ async function pushEventResults(eventId, labScores, podium) {
   if (podium && (podium.gold || podium.silver || podium.bronze)) {
     await db.ref(`discipline_medals/${eventId}`).set(podium);
   }
-  await db.ref(`discipline_published/${eventId}`).set(true);
   await Promise.all([Points(), Medals(), Schedule()]);
 }
 
@@ -1939,9 +1927,6 @@ async function ttHandleScoreChange(key, valA, valB) {
   const [scores, regs] = await Promise.all([ttLoadScores(), ttLoadRegs()]);
   const rg    = ttResolveGroups(regs);
   const state = ttFullRecompute(scores, rg);
-  if (db && !(await isPublished('tabletennis'))) {
-    await db.ref('discipline_scores/tabletennis').set(state.labScores);
-  }
   ttRenderState(state, scores);
   await Points();
   const dot = document.getElementById(`tt-dot-${key}`);
@@ -1993,18 +1978,8 @@ async function ttRender(){
   const rg    = ttResolveGroups(regs);
   const state = ttFullRecompute(scores, rg);
 
-  // Only auto-write discipline_scores if results haven't been officially published yet
+  // discipline_scores/tabletennis is only written by the explicit Publish button
   const db = getFirebaseDb();
-  if (db && !(await isPublished('tabletennis'))) {
-    const hasAnyScore = Object.keys(scores).length > 0;
-    if (!hasAnyScore) {
-      const zeros = {};
-      acceptedTeams.forEach(t => zeros[t.name] = 0);
-      await db.ref('discipline_scores/tabletennis').set(zeros);
-    } else {
-      await db.ref('discipline_scores/tabletennis').set(state.labScores);
-    }
-  }
 
   ttRenderState(state, scores);
   ttStartListening();
@@ -2437,12 +2412,11 @@ function rsStartListening(draw) {
 async function rsRenderState(draw, results) {
   const wrap = document.getElementById('rs-draw-inner');
   if (!wrap) return;
-  const published = await isPublished('run-short');
-  try { _rsRenderStateInner(draw, results, wrap, published); }
+  try { _rsRenderStateInner(draw, results, wrap); }
   catch(e) { console.error('rsRenderState error:', e); wrap.innerHTML = `<div style="padding:24px;color:var(--red);font-size:13px;">Render error: ${e.message}</div>`; }
 }
 
-function _rsRenderStateInner(draw, results, wrap, published) {
+function _rsRenderStateInner(draw, results, wrap) {
 
   const sf1 = draw.sf1 || [];
   const sf2 = draw.sf2 || [];
@@ -2672,13 +2646,7 @@ function _rsRenderStateInner(draw, results, wrap, published) {
   window.rsCurrentOverall   = overall;
   window.rsCurrentDraw      = draw;
 
-  // Update Firebase discipline scores only if not yet officially published
-  if (overall.length > 0) {
-    const db = getFirebaseDb();
-    if (db && !published) {
-      db.ref('discipline_scores/run-short').set(labScores).catch(()=>{});
-    }
-  }
+  // discipline_scores/run-short is only written by the explicit Publish button
 }
 
 // Build a drag-and-drop / number-entry finish order form for a semifinal
@@ -2875,7 +2843,6 @@ async function rsResetDraw() {
     await db.ref('rs_draw').remove();
     await db.ref('rs_results').remove();
     await db.ref('discipline_scores/run-short').remove();
-    await db.ref('discipline_published/run-short').remove();
   }
   rsRender();
 }
