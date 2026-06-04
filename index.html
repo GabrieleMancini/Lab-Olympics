@@ -554,15 +554,15 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <!-- Sample thumbnails (placeholder Unsplash photos — replace with real ones or remove) -->
   <div class="photos-sample-grid">
     <a class="photos-sample-item" href="https://drive.google.com/drive/folders/1i2wB94Ada8irZvII9DEgH-IlB1O-iM8_?usp=sharing" target="_blank" rel="noopener">
-      <img src="DSC_1797.JPG" alt="Lab Olympics photo">
+      <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&q=70" alt="Lab Olympics photo">
       <div class="photo-overlay"></div>
     </a>
     <a class="photos-sample-item" href="https://drive.google.com/drive/folders/1i2wB94Ada8irZvII9DEgH-IlB1O-iM8_?usp=sharing" target="_blank" rel="noopener">
-      <img src="DSC_1849.JPG" alt="Lab Olympics photo">
+      <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&q=70" alt="Lab Olympics photo">
       <div class="photo-overlay"></div>
     </a>
     <a class="photos-sample-item" href="https://drive.google.com/drive/folders/1i2wB94Ada8irZvII9DEgH-IlB1O-iM8_?usp=sharing" target="_blank" rel="noopener">
-      <img src="DSC_1912.JPG" alt="Lab Olympics photo">
+      <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=70" alt="Lab Olympics photo">
       <div class="photo-overlay"></div>
     </a>
   </div>
@@ -1665,12 +1665,35 @@ function ttFullRecompute(scores, resolvedGroups) {
 
   // Group-eliminated players — only from completed groups
   const qfLosers  = [r_qf1.l, r_qf2.l, r_qf3.l, r_qf4.l].filter(Boolean);
-  const elim2nd   = seconds.slice(2).map(s => s.name);
-  const thirds    = resolvedGroups.map(g => {
-    if (!groupDone(g.id)) return null;
-    return gs[g.id]?.[2]?.name || null;
-  }).filter(Boolean);
-  const groupElim = [...elim2nd, ...thirds];
+
+  // Collect all group-stage eliminated players with their stats, then sort together
+  // by group-stage points desc, then point-difference (for - against) desc
+  const elimCandidates = [];
+
+  // Non-advancing 2nd-place players (seconds[2] and beyond)
+  seconds.slice(2).forEach(s => {
+    const fullStat = resolvedGroups.flatMap(g => gs[g.id] || []).find(p => p.name === s.name);
+    elimCandidates.push({ name: s.name, pts: s.pts, gd: s.gd,
+      plus: fullStat?.plus || 0, minus: fullStat?.minus || 0 });
+  });
+
+  // All 3rd-place players
+  resolvedGroups.forEach(g => {
+    if (!groupDone(g.id)) return;
+    const p = gs[g.id]?.[2];
+    if (!p?.name) return;
+    elimCandidates.push({ name: p.name, pts: p.pts, gd: (p.plus||0)-(p.minus||0),
+      plus: p.plus||0, minus: p.minus||0 });
+  });
+
+  // Sort all eliminated players together: pts desc → point-diff desc → points-for desc
+  elimCandidates.sort((a, b) =>
+    b.pts - a.pts ||
+    (b.gd - a.gd) ||
+    (b.plus - a.plus)
+  );
+
+  const groupElim = elimCandidates.map(e => e.name);
 
   const ranking = [r_fin.w, r_fin.l, r_thrd.w, r_thrd.l, ...qfLosers, ...groupElim];
 
