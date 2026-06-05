@@ -180,22 +180,34 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 36px
 <!-- AT A GLANCE -->
 <div class="page" style="padding-bottom:32px;">
   <div class="section-tag">At a glance</div>
-  <div class="section-title">Key Info</div>
-  <div class="info-grid">
-    <div class="info-box">
-      <div class="info-box-icon">📍</div>
-      <div class="info-box-title">Meeting Point — Most Athletes</div>
-      <div class="info-box-body">Everyone except Staffel runners meets at the <strong>START pin</strong> by <strong>14:00</strong>. Briefing starts immediately, first gun at 14:15. Done by ~16:15.</div>
+  <div class="section-title">Where to Go at 14:00</div>
+
+  <!-- Split meeting point visual -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;">
+    <div style="background:var(--green-pale);border:2px solid var(--green-border);border-radius:4px;padding:18px;text-align:center;">
+      <div style="font-size:28px;margin-bottom:6px;">🏁</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green);letter-spacing:1px;">Everyone</div>
+      <div style="font-size:12px;color:var(--muted);margin:4px 0 10px;">bikers · solo runners · spectators</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--navy);">📍 START pin</div>
     </div>
-    <div class="info-box" style="border-top-color:#7c3aed;">
-      <div class="info-box-icon">🔁</div>
-      <div class="info-box-title">Meeting Point — Staffel Runners</div>
-      <div class="info-box-body">If you are the <strong>runner leg of the Staffel</strong>, go directly to <strong>Stadtrad Station #2</strong> (purple pin). Meet <strong>Simone</strong> there by <strong>14:00</strong> (max 14:10). Do not go to the START.</div>
+    <div style="background:#f5f3ff;border:2px solid #c4b5fd;border-radius:4px;padding:18px;text-align:center;">
+      <div style="font-size:28px;margin-bottom:6px;">🔁</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:#7c3aed;letter-spacing:1px;">Staffel Runners</div>
+      <div style="font-size:12px;color:var(--muted);margin:4px 0 10px;">runner leg only · meet Simone</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--navy);">📍 Station #2 (purple pin)</div>
     </div>
+  </div>
+
+  <div class="info-grid" style="grid-template-columns:1fr 1fr;">
     <div class="info-box">
       <div class="info-box-icon">🚲</div>
-      <div class="info-box-title">Stadtrad — How It Works</div>
-      <div class="info-box-body">Pick up a Stadtrad <strong>on your way there</strong> from any station near you. When you arrive at the marked station on the map, <strong>lock the bike and immediately re-rent it</strong> to reset the 30-min free timer before your race.</div>
+      <div class="info-box-title">Stadtrad tip</div>
+      <div class="info-box-body">Pick up a bike <strong>on your way</strong>. At the marked station, <strong>lock & re-rent</strong> to reset the 30 min free timer.</div>
+    </div>
+    <div class="info-box">
+      <div class="info-box-icon">👟</div>
+      <div class="info-box-title">The Route</div>
+      <div class="info-box-body">~7.5 km loop around the Alster. Bikers first, then runners — all starting from the same point.</div>
     </div>
   </div>
 </div>
@@ -205,90 +217,68 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 36px
 <!-- SCHEDULE TIMELINE -->
 <div class="page" style="padding-top:40px; padding-bottom:40px;">
   <div class="section-tag">Programme</div>
-  <div class="section-title">Detailed Schedule</div>
+  <div class="section-title">Schedule</div>
 
   <div class="timeline">
 
-    <!-- 14:00 — split meeting -->
     <div class="tl-item">
       <div class="tl-dot meet"></div>
       <div class="tl-card meet">
         <div class="tl-time">14:00 <span class="tl-label">Meeting</span></div>
-        <div class="tl-name">🤝 Meeting & Briefing — Two Locations</div>
-        <div class="tl-desc">
-          <strong>Everyone except Staffel runners</strong> → meet at the <strong>START pin</strong> on the Alster shore. Captains confirm lists, quick briefing on route and rules.<br><br>
-          <strong>Staffel runners</strong> → go directly to <strong>Stadtrad Station #2</strong> (purple pin) and meet <strong>Simone</strong> there. Arrive by 14:00, max 14:10.
-        </div>
-        <div class="tl-badges">
-          <span class="tl-badge meet">📍 START — all others</span>
+        <div class="tl-name">🤝 Gather — two meeting points</div>
+        <div class="tl-badges" style="margin-top:8px;">
+          <span class="tl-badge meet">📍 START — everyone else</span>
           <span class="tl-badge both">📍 Station #2 — Staffel runners + Simone</span>
         </div>
       </div>
     </div>
 
-    <!-- 14:15 -->
     <div class="tl-item">
       <div class="tl-dot bike"></div>
       <div class="tl-card bike">
-        <div class="tl-time">14:15 <span class="tl-label">Individual Bike Race</span></div>
-        <div class="tl-name">🚲 Individual Bike Start</div>
-        <div class="tl-desc">
-          Solo cyclists lock &amp; re-rent their Stadtrad at <strong>Station #1</strong> (or #1b) to reset the free timer, then race the ~7.5 km Alster loop. <strong>Rolling start</strong> — up to 5 min window to avoid a bottleneck at the dock.
-        </div>
+        <div class="tl-time">14:15 <span class="tl-label">Individual Bike</span></div>
+        <div class="tl-name">🚲 Bike race start — rolling</div>
+        <div class="tl-desc">Lock & re-rent at Station #1 (or #1b), then go.</div>
         <div class="tl-badges">
-          <span class="tl-badge bike">1 member per team</span>
-          <span class="tl-badge bike">🔄 Lock &amp; re-rent at Station #1</span>
-          <span class="tl-badge bike">~7.5 km · ~30 min</span>
+          <span class="tl-badge bike">1 per team · ~7.5 km · ~30 min</span>
         </div>
       </div>
     </div>
 
-    <!-- 14:50 -->
     <div class="tl-item">
       <div class="tl-dot" style="background:#7c3aed;box-shadow:0 0 0 2px #7c3aed;"></div>
       <div class="tl-card" style="border-left-color:#7c3aed;">
-        <div class="tl-time">14:50 <span class="tl-label">Staffel Race</span></div>
-        <div class="tl-name">🔁 Staffel Start — Bike Leg</div>
-        <div class="tl-desc">
-          The Staffel biker locks &amp; re-rents at <strong>Station #1</strong> to reset the timer, then rides the first half of the loop (~15 min) to Station #2, locks the bike there, and tags the waiting runner.
-        </div>
+        <div class="tl-time">14:50 <span class="tl-label">Staffel</span></div>
+        <div class="tl-name">🔁 Staffel start — bike leg</div>
+        <div class="tl-desc">Biker locks & re-rents at Station #1, rides to Station #2, tags the runner.</div>
         <div class="tl-badges">
-          <span class="tl-badge both">2 members per team</span>
-          <span class="tl-badge bike">Leg 1 — Bike ~15 min</span>
-          <span class="tl-badge run">Leg 2 — Run ~25 min</span>
+          <span class="tl-badge bike">Bike ~15 min</span>
+          <span class="tl-badge run">Run ~25 min</span>
+          <span class="tl-badge both">finish ~15:30</span>
         </div>
       </div>
     </div>
 
-    <!-- Staffel handoff -->
     <div class="tl-item">
       <div class="tl-dot" style="background:#7c3aed;box-shadow:0 0 0 2px #7c3aed;"></div>
       <div class="tl-card" style="border-left-color:#7c3aed;">
-        <div class="tl-time" style="font-size:20px; color:var(--muted);">↳ ~15:05 <span class="tl-label">Staffel Handoff</span></div>
-        <div class="tl-name">🤝 Staffel Changeover at Station #2</div>
-        <div class="tl-desc">
-          The biker locks the Stadtrad at <strong>Station #2</strong> and tags their runner, who sprints the remaining half of the loop back to the finish. Staffel teams expected to finish around <strong>~15:30</strong>.
-        </div>
+        <div class="tl-time" style="font-size:20px;color:var(--muted);">↳ ~15:05 <span class="tl-label">Handoff</span></div>
+        <div class="tl-name">🤝 Staffel changeover at Station #2</div>
+        <div class="tl-desc">Biker locks bike → tags runner → runner sprints to finish.</div>
         <div class="tl-badges">
-          <span class="tl-badge both">📍 Stadtrad Station #2</span>
-          <span class="tl-badge both">👤 Simone coordinates here</span>
+          <span class="tl-badge both">📍 Station #2 · 👤 Simone here</span>
         </div>
       </div>
     </div>
 
-    <!-- 15:15 -->
     <div class="tl-item">
       <div class="tl-dot run"></div>
       <div class="tl-card run">
         <div class="tl-time">15:15 <span class="tl-label">Individual Run</span></div>
-        <div class="tl-name">🏃 Individual Running Race Start</div>
-        <div class="tl-desc">
-          All solo runners line up at the START and tackle the full ~7.5 km Alster loop on foot. Individual bikers are all finished by now. Timing starts at the gun and stops at the finish line. Last runners expected to finish around <strong>~16:05</strong>.
-        </div>
+        <div class="tl-name">🏃 Run race start</div>
+        <div class="tl-desc">Full ~7.5 km loop from START. Last finisher expected ~16:05.</div>
         <div class="tl-badges">
-          <span class="tl-badge run">1 member per team</span>
-          <span class="tl-badge run">📍 START pin</span>
-          <span class="tl-badge run">~7.5 km · ~50 min</span>
+          <span class="tl-badge run">1 per team · ~50 min · 📍 START</span>
         </div>
       </div>
     </div>
@@ -309,9 +299,9 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 36px
 
   <div class="map-legend">
     <div class="map-legend-item"><div class="legend-dot pin-start"></div> START / Finish</div>
-    <div class="map-legend-item"><div class="legend-dot pin-bike1"></div> Stadtrad Station #1 — Primary (Individual Bike &amp; Staffel Start)</div>
+    <div class="map-legend-item"><div class="legend-dot pin-bike1"></div> Stadtrad Station #1 — Primary</div>
     <div class="map-legend-item"><div class="legend-dot" style="background:#38bdf8;"></div> Stadtrad Station #1b — Alternative</div>
-    <div class="map-legend-item"><div class="legend-dot pin-bike2"></div> Stadtrad Station #2 (Staffel Handoff)</div>
+    <div class="map-legend-item"><div class="legend-dot pin-bike2"></div> Stadtrad Station #2 — Staffel Handoff</div>
   </div>
   <p style="font-size:12px;color:var(--muted);margin-top:10px;">Tap any pin to see details and open in Google Maps.</p>
 </div>
