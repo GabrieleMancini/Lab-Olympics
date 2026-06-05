@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Saturday Schedule — Lab Olympics 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --navy: #1a2d4a; --gold: #d4960e; --gold-light: #f5e6b8;
+  --gold-pale: #fdf8ed; --cream: #fafaf7; --text: #1a1a1a;
+  --muted: #6b6b6b; --border: #e8e4db; --white: #ffffff;
+  --green: #1a7a4a; --green-pale: #edfaf4; --green-border: #6bcfa0;
+  --red: #c0392b; --bike: #2563eb; --bike-pale: #eff6ff; --bike-border: #93c5fd;
+  --run: #c0392b; --run-pale: #fff0f0; --run-border: #fca5a5;
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; background: var(--white);
+  border-bottom: 1px solid var(--border); z-index: 200;
+  padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 56px;
+}
+.nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--navy); letter-spacing: 1px; text-decoration: none; }
+.nav-logo span { color: var(--gold); }
+.nav-back { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--navy); text-decoration: none; }
+.nav-back:hover { color: var(--gold); }
+
+/* HERO */
+.hero {
+  background: var(--navy); padding: 48px 20px 40px; text-align: center; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212,150,14,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(44px, 10vw, 80px); color: #f5f0e8; line-height: 1; }
+.hero-date { display: inline-block; margin-top: 16px; background: var(--gold); color: var(--navy); font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; padding: 5px 20px; }
+.hero-sub { color: rgba(245,240,232,0.6); font-size: 14px; margin-top: 12px; }
+
+/* PAGE WRAP */
+.page { max-width: 1000px; margin: 0 auto; padding: 48px 20px; }
+
+.section-tag { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--navy); margin-bottom: 24px; line-height: 1; }
+
+hr.divider { border: none; border-top: 1px solid var(--border); max-width: 1000px; margin: 0 auto; }
+
+/* ── TIMELINE ── */
+.timeline { position: relative; padding-left: 36px; }
+.timeline::before {
+  content: ''; position: absolute; left: 13px; top: 0; bottom: 0;
+  width: 2px; background: var(--border);
+}
+
+.tl-item { position: relative; margin-bottom: 28px; }
+.tl-item:last-child { margin-bottom: 0; }
+
+.tl-dot {
+  position: absolute; left: -30px; top: 12px;
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 3px solid var(--white); box-shadow: 0 0 0 2px var(--navy);
+  background: var(--gold);
+  z-index: 1;
+}
+.tl-dot.bike { background: var(--bike); box-shadow: 0 0 0 2px var(--bike); }
+.tl-dot.run { background: var(--run); box-shadow: 0 0 0 2px var(--run); }
+.tl-dot.meet { background: var(--green); box-shadow: 0 0 0 2px var(--green); }
+
+.tl-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-left: 4px solid var(--navy);
+  padding: 16px 18px; border-radius: 0 4px 4px 0;
+}
+.tl-card.bike { border-left-color: var(--bike); }
+.tl-card.run  { border-left-color: var(--run); }
+.tl-card.meet { border-left-color: var(--green); }
+
+.tl-time {
+  font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--navy); line-height: 1;
+  display: flex; align-items: baseline; gap: 8px;
+}
+.tl-time .tl-label { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.tl-name { font-size: 16px; font-weight: 700; color: var(--navy); margin-top: 4px; }
+.tl-desc { font-size: 13px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+
+.tl-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.tl-badge {
+  font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 12px;
+  border: 1px solid; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.tl-badge.bike { color: var(--bike); background: var(--bike-pale); border-color: var(--bike-border); }
+.tl-badge.run  { color: var(--run);  background: var(--run-pale);  border-color: var(--run-border); }
+.tl-badge.both { color: #6d28d9; background: #f5f3ff; border-color: #c4b5fd; }
+.tl-badge.meet { color: var(--green); background: var(--green-pale); border-color: var(--green-border); }
+
+/* ── INFO BOXES ── */
+.info-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 36px; }
+@media (min-width: 600px) { .info-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { .info-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+.info-box { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--gold); padding: 16px 18px; }
+.info-box-icon { font-size: 22px; margin-bottom: 8px; }
+.info-box-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--navy); }
+.info-box-body { font-size: 13px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+
+/* ── MAP ── */
+.map-section { margin-bottom: 0; }
+.map-wrap {
+  border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+  height: 480px; position: relative;
+}
+@media (max-width: 600px) { .map-wrap { height: 360px; } }
+#sat-map { height: 100%; width: 100%; }
+
+.map-legend {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;
+}
+.map-legend-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; color: var(--navy);
+}
+.legend-dot {
+  width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid rgba(0,0,0,0.15);
+}
+
+/* Custom map pin colours */
+.pin-start  { background: #ef4444; }
+.pin-bike1  { background: #2563eb; }
+.pin-bike2  { background: #7c3aed; }
+
+/* Leaflet popup tweaks */
+.leaflet-popup-content-wrapper {
+  border-radius: 4px !important;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0 !important;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.18) !important;
+}
+.leaflet-popup-content { margin: 0 !important; width: auto !important; }
+.popup-inner { padding: 14px 16px; min-width: 210px; }
+.popup-tag { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+.popup-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--navy); line-height: 1; margin-bottom: 6px; }
+.popup-body { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.popup-gmaps {
+  display: block; background: var(--navy); color: var(--white);
+  font-size: 11px; font-weight: 700; text-align: center; padding: 9px 14px;
+  text-decoration: none; letter-spacing: 1px; text-transform: uppercase;
+  transition: background 0.15s;
+}
+.popup-gmaps:hover { background: #243d60; }
+
+footer { background: var(--navy); color: #fff; text-align: center; padding: 36px 20px; font-size: 12px; margin-top: 60px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="index.html">← Back to main page</a>
+  <a class="nav-logo" href="index.html">Lab <span>Olympics</span> 2026</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Lab Olympics 2026 · Cortex United</div>
+  <div class="hero-title">Saturday</div>
+  <div class="hero-date">June 6 · Alster Lake</div>
+  <p class="hero-sub">🚲 Bike · 🔁 Staffel · 🏃 Run</p>
+</div>
+
+<!-- AT A GLANCE -->
+<div class="page" style="padding-bottom:32px;">
+  <div class="section-tag">At a glance</div>
+  <div class="section-title">Key Info</div>
+  <div class="info-grid">
+    <div class="info-box">
+      <div class="info-box-icon">📍</div>
+      <div class="info-box-title">Meeting Point</div>
+      <div class="info-box-body">Alster Lake shore near the race START pin. Arrive by <strong>13:00</strong> — there will be a short briefing before the gun.</div>
+    </div>
+    <div class="info-box">
+      <div class="info-box-icon">🚲</div>
+      <div class="info-box-title">Stadtrad Bikes</div>
+      <div class="info-box-body">Two Stadtrad stations are marked on the map. Individual bikers start at the first station; the Staffel handoff happens at the second.</div>
+    </div>
+    <div class="info-box">
+      <div class="info-box-icon">👟</div>
+      <div class="info-box-title">The Route</div>
+      <div class="info-box-body">Approx. 7.5 km lap around the Alster Lake. Bikers go first, then runners take over from the same starting line.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SCHEDULE TIMELINE -->
+<div class="page" style="padding-top:40px; padding-bottom:40px;">
+  <div class="section-tag">Programme</div>
+  <div class="section-title">Detailed Schedule</div>
+
+  <div class="timeline">
+
+    <!-- 13:00 -->
+    <div class="tl-item">
+      <div class="tl-dot meet"></div>
+      <div class="tl-card meet">
+        <div class="tl-time">13:00 <span class="tl-label">All athletes</span></div>
+        <div class="tl-name">🤝 Meeting & Briefing</div>
+        <div class="tl-desc">Everyone gathers at the START point on the Alster shore. Captains confirm participant lists, officials do a quick briefing on the route, rules, and timing.</div>
+        <div class="tl-badges">
+          <span class="tl-badge meet">All teams</span>
+          <span class="tl-badge meet">📍 START pin</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13:30 -->
+    <div class="tl-item">
+      <div class="tl-dot bike"></div>
+      <div class="tl-card bike">
+        <div class="tl-time">13:30 <span class="tl-label">Individual Bike Race</span></div>
+        <div class="tl-name">🚲 Individual Bike Start</div>
+        <div class="tl-desc">
+          Each team's solo cyclist picks up a <strong>Stadtrad bike</strong> at the first station (blue pin) and rides the ~7.5 km Alster loop.
+          Timing stops when you return the bike at the same station.
+        </div>
+        <div class="tl-badges">
+          <span class="tl-badge bike">1 member per team</span>
+          <span class="tl-badge bike">🚲 Stadtrad Station #1</span>
+          <span class="tl-badge bike">~7.5 km</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13:45 -->
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#7c3aed;box-shadow:0 0 0 2px #7c3aed;"></div>
+      <div class="tl-card" style="border-left-color:#7c3aed;">
+        <div class="tl-time">13:45 <span class="tl-label">Staffel Race</span></div>
+        <div class="tl-name">🔁 Staffel Start — Bike Leg</div>
+        <div class="tl-desc">
+          The Staffel relay kicks off. The <strong>first member bikes</strong> from Stadtrad Station #1, rides the first half of the course to Stadtrad Station #2 (purple pin), parks the bike there, and hands off to their partner.
+        </div>
+        <div class="tl-badges">
+          <span class="tl-badge both">2 members per team</span>
+          <span class="tl-badge bike">Leg 1 — Bike</span>
+          <span class="tl-badge run">Leg 2 — Run</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13:45 cont – staffel handoff note -->
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#7c3aed;box-shadow:0 0 0 2px #7c3aed;"></div>
+      <div class="tl-card" style="border-left-color:#7c3aed;">
+        <div class="tl-time" style="font-size:20px; color:var(--muted);">↳ Handoff <span class="tl-label">Staffel</span></div>
+        <div class="tl-name">🤝 Staffel Changeover at Station #2</div>
+        <div class="tl-desc">
+          The biker parks at <strong>Stadtrad Station #2</strong> (purple pin) and tags the runner, who then sprints the remaining portion of the loop back to the finish.
+        </div>
+        <div class="tl-badges">
+          <span class="tl-badge both">📍 Stadtrad Station #2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14:30 -->
+    <div class="tl-item">
+      <div class="tl-dot run"></div>
+      <div class="tl-card run">
+        <div class="tl-time">14:30 <span class="tl-label">Individual Run</span></div>
+        <div class="tl-name">🏃 Individual Running Race Start</div>
+        <div class="tl-desc">
+          All solo runners line up at the START and tackle the full ~7.5 km Alster loop on foot. Timing starts at the gun and stops at the finish line (same START point).
+        </div>
+        <div class="tl-badges">
+          <span class="tl-badge run">1 member per team</span>
+          <span class="tl-badge run">📍 START pin</span>
+          <span class="tl-badge run">~7.5 km</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+</div>
+
+<hr class="divider">
+
+<!-- MAP -->
+<div class="page" style="padding-top:40px; padding-bottom:0;">
+  <div class="section-tag">Interactive Map</div>
+  <div class="section-title">Alster Lake — Key Locations</div>
+
+  <div class="map-wrap">
+    <div id="sat-map"></div>
+  </div>
+
+  <div class="map-legend">
+    <div class="map-legend-item"><div class="legend-dot pin-start"></div> START / Finish</div>
+    <div class="map-legend-item"><div class="legend-dot pin-bike1"></div> Stadtrad Station #1 (Individual Bike &amp; Staffel Bike Start)</div>
+    <div class="map-legend-item"><div class="legend-dot pin-bike2"></div> Stadtrad Station #2 (Staffel Handoff)</div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:10px;">Tap any pin to see details and open in Google Maps.</p>
+</div>
+
+<footer>
+  <p>&copy; 2026 Cortex United · ZMNH Hamburg</p>
+  <p style="margin-top:8px;opacity:0.7;">
+    <a href="index.html" style="color:var(--gold);text-decoration:none;">← Back to Lab Olympics homepage</a>
+  </p>
+</footer>
+
+<script>
+/* ── MAP SETUP ── */
+const map = L.map('sat-map', {
+  center: [53.569, 10.015],
+  zoom: 14,
+  zoomControl: true
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom: 19
+}).addTo(map);
+
+/* ── CUSTOM ICON FACTORY ── */
+function makeIcon(color, label) {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="34" height="44" viewBox="0 0 34 44">
+      <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter>
+      <path filter="url(#sh)" d="M17 0C7.6 0 0 7.6 0 17c0 12.75 17 27 17 27S34 29.75 34 17C34 7.6 26.4 0 17 0z" fill="${color}"/>
+      <circle cx="17" cy="17" r="8" fill="white" opacity="0.95"/>
+      <text x="17" y="21" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="10" fill="${color}" font-weight="bold">${label}</text>
+    </svg>`;
+  return L.divIcon({
+    html: svg,
+    iconSize: [34, 44],
+    iconAnchor: [17, 44],
+    popupAnchor: [0, -44],
+    className: ''
+  });
+}
+
+/* ── PIN DATA ── */
+const pins = [
+  {
+    lat: 53.5655,
+    lng: 10.0070,
+    color: '#ef4444',
+    label: 'S',
+    tag: '🏁 Start & Finish',
+    tagColor: '#ef4444',
+    title: 'START / FINISH',
+    body: 'Race start and finish for all events. <strong>Meet here at 13:00</strong> for the briefing. Individual bike (13:30), Staffel (13:45), and individual run (14:30) all start from this point.',
+    gmaps: 'https://maps.app.goo.gl/DSNHBwWUGc5YLxNN8'
+  },
+  {
+    lat: 53.5685,
+    lng: 10.0164,
+    color: '#2563eb',
+    label: '#1',
+    tag: '🚲 Stadtrad Station',
+    tagColor: '#2563eb',
+    title: 'STADTRAD STATION #1',
+    body: 'Pick up your Stadtrad bike here. Used by <strong>individual bikers</strong> and by the <strong>Staffel first leg</strong> (biker departs from here at 13:45).',
+    gmaps: 'https://www.google.com/maps/search/?api=1&query=53.568556,10.015525'
+  },
+  {
+    lat: 53.5685,
+    lng: 10.0158,
+    color: '#7c3aed',
+    label: '#2',
+    tag: '🔁 Staffel Handoff',
+    tagColor: '#7c3aed',
+    title: 'STADTRAD STATION #2',
+    body: '<strong>Staffel changeover point.</strong> The biker parks their Stadtrad here and tags the runner, who then sprints the final stretch back to the finish.',
+    gmaps: 'https://maps.app.goo.gl/Ma6p2YcDTAh4ee999'
+  }
+];
+
+pins.forEach(p => {
+  const marker = L.marker([p.lat, p.lng], { icon: makeIcon(p.color, p.label) }).addTo(map);
+  const popup = L.popup({ maxWidth: 260, minWidth: 220 }).setContent(`
+    <div class="popup-inner">
+      <div class="popup-tag" style="color:${p.tagColor};">${p.tag}</div>
+      <div class="popup-title">${p.title}</div>
+      <div class="popup-body">${p.body}</div>
+    </div>
+    <a class="popup-gmaps" href="${p.gmaps}" target="_blank" rel="noopener">
+      Open in Google Maps ↗
+    </a>
+  `);
+  marker.bindPopup(popup);
+});
+
+/* Fit map to all pins */
+const bounds = L.latLngBounds(pins.map(p => [p.lat, p.lng]));
+map.fitBounds(bounds, { padding: [40, 40] });
+</script>
+</body>
+</html>
