@@ -184,13 +184,18 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 36px
   <div class="info-grid">
     <div class="info-box">
       <div class="info-box-icon">📍</div>
-      <div class="info-box-title">Meeting Point</div>
-      <div class="info-box-body">Alster Lake shore near the race START pin. Arrive by <strong>14:00</strong> — briefing starts immediately. First gun at 14:15. Everyone should be done by ~16:15.</div>
+      <div class="info-box-title">Meeting Point — Most Athletes</div>
+      <div class="info-box-body">Everyone except Staffel runners meets at the <strong>START pin</strong> by <strong>14:00</strong>. Briefing starts immediately, first gun at 14:15. Done by ~16:15.</div>
+    </div>
+    <div class="info-box" style="border-top-color:#7c3aed;">
+      <div class="info-box-icon">🔁</div>
+      <div class="info-box-title">Meeting Point — Staffel Runners</div>
+      <div class="info-box-body">If you are the <strong>runner leg of the Staffel</strong>, go directly to <strong>Stadtrad Station #2</strong> (purple pin). Meet <strong>Simone</strong> there by <strong>14:00</strong> (max 14:10). Do not go to the START.</div>
     </div>
     <div class="info-box">
       <div class="info-box-icon">🚲</div>
-      <div class="info-box-title">Stadtrad Bikes</div>
-      <div class="info-box-body">Two Stadtrad stations are marked on the map. Individual bikers start at the first station; the Staffel handoff happens at the second.</div>
+      <div class="info-box-title">Stadtrad — How It Works</div>
+      <div class="info-box-body">Pick up a Stadtrad <strong>on your way there</strong> from any station near you. When you arrive at the marked station on the map, <strong>lock the bike and immediately re-rent it</strong> to reset the 30-min free timer before your race.</div>
     </div>
     <div class="info-box">
       <div class="info-box-icon">👟</div>
@@ -209,32 +214,35 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 36px
 
   <div class="timeline">
 
-    <!-- 14:00 -->
+    <!-- 14:00 — split meeting -->
     <div class="tl-item">
       <div class="tl-dot meet"></div>
       <div class="tl-card meet">
-        <div class="tl-time">14:00 <span class="tl-label">All athletes</span></div>
-        <div class="tl-name">🤝 Meeting & Briefing</div>
-        <div class="tl-desc">Everyone gathers at the START point on the Alster shore. Captains confirm participant lists, officials do a quick briefing on the route, rules, and timing. ~15 min.</div>
+        <div class="tl-time">14:00 <span class="tl-label">Meeting</span></div>
+        <div class="tl-name">🤝 Meeting & Briefing — Two Locations</div>
+        <div class="tl-desc">
+          <strong>Everyone except Staffel runners</strong> → meet at the <strong>START pin</strong> on the Alster shore. Captains confirm lists, quick briefing on route and rules.<br><br>
+          <strong>Staffel runners</strong> → go directly to <strong>Stadtrad Station #2</strong> (purple pin) and meet <strong>Simone</strong> there. Arrive by 14:00, max 14:10.
+        </div>
         <div class="tl-badges">
-          <span class="tl-badge meet">All teams</span>
-          <span class="tl-badge meet">📍 START pin</span>
+          <span class="tl-badge meet">📍 START — all others</span>
+          <span class="tl-badge both">📍 Station #2 — Staffel runners + Simone</span>
         </div>
       </div>
     </div>
 
-    <!-- 15:15 -->
+    <!-- 14:15 -->
     <div class="tl-item">
       <div class="tl-dot bike"></div>
       <div class="tl-card bike">
         <div class="tl-time">14:15 <span class="tl-label">Individual Bike Race</span></div>
         <div class="tl-name">🚲 Individual Bike Start</div>
         <div class="tl-desc">
-          Each team's solo cyclist picks up a <strong>Stadtrad bike</strong> at Station #1 (blue pin) and rides the ~7.5 km Alster loop. <strong>Rolling start</strong> — up to 5 min window to grab bikes and go, avoiding a bottleneck at the dock. Timing stops when you return the bike.
+          Solo cyclists lock &amp; re-rent their Stadtrad at <strong>Station #1</strong> (or #1b) to reset the free timer, then race the ~7.5 km Alster loop. <strong>Rolling start</strong> — up to 5 min window to avoid a bottleneck at the dock.
         </div>
         <div class="tl-badges">
           <span class="tl-badge bike">1 member per team</span>
-          <span class="tl-badge bike">🚲 Stadtrad Station #1</span>
+          <span class="tl-badge bike">🔄 Lock &amp; re-rent at Station #1</span>
           <span class="tl-badge bike">~7.5 km · ~30 min</span>
         </div>
       </div>
@@ -247,7 +255,7 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 36px
         <div class="tl-time">14:50 <span class="tl-label">Staffel Race</span></div>
         <div class="tl-name">🔁 Staffel Start — Bike Leg</div>
         <div class="tl-desc">
-          The Staffel relay kicks off. By now most individual bikers have departed and the station is free. The <strong>first member bikes</strong> from Station #1, rides roughly the first half of the loop to Station #2 (purple pin, ~15 min), parks the bike, and tags their partner.
+          The Staffel biker locks &amp; re-rents at <strong>Station #1</strong> to reset the timer, then rides the first half of the loop (~15 min) to Station #2, locks the bike there, and tags the waiting runner.
         </div>
         <div class="tl-badges">
           <span class="tl-badge both">2 members per team</span>
@@ -261,13 +269,14 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 36px
     <div class="tl-item">
       <div class="tl-dot" style="background:#7c3aed;box-shadow:0 0 0 2px #7c3aed;"></div>
       <div class="tl-card" style="border-left-color:#7c3aed;">
-        <div class="tl-time" style="font-size:20px; color:var(--muted);">↳ ~16:05 <span class="tl-label">Staffel Handoff</span></div>
+        <div class="tl-time" style="font-size:20px; color:var(--muted);">↳ ~15:05 <span class="tl-label">Staffel Handoff</span></div>
         <div class="tl-name">🤝 Staffel Changeover at Station #2</div>
         <div class="tl-desc">
-          The biker parks at <strong>Stadtrad Station #2</strong> (purple pin) and tags the runner, who sprints the remaining half of the loop back to the finish. Staffel teams expected to finish around <strong>~15:30</strong>.
+          The biker locks the Stadtrad at <strong>Station #2</strong> and tags their runner, who sprints the remaining half of the loop back to the finish. Staffel teams expected to finish around <strong>~15:30</strong>.
         </div>
         <div class="tl-badges">
           <span class="tl-badge both">📍 Stadtrad Station #2</span>
+          <span class="tl-badge both">👤 Simone coordinates here</span>
         </div>
       </div>
     </div>
@@ -305,7 +314,8 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 36px
 
   <div class="map-legend">
     <div class="map-legend-item"><div class="legend-dot pin-start"></div> START / Finish</div>
-    <div class="map-legend-item"><div class="legend-dot pin-bike1"></div> Stadtrad Station #1 (Individual Bike &amp; Staffel Bike Start)</div>
+    <div class="map-legend-item"><div class="legend-dot pin-bike1"></div> Stadtrad Station #1 — Primary (Individual Bike &amp; Staffel Start)</div>
+    <div class="map-legend-item"><div class="legend-dot" style="background:#38bdf8;"></div> Stadtrad Station #1b — Alternative</div>
     <div class="map-legend-item"><div class="legend-dot pin-bike2"></div> Stadtrad Station #2 (Staffel Handoff)</div>
   </div>
   <p style="font-size:12px;color:var(--muted);margin-top:10px;">Tap any pin to see details and open in Google Maps.</p>
@@ -363,26 +373,37 @@ const pins = [
     gmaps: 'https://maps.app.goo.gl/Pf3E3brEVxZkbLCq7'
   },
   {
-    lat: 53.568315,
-    lng: 10.01537,
+    lat: 53.5659546,
+    lng: 10.0192014,
     color: '#2563eb',
     label: '#1',
-    tag: '🚲 Stadtrad Station',
+    tag: '🚲 Stadtrad Station #1',
     tagColor: '#2563eb',
     title: 'STADTRAD STATION #1',
-    body: 'Pick up your Stadtrad bike here. Used by <strong>individual bikers</strong> and by the <strong>Staffel first leg</strong> (biker departs from here at 14:50).',
-    gmaps: 'https://maps.app.goo.gl/dxEmj9QyumxH59gT7'
+    body: '<strong>Primary bike pickup.</strong> Pick up your Stadtrad here for the individual bike race and the Staffel first leg (departs at 14:50). An alternative station is nearby — see Station #1b.',
+    gmaps: 'https://maps.app.goo.gl/mSG6an6PpNmHpsFCA'
   },
   {
-    lat: 53.5677452,
-    lng: 10.0012758,
+    lat: 53.567766,
+    lng: 10.016158,
+    color: '#38bdf8',
+    label: '1b',
+    tag: '🚲 Stadtrad Station #1b',
+    tagColor: '#0284c7',
+    title: 'STADTRAD STATION #1b',
+    body: '<strong>Alternative bike pickup</strong> — use this if Station #1 is full or crowded. Same purpose: individual bike start and Staffel first leg.',
+    gmaps: 'https://maps.app.goo.gl/anMD8xtiujmqd5k97'
+  },
+  {
+    lat: 53.567397,
+    lng: 10.0010502,
     color: '#7c3aed',
     label: '#2',
     tag: '🔁 Staffel Handoff',
     tagColor: '#7c3aed',
     title: 'STADTRAD STATION #2',
-    body: '<strong>Staffel changeover point.</strong> The biker parks their Stadtrad here and tags the runner, who then sprints the final stretch back to the finish.',
-    gmaps: 'https://maps.app.goo.gl/aZZyRn6S7v7JcPMd9'
+    body: '<strong>Staffel changeover point.</strong> The biker parks their Stadtrad here and tags the runner, who then sprints the remaining stretch back to the finish. <strong>Staffel runners meet here by 14:50</strong> — Simone will be on site to coordinate.',
+    gmaps: 'https://maps.app.goo.gl/okFGhwK32tDdSi9B9'
   }
 ];
 
