@@ -1349,7 +1349,8 @@ async function openEvent(evId) {
 
   // Manual results entry for all other events
   const manualDiv = document.getElementById('manual-results');
-  const manualInner = document.getElementById('manual-results-inner');
+  // The inner div's id gets renamed each time — always find it as the first child
+  const manualInner = manualDiv.querySelector('div');
   const manualEvents = ['run-long','bike','staffel','beachvolley','minigames','flunkyball'];
   if (manualEvents.includes(evId)) {
     manualDiv.style.display = 'block';
@@ -3030,33 +3031,36 @@ function rpUpdateOverlay() {
   const sbList   = document.getElementById('rp-sidebar-runners');
   const entries  = Object.entries(rpRunnersData);
   if (!entries.length) {
-    list.innerHTML  = '<div class="rp-no-runners">No runners yet</div>';
-    sbList.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0;">No runners sharing yet.</div>';
+    if (list)   list.innerHTML  = '<div class="rp-no-runners">No runners yet</div>';
+    if (sbList) sbList.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0;">No runners sharing yet.</div>';
     return;
   }
   entries.sort(([,a],[,b]) => b.active - a.active || a.name.localeCompare(b.name));
-  list.innerHTML = entries.map(([key, r]) => {
-    const color = rpGetColor(r.name);
-    const active = r.active && r.lat && !(r.lat===0&&r.lng===0);
-    return `<div class="rp-runner-row" onclick="rpFlyTo('${key}')">
-      <div class="rp-runner-dot" style="background:${color};${active?'box-shadow:0 0 5px '+color:'opacity:0.35'}"></div>
-      <div class="rp-runner-row-name">${escHtml(r.name)}</div>
-      <div class="rp-runner-row-status ${active?'':'off'}">${active?'ON':'OFF'}</div>
-    </div>`;
-  }).join('');
-  sbList.innerHTML = entries.map(([key, r]) => {
-    const color = rpGetColor(r.name);
-    const active = r.active && r.lat && !(r.lat===0&&r.lng===0);
-    const ago = r.timestamp ? rpTimeAgo(r.timestamp) : 'never';
-    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="rpFlyTo('${key}')">
-      <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;${active?'':'opacity:0.3'}"></div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(r.name)}</div>
-        <div style="font-size:11px;color:var(--muted);">${ago}</div>
-      </div>
-      <span style="font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:${active?'var(--green-pale)':'var(--cream)'};color:${active?'var(--green)':'var(--muted)'};">${active?'LIVE':'OFF'}</span>
-    </div>`;
-  }).join('');
+  if (list) {
+    list.innerHTML = entries.map(([key, r]) => {
+      const color = rpGetColor(r.name);
+      const active = r.active && r.lat && !(r.lat===0&&r.lng===0);
+      return `<div class="rp-runner-row" onclick="rpFlyTo('${key}')">
+        <div class="rp-runner-dot" style="background:${color};${active?'box-shadow:0 0 5px '+color:'opacity:0.35'}"></div>
+        <div class="rp-runner-row-name">${escHtml(r.name)}</div>
+        <div class="rp-runner-row-status ${active?'':'off'}">${active?'ON':'OFF'}</div>
+      </div>`;
+    }).join('');
+  }
+  if (sbList) {
+    sbList.innerHTML = entries.map(([key, r]) => {
+      const color = rpGetColor(r.name);
+      const active = r.active && r.lat && !(r.lat===0&&r.lng===0);
+      const ago = r.timestamp ? rpTimeAgo(r.timestamp) : 'never';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="rpFlyTo('${key}')">
+        <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;${active?'box-shadow:0 0 4px '+color:'opacity:0.35'}"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(r.name)}</div>
+          <div style="font-size:10px;color:var(--muted);">${active?'<span style="color:var(--green);font-weight:700;">LIVE</span>':'<span style="color:var(--muted);">offline</span>'} · ${ago}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
 }
 function rpUpdateSidebarRunners() { /* handled inside rpUpdateOverlay */ }
 
@@ -3102,8 +3106,17 @@ function openRacePage() {
   }
   requestAnimationFrame(() => {
     rpInitMap();
-    if (firebaseReady) rpListenFirebase();
-    else { /* firebase not configured — map still works without live data */ }
+    if (firebaseReady) {
+      rpListenFirebase();
+    } else {
+      // Firebase may still be initialising — retry a few times
+      let attempts = 0;
+      const waitForFb = setInterval(() => {
+        attempts++;
+        if (firebaseReady) { clearInterval(waitForFb); rpListenFirebase(); }
+        else if (attempts >= 20) clearInterval(waitForFb); // give up after 10 s
+      }, 500);
+    }
   });
 }
 
@@ -3216,15 +3229,16 @@ function rpSetDbStatus(ok, msg) {
   const row  = document.getElementById('rp-db-status');
   const text = document.getElementById('rp-db-text');
   if (!row || !text) return;
+  const dot = row.querySelector('div');
   if (ok) {
     row.style.background  = 'var(--green-pale)';
     row.style.borderColor = 'var(--green-border)';
-    row.querySelector('div').style.background = 'var(--green)';
+    if (dot) dot.style.background = 'var(--green)';
     text.style.color = 'var(--green)';
   } else {
     row.style.background  = 'var(--red-pale)';
     row.style.borderColor = 'var(--red-border)';
-    row.querySelector('div').style.background = 'var(--red)';
+    if (dot) dot.style.background = 'var(--red)';
     text.style.color = 'var(--red)';
   }
   text.textContent = msg;
