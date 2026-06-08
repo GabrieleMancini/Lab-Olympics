@@ -495,7 +495,7 @@ footer { background: var(--navy); color: #fff; text-align: center; padding: 40px
   <div class="hero-eyebrow">Cortex United presents</div>
   <div class="hero-title">Lab<span>Olympics</span></div>
   <div class="hero-dates">3 &ndash; 7 June 2026</div>
-  <p class="hero-sub">8 disciplines · 3 days · Minimum 4 members per lab · Hamburg</p>
+  <p class="hero-sub">6 disciplines · 3 days · Minimum 4 members per lab · Hamburg</p>
   <div class="rings-row">
     <div class="ring-o"></div><div class="ring-o"></div><div class="ring-o"></div>
     <div class="ring-o"></div><div class="ring-o"></div>
@@ -827,6 +827,9 @@ const events = [
 ];
 const SIGNUP_FORM_URL = "https://formspree.io/f/mgodzqon";
 
+// Disciplines excluded from scoring (cancelled due to rain)
+const EXCLUDED_DISCIPLINES = ['flunkyball', 'minigames'];
+
 /* ===================== SESSION ===================== */
 // In-memory only — clears on page refresh
 let session = null; // { teamName, memberName, isCaptain, teamObj }
@@ -986,6 +989,7 @@ async function Schedule() {
       const snap = await db.ref('discipline_scores').once('value');
       const disc = snap.val() || {};
       Object.entries(disc).forEach(([evId, scores]) => {
+        if (EXCLUDED_DISCIPLINES.includes(evId)) return; // skip cancelled events
         if (scores && Object.values(scores).some(v => v > 0)) completedEvents.add(evId);
       });
     }
@@ -1050,7 +1054,8 @@ async function Medals() {
       const byEvent = snap.val() || {};
       const totals = {};
       acceptedTeams.forEach(t => totals[t.name] = { name: t.name, gold:0, silver:0, bronze:0 });
-      Object.values(byEvent).forEach(ev => {
+      Object.entries(byEvent).forEach(([evId, ev]) => {
+        if (EXCLUDED_DISCIPLINES.includes(evId)) return; // skip cancelled events
         if (ev.gold   && totals[ev.gold])   totals[ev.gold].gold++;
         if (ev.silver && totals[ev.silver]) totals[ev.silver].silver++;
         if (ev.bronze && totals[ev.bronze]) totals[ev.bronze].bronze++;
@@ -1282,7 +1287,8 @@ async function Points() {
     if (db) {
       const snap = await db.ref('discipline_scores').once('value');
       const disc = snap.val() || {};
-      Object.values(disc).forEach(discObj => {
+      Object.entries(disc).forEach(([evId, discObj]) => {
+        if (EXCLUDED_DISCIPLINES.includes(evId)) return; // skip cancelled events
         Object.entries(discObj).forEach(([lab, pts]) => {
           if (totals[lab] !== undefined) totals[lab] += (pts || 0);
         });
