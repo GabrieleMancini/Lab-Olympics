@@ -1108,6 +1108,53 @@ async function pushEventResults(eventId, labScores, podium) {
 // Points lookup tables (9 labs)
 const TEAM_PTS_9 = [100,82,68,55,38,22,8,3,0];
 
+// Per-event tie configuration:
+// ties: array of tied positions (0-based indices that share the same rank).
+// E.g. [4,5] means slots 4 and 5 are tied at position 5 — both get TEAM_PTS_9[4],
+// and slot 6 onward skips to TEAM_PTS_9[6] (position 6 points are consumed by the tie).
+const EVENT_TIES = {
+  'beachvolley': { ties: [4, 5] }  // two teams tied at 5th place
+};
+
+// Given an eventId and the ordered lab list, compute the points to assign each slot,
+// honouring any configured ties (both tied slots get the higher position's points;
+// slots after the tie skip the consumed position).
+function mrComputeScores(eventId, order) {
+  const tieCfg = EVENT_TIES[eventId];
+  const scores = [];
+  let ptsIdx = 0; // pointer into TEAM_PTS_9
+  for (let i = 0; i < order.length; i++) {
+    if (tieCfg && tieCfg.ties.includes(i)) {
+      // All slots in the tie group get the points of the first tied slot
+      scores.push(TEAM_PTS_9[tieCfg.ties[0]] || 0);
+      // Only advance ptsIdx after the last tied slot
+      if (i === tieCfg.ties[tieCfg.ties.length - 1]) {
+        ptsIdx = tieCfg.ties[tieCfg.ties.length - 1] + 1;
+      }
+    } else {
+      scores.push(TEAM_PTS_9[ptsIdx] || 0);
+      ptsIdx++;
+    }
+  }
+  return scores;
+}
+
+// Compute the display rank label for each slot (tied slots share the same rank number)
+function mrComputeRanks(eventId, order) {
+  const tieCfg = EVENT_TIES[eventId];
+  return order.map((_, i) => {
+    if (tieCfg && tieCfg.ties.includes(i)) return tieCfg.ties[0] + 1; // 1-based
+    // Count how many slots before i are in a tie group and add the extra consumed slot
+    let rank = i + 1;
+    if (tieCfg) {
+      // For slots after the tie group, their display rank equals their array index + 1
+      // (they already naturally follow; no adjustment needed — the tie just means two
+      // entries share rank N and the next entry is N+2, which is index+1 naturally)
+    }
+    return rank;
+  });
+}
+
 /* ─── Manual results UI for non-automated events ─── */
 // eventId: Firebase key   eventName: display label   isTeam: true=one entry per lab, false=N/A
 function renderManualResultsUI(containerId, eventId, eventName) {
@@ -1115,7 +1162,6 @@ function renderManualResultsUI(containerId, eventId, eventName) {
   if (!wrap) return;
 
   const labNames = acceptedTeams.map(t => t.name);
-  const pts = TEAM_PTS_9;
 
   // Load any existing saved results from Firebase, then render
   const db = getFirebaseDb();
@@ -1126,38 +1172,53 @@ function renderManualResultsUI(containerId, eventId, eventName) {
         const snap = await db.ref(`discipline_scores/${eventId}`).once('value');
         const saved = snap.val();
         if (saved) {
-          // Reconstruct order from saved scores (sort desc)
+          // Reconstruct order from saved scores (sort desc, stable)
           savedOrder = [...labNames].sort((a,b) => (saved[b]||0)-(saved[a]||0));
         }
       }
     } catch(e) {}
 
     const order = savedOrder || [...labNames];
-    renderManualForm(wrap, eventId, eventName, order, pts);
+    renderManualForm(wrap, eventId, eventName, order);
   };
   loadAndRender();
 }
 
-function renderManualForm(wrap, eventId, eventName, order, pts) {
-  const labsSafe = acceptedTeams.map(t => escJs(t.name));
+function renderManualForm(wrap, eventId, eventName, order) {
+  const scores = mrComputeScores(eventId, order);
+  const ranks  = mrComputeRanks(eventId, order);
+  const tieCfg = EVENT_TIES[eventId];
+
   let html = `
     <div style="margin-top:20px;border-top:2px solid var(--gold);padding-top:16px;">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--navy);margin-bottom:6px;">📋 Final Results — ${eventName}</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Drag to reorder, or use the ↑↓ arrows. Then press <strong>Publish Results</strong> to update the main ranking and medals.</div>
-      <div id="mr-list-${eventId}" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">`;
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Drag to reorder, or use the ↑↓ arrows. Then press <strong>Publish Results</strong> to update the main ranking and medals.</div>`;
+
+  if (tieCfg) {
+    html += `<div style="font-size:12px;background:#eaf5f4;border:1.5px solid #0a625c;border-radius:6px;padding:10px 14px;color:#1a3a38;margin-bottom:14px;">
+      🤝 <strong>Tie configured:</strong> positions ${tieCfg.ties.map(i=>i+1).join(' & ')} share the same rank and points. Slots below skip the consumed position.
+    </div>`;
+  }
+
+  html += `<div id="mr-list-${eventId}" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">`;
 
   order.forEach((lab, i) => {
-    const p = pts[i] || 0;
-    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-    const bgCol = i===0?'var(--gold-pale)':i===1?'#f0f0f0':i===2?'#faf2e8':'var(--white)';
+    const p    = scores[i];
+    const rank = ranks[i];
+    const isTied = tieCfg && tieCfg.ties.includes(i);
+    const medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'';
+    const bgCol = rank===1?'var(--gold-pale)':rank===2?'#f0f0f0':rank===3?'#faf2e8':'var(--white)';
+    const rankLabel = isTied
+      ? `<span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);width:28px;text-align:center;" title="Tied">${rank}=</span>`
+      : `<span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold-light);width:28px;text-align:center;">${rank}</span>`;
     html += `<div class="mr-row" data-lab="${escJs(lab)}" data-idx="${i}"
-      style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);background:${bgCol};border-radius:3px;cursor:grab;user-select:none;"
+      style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);background:${bgCol};border-radius:3px;cursor:grab;user-select:none;${isTied?'border-left:3px solid var(--gold);':''}"
       draggable="true"
       ondragstart="mrDragStart(event,'${eventId}')"
       ondragover="mrDragOver(event,'${eventId}')"
       ondrop="mrDrop(event,'${eventId}')"
       ondragend="mrDragEnd('${eventId}')">
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold-light);width:28px;text-align:center;">${i+1}</span>
+      ${rankLabel}
       <span style="font-size:18px;width:24px;">${medal}</span>
       <span style="font-weight:600;font-size:13px;flex:1;color:var(--navy);">${lab}</span>
       <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--navy);margin-right:8px;">${p} pts</span>
@@ -1191,7 +1252,7 @@ function mrMove(eventId, idx, dir) {
   if (newIdx < 0 || newIdx >= order.length) return;
   [order[idx], order[newIdx]] = [order[newIdx], order[idx]];
   renderManualForm(document.getElementById(`mr-wrap-${eventId}`), eventId,
-    events.find(e=>e.id===eventId)?.name || eventId, order, TEAM_PTS_9);
+    events.find(e=>e.id===eventId)?.name || eventId, order);
 }
 
 let _mrDragSrc = null;
@@ -1215,7 +1276,7 @@ function mrDrop(e, eventId) {
   const [moved] = order.splice(fromIdx, 1);
   order.splice(toIdx, 0, moved);
   renderManualForm(document.getElementById(`mr-wrap-${eventId}`), eventId,
-    events.find(e=>e.id===eventId)?.name || eventId, order, TEAM_PTS_9);
+    events.find(e=>e.id===eventId)?.name || eventId, order);
 }
 function mrDragEnd(eventId) {
   if (_mrDragSrc) { _mrDragSrc.style.opacity = '1'; _mrDragSrc = null; }
@@ -1227,8 +1288,9 @@ async function mrPublish(eventId, eventName) {
   const btn = document.querySelector(`[onclick="mrPublish('${eventId}','${eventName}')"]`);
   if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
   try {
+    const scores = mrComputeScores(eventId, order);
     const labScores = {};
-    order.forEach((lab, i) => { labScores[lab] = TEAM_PTS_9[i] || 0; });
+    order.forEach((lab, i) => { labScores[lab] = scores[i]; });
     const podium = { gold: order[0]||null, silver: order[1]||null, bronze: order[2]||null };
     await pushEventResults(eventId, labScores, podium);
     const succ = document.getElementById(`mr-success-${eventId}`);
