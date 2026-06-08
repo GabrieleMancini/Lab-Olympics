@@ -830,6 +830,10 @@ const SIGNUP_FORM_URL = "https://formspree.io/f/mgodzqon";
 // Disciplines excluded from scoring (cancelled due to rain)
 const EXCLUDED_DISCIPLINES = ['flunkyball', 'minigames'];
 
+// Set to true to hide the Points Ranking table (e.g. before the official announcement).
+// Flip to false when ready to reveal.
+const HIDE_FINAL_RANKING = true;
+
 /* ===================== SESSION ===================== */
 // In-memory only — clears on page refresh
 let session = null; // { teamName, memberName, isCaptain, teamObj }
@@ -1337,6 +1341,15 @@ async function rsPushToMain(labScores, overall, draw) {
 async function Points() {
   const wrap = document.getElementById('points-content');
   if (!wrap) return;
+
+  if (HIDE_FINAL_RANKING) {
+    wrap.innerHTML = `<div style="text-align:center;padding:40px 20px;background:var(--white);border:1px solid var(--border);">
+      <div style="font-size:36px;margin-bottom:12px;">🏆</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--navy);margin-bottom:8px;">Results Coming Soon</div>
+      <div style="font-size:14px;color:var(--muted);max-width:320px;margin:0 auto;line-height:1.6;">The final rankings will be revealed at the closing ceremony. Stay tuned!</div>
+    </div>`;
+    return;
+  }
 
   // Base: static scores from pointsData (admin-entered via GitHub, for non-automated events)
   const totals = {};
